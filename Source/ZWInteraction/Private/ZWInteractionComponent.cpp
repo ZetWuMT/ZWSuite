@@ -6,14 +6,10 @@
 #include "Camera/CameraComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Modules/ModuleManager.h"
-//#include "FlowComponent.h"
 
 void UZWInteractionComponent::NotifyFlowGraph()
 {
-	//if (IsValid(FlowComponent) && bIsFlowNotifier)
-	//{
-	//	FlowComponent->NotifyGraph(NotifyTag);
-	//}
+	// Do nothing
 }
 
 // Sets default values for this component's properties
@@ -23,19 +19,10 @@ UZWInteractionComponent::UZWInteractionComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	//FlowComponent = CreateDefaultSubobject<UFlowComponent>(TEXT("FlowComponent"));
-
 	if (IsValid(GetOwner()))
 	{
 		InspectionArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("Arrow"));
 		InspectionArrowComponent->ArrowSize = 0.5f;
-		//InspectionArrowComponent->SetupAttachment(GetOwner()->GetRootComponent());
-		//InspectionArrowComponent->RegisterComponent();
-		//if (IsValid(GetOwner()->GetRootComponent()))
-		{
-		//	InspectionArrowComponent->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Arrow"));
-		//	InspectionArrowComponent->SetRelativeRotation(ArrowRotation);
-		}	
 	}	
 	
 	ActorGuid = FGuid::NewGuid();
@@ -248,12 +235,6 @@ void UZWInteractionComponent::DestroyComponent(bool bPromoteChildren)
 		InspectionArrowComponent->DestroyComponent();
 		InspectionArrowComponent = nullptr;
 	}
-
-	//if (FlowComponent)
-	//{
-	//	FlowComponent->DestroyComponent();
-	//	FlowComponent = nullptr;
-	//}
 
 	Super::DestroyComponent(bPromoteChildren);
 }

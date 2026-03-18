@@ -10,9 +10,7 @@
 
 class UZWInteractionSubsystem;
 class UCameraComponent;
-//class ACameraActor;
 class UArrowComponent;
-//class UFlowComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnRegisterActor, FGuid, ActorGuid);
 
@@ -33,8 +31,9 @@ public:
 
 	virtual void DestroyComponent(bool bPromoteChildren = false) override;
 	
+	// TODO: To be removed completely from the plugin!
 	UFUNCTION(BlueprintCallable)
-	void NotifyFlowGraph();
+	virtual void NotifyFlowGraph();
 
 	void Interact();
 
@@ -108,12 +107,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = "InteractionSystem")
 	bool bIsInvestigatable = false;
 
-	UPROPERTY(EditAnywhere, Category = "InteractionSystem")
-	bool bIsFlowNotifier = false;
-
-	UPROPERTY(EditAnywhere, Category = "InteractionSystem", meta = (EditCondition="bIsFlowNotifier", EditConditionHides))
-	FGameplayTag NotifyTag;
-
 	UPROPERTY(EditAnywhere, Category = "InteractionSystem|Inspection Settings", meta = (EditCondition="bIsInspectable", EditConditionHides))
 	bool bIsRotatable = true;
 
@@ -134,9 +127,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "InteractionSystem|Investigation Settings")
 	UCameraComponent* InvestigationCameraComponent;
-
-	//UPROPERTY(VisibleAnywhere, Category = "InteractionSystem|Components")
-	//UFlowComponent* FlowComponent;
 
 	bool bIsHighlighted = false;
 
