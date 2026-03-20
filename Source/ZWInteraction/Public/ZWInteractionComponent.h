@@ -70,7 +70,7 @@ public:
 	//AActor* ResolveInvestigationParentActor();
 
 #if WITH_EDITOR
-	void PostEditChangeProperty(struct FPropertyChangedEvent& e) override;
+	//void PostEditChangeProperty(struct FPropertyChangedEvent& e) override;
 	
 	//UFUNCTION(CallInEditor, Category = "InteractionSystem")
 	//void CreateCamera();
