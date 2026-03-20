@@ -6,7 +6,7 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "ZWInteractionSubsystem.generated.h"
 
-class AZWInteractionSceneCapture;
+class AInteractionSceneCapture;
 class UZWInteractionComponent;
 class USceneComponent;
 
@@ -35,21 +35,19 @@ class ZWINTERACTION_API UZWInteractionSubsystem : public UGameInstanceSubsystem
 	GENERATED_BODY()		
 
 public:
-	FSetInputModeDelegate SetInputMode;
+	//FSetInputModeDelegate SetInputMode;
 	
-	FStartInspectionDelegate StartInspectionDelegate;
-	FEndInspectionDelegate EndInspectionDelegate;
+	//FStartInspectionDelegate StartInspectionDelegate;
+	//FEndInspectionDelegate EndInspectionDelegate;
 
-	FOnInvestigationStarted OnInvestigationStarted;
-	FOnInvestigationEnded OnInvestigationEnded;
-	FOnInvestigationViewTargetChanged OnInvestigationViewTargetChanged;
+	//FOnInvestigationStarted OnInvestigationStarted;
+	//FOnInvestigationEnded OnInvestigationEnded;
+	//FOnInvestigationViewTargetChanged OnInvestigationViewTargetChanged;
 
-	UFUNCTION(BlueprintCallable)
-	bool IsPlayerInteracting() { return bIsPlayerInteracting; }
-	UFUNCTION(BlueprintCallable)
-	bool IsPlayerInspecting() { return bIsPlayerInspecting; }
-	UFUNCTION(BlueprintCallable)
-	bool IsPlayerInvestigating() { return bIsPlayerInvestigating; }
+	//UFUNCTION(BlueprintCallable)
+	//bool IsPlayerInspecting() { return bIsPlayerInspecting; }
+	//UFUNCTION(BlueprintCallable)
+	//bool IsPlayerInvestigating() { return bIsPlayerInvestigating; }
 
 	TObjectPtr<UZWInteractionComponent> GetInteractableObject() { return InteractableObject; }
 	void SetInteractableObject(TObjectPtr<UZWInteractionComponent> Object);
@@ -59,71 +57,66 @@ public:
 	void SetInteractedObject(TObjectPtr<UZWInteractionComponent> Object);
 	void ResetInteractedObject();
 
-	TObjectPtr<AZWInteractionSceneCapture> GetInteractionSceneCapture() { return InteractionSceneCapture; }
+	//TObjectPtr<AInteractionSceneCapture> GetInteractionSceneCapture() { return InteractionSceneCapture; }
 
-	void SpawnInteractionSceneCapture();
-	void DestroyInteractionSceneCapture();
+	//void SpawnInteractionSceneCapture();
+	//void DestroyInteractionSceneCapture();
 
-	void SetCamera(AActor* NewTarget);
-	FVector GetCameraLocation();
-	FRotator GetCameraRotation();
-	void UpdateCameraRotation(FVector2D LookAxisVector);
-
-	UFUNCTION(BlueprintCallable)
-	FRotator GetInitialCameraRotation() { return InitialInvestigationCameraRotation; }
-	UFUNCTION(BlueprintCallable)
-	FRotator GetOffsetRotation() { return CurrentRotationOffset; }
+	//void SetCamera(AActor* NewTarget);
+	//FVector GetCameraLocation();
+	//FRotator GetCameraRotation();
+	//void UpdateCameraRotation(FVector2D LookAxisVector);	
 	
-	UFUNCTION(BlueprintCallable, Category="Interaction System")
-	void StartInspection();
+	//UFUNCTION(BlueprintCallable, Category="Interaction System")
+	//void StartInspection();
 
-	void StartInspection(UClass* ItemClass, const FActorSpawnParameters& InActorParams, bool IsRotatable);
+	//void StartInspection(UClass* ItemClass, const FActorSpawnParameters& InActorParams, bool IsRotatable);
 
-	UFUNCTION(BlueprintCallable, Category="Interaction System")
-	void AdjustInspectionRotation(FRotator Rotation);
+	//UFUNCTION(BlueprintCallable, Category="Interaction System")
+	//void AdjustInspectionRotation(FRotator Rotation);
 	
-	UFUNCTION(BlueprintCallable, Category = "Interaction System")
-	void EndInspection();
+	//UFUNCTION(BlueprintCallable, Category = "Interaction System")
+	//void EndInspection();
 	
-	UFUNCTION(BlueprintCallable, Category = "Interaction System")
-	void ResolveInvestigation(AActor* NewTarget);
+	//UFUNCTION(BlueprintCallable, Category = "Interaction System")
+	//void ResolveInvestigation(AActor* NewTarget);
 
-	bool IsInvestigatedObject(AActor* InObject);
+	//bool IsInvestigatedObject(AActor* InObject);
 
-	UFUNCTION(BlueprintCallable, Category = "Interaction System")
-	void StartInvestigation(AActor* InitialTarget);
+	//UFUNCTION(BlueprintCallable, Category = "Interaction System")
+	//void StartInvestigation(AActor* InitialTarget);
 
-	UFUNCTION(BlueprintCallable, Category = "Interaction System")
-	void EndInvestigation();
+	//UFUNCTION(BlueprintCallable, Category = "Interaction System")
+	//void EndInvestigation();
 
 private:
-	UPROPERTY()
-	TObjectPtr<AActor> ClonedInspectedActor;
+	//UPROPERTY()
+	//TObjectPtr<AActor> ClonedInspectedActor;
 	
-	FRotator InitialInvestigationCameraRotation;
+	//FRotator InitialInvestigationCameraRotation;
 
-	FRotator CurrentRotationOffset;
+	//FRotator CurrentRotationOffset;
 
-	bool bIgnoreFirstInput = false;
+	//bool bIgnoreFirstInput = false;
 
 	bool bIsPlayerInteracting = false;
 
-	bool bIsPlayerInvestigating = false;
+	//bool bIsPlayerInvestigating = false;
 
-	bool bIsPlayerInspecting = false;
+	//bool bIsPlayerInspecting = false;
 
 	TObjectPtr<UZWInteractionComponent> InteractableObject = nullptr;
 
 	TObjectPtr<UZWInteractionComponent> InteractedObject = nullptr;
 
-	TObjectPtr<AZWInteractionSceneCapture> InteractionSceneCapture;
+	//TObjectPtr<AInteractionSceneCapture> InteractionSceneCapture;
 
-	TArray<TObjectPtr<UZWInteractionComponent>> InvestigatedObjects;
+	//TArray<TObjectPtr<UZWInteractionComponent>> InvestigatedObjects;
 
-	USceneComponent* ActiveCamera;
+	//USceneComponent* ActiveCamera;
 
 	//TODO: I need to pass the information about the parent camera to the subsystem somehow
-	AActor* ParentCamera = nullptr;
+	//AActor* ParentCamera = nullptr;
 
-	FRotator ActiveCameraRotation;
+	//FRotator ActiveCameraRotation;
 };

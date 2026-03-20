@@ -3,17 +3,9 @@
 
 #include "ZWInteractionSubsystem.h"
 #include "ZWInteractionComponent.h"
-#include "ZWInteractionSceneCapture.h"
-//#include "InteractionInspectionWidget.h"
-#include "CommonInputModeTypes.h"
-#include "CommonInputSubsystem.h"
-#include "EnhancedInputSubsystems.h"
-#include "ZWInteractionSystem_Settings.h"
-#include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
 #include "Camera/CameraComponent.h"
 #include "Components/ArrowComponent.h"
-#include "Input/CommonUIActionRouterBase.h"
 
 void UZWInteractionSubsystem::SetInteractableObject(TObjectPtr<UZWInteractionComponent> Object)
 {
@@ -41,7 +33,7 @@ void UZWInteractionSubsystem::ResetInteractedObject()
 {
 	InteractedObject = nullptr;
 }
-
+/*
 void UZWInteractionSubsystem::SpawnInteractionSceneCapture()
 {
 	if (!IsValid(InteractionSceneCapture))
@@ -49,7 +41,7 @@ void UZWInteractionSubsystem::SpawnInteractionSceneCapture()
 		FVector Location(0, 0, -2000);
 		FRotator Rotation(0, 0, 0);
 		FActorSpawnParameters SpawnInfo;
-		InteractionSceneCapture = GetWorld()->SpawnActor<AZWInteractionSceneCapture>(Location, Rotation, SpawnInfo);
+		InteractionSceneCapture = GetWorld()->SpawnActor<AInteractionSceneCapture>(Location, Rotation, SpawnInfo);
 	}	
 }
 
@@ -211,11 +203,11 @@ void UZWInteractionSubsystem::EndInspection()
 		SetInputMode.ExecuteIfBound(NoInteraction);
 	}
 	EndInspectionDelegate.Broadcast();
-/*
-	if (UProjectXUIManager* UIManager = GetWorld()->GetFirstLocalPlayerFromController()->GetSubsystem<UProjectXUIManager>())
-	{
-		UIManager->RequestGameInputMode();
-	}*/
+
+	//if (UProjectXUIManager* UIManager = GetWorld()->GetFirstLocalPlayerFromController()->GetSubsystem<UProjectXUIManager>())
+	//{
+	//	UIManager->RequestGameInputMode();
+	//}
 }
 
 void UZWInteractionSubsystem::ResolveInvestigation(AActor* NewTarget)
@@ -304,3 +296,4 @@ void UZWInteractionSubsystem::EndInvestigation()
 
 	OnInvestigationEnded.Broadcast();
 }
+*/

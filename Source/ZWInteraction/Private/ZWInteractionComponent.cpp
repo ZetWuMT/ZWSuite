@@ -6,12 +6,12 @@
 #include "Camera/CameraComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Modules/ModuleManager.h"
-
+/*
 void UZWInteractionComponent::NotifyFlowGraph()
 {
 	// Do nothing
 }
-
+*/
 // Sets default values for this component's properties
 UZWInteractionComponent::UZWInteractionComponent()
 {
@@ -21,8 +21,8 @@ UZWInteractionComponent::UZWInteractionComponent()
 
 	if (IsValid(GetOwner()))
 	{
-		InspectionArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("Arrow"));
-		InspectionArrowComponent->ArrowSize = 0.5f;
+		//InspectionArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("Arrow"));
+		//InspectionArrowComponent->ArrowSize = 0.5f;
 	}	
 	
 	ActorGuid = FGuid::NewGuid();
@@ -30,10 +30,10 @@ UZWInteractionComponent::UZWInteractionComponent()
 
 void UZWInteractionComponent::Interact()
 {
-	NotifyFlowGraph();
+	//NotifyFlowGraph();
 	OnInteract.Broadcast();
 }
-
+/*
 void UZWInteractionComponent::Inspect()
 {
 	NotifyFlowGraph();
@@ -49,24 +49,24 @@ void UZWInteractionComponent::Investigate()
 	InteractionSubsystem->ResolveInvestigation(GetOwner());
 	OnInvestigate.Broadcast();
 }
-
+*/
 void UZWInteractionComponent::ToggleHighlight(bool IsHighlighted)
 {
 	if (StaticMeshComponent == nullptr || InteractionSubsystem == nullptr) { return; }
 
-	if (IsInvestigationExclusive())
-	{
-		if (!InteractionSubsystem->IsPlayerInvestigating())
-		{
-			return;
-		}
-
-		InteractionSubsystem->SetInteractableObject(this);
-		StaticMeshComponent->SetRenderCustomDepth(IsHighlighted);
-		bIsHighlighted = IsHighlighted;
-
-		return;
-	}
+	//if (IsInvestigationExclusive())
+	//{
+	//	if (!InteractionSubsystem->IsPlayerInvestigating())
+	//	{
+	//		return;
+	//	}
+	//
+	//	InteractionSubsystem->SetInteractableObject(this);
+	//	StaticMeshComponent->SetRenderCustomDepth(IsHighlighted);
+	//	bIsHighlighted = IsHighlighted;
+	//
+	//	return;
+	//}
 
 	InteractionSubsystem->SetInteractableObject(this);
 	StaticMeshComponent->SetRenderCustomDepth(IsHighlighted);
@@ -77,7 +77,7 @@ void UZWInteractionComponent::BPToggleHighlight_Implementation(bool IsHighlighte
 {
 	ToggleHighlight(IsHighlighted);
 }
-
+/*
 #if WITH_EDITOR
 void UZWInteractionComponent::DestroyInteractiveActor()
 {
@@ -184,7 +184,7 @@ FRotator UZWInteractionComponent::GetInspectionRotationAdjustment()
 {
 	return InspectionRotationAdjustment;
 }
-
+*/
 // Called when the game starts
 void UZWInteractionComponent::BeginPlay()
 {
@@ -207,10 +207,10 @@ void UZWInteractionComponent::BeginPlay()
 	UGameInstance* GameInstance = GetOwner()->GetGameInstance();
 	InteractionSubsystem = GameInstance->GetSubsystem<UZWInteractionSubsystem>();
 
-	if (InvestigationCameraComponent)
-	{
-		InitialCameraRotation = InvestigationCameraComponent->GetRelativeRotation();
-	}
+	//if (InvestigationCameraComponent)
+	//{
+	//	InitialCameraRotation = InvestigationCameraComponent->GetRelativeRotation();
+	//}
 }
 
 // Called every frame
@@ -224,17 +224,17 @@ void UZWInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType
 
 void UZWInteractionComponent::DestroyComponent(bool bPromoteChildren)
 {
-	if (InvestigationCameraComponent)
-	{
-		InvestigationCameraComponent->DestroyComponent();
-		InvestigationCameraComponent = nullptr;
-	}
+	//if (InvestigationCameraComponent)
+	//{
+	//	InvestigationCameraComponent->DestroyComponent();
+	//	InvestigationCameraComponent = nullptr;
+	//}
 
-	if (InspectionArrowComponent)
-	{
-		InspectionArrowComponent->DestroyComponent();
-		InspectionArrowComponent = nullptr;
-	}
+	//if (InspectionArrowComponent)
+	//{
+	//	InspectionArrowComponent->DestroyComponent();
+	//	InspectionArrowComponent = nullptr;
+	//}
 
 	Super::DestroyComponent(bPromoteChildren);
 }

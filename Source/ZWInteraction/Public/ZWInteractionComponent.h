@@ -32,101 +32,92 @@ public:
 	virtual void DestroyComponent(bool bPromoteChildren = false) override;
 	
 	// TODO: To be removed completely from the plugin!
-	UFUNCTION(BlueprintCallable)
-	virtual void NotifyFlowGraph();
+	//UFUNCTION(BlueprintCallable)
+	//virtual void NotifyFlowGraph();
 
+	UFUNCTION(BlueprintCallable)
 	void Interact();
 
-	void Inspect();
+	//void Inspect();
 
-	void Investigate();
+	//void Investigate();
 
 	void ToggleHighlight(bool bIsHighlighted);
 
-	bool IsInspectable() { return bIsInspectable; }
+	//bool IsInspectable() { return bIsInspectable; }
 
-	bool IsInvestigatable() { return bIsInvestigatable; }
+	//bool IsInvestigatable() { return bIsInvestigatable; }
 
-	bool IsInvestigationExclusive() { return bInvestigationExclusive; }
+	//bool IsInvestigationExclusive() { return bInvestigationExclusive; }
 
 	bool IsHighlighted() { return bIsHighlighted; }
 
-	bool IsRotatable() { return bIsRotatable; }
+	//bool IsRotatable() { return bIsRotatable; }
 
 	void BPToggleHighlight_Implementation(bool bIsHighlighted);
 
-	FGuid GetActorGuid() { return ActorGuid; }
+	//FGuid GetActorGuid() { return ActorGuid; }
 
-	void DestroyInteractiveActor();
+	//void DestroyInteractiveActor();
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractDelegate);
 
 	UPROPERTY(BlueprintAssignable, Category="InteractionSystem")
 	FOnInteractDelegate OnInteract;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInspectDelegate);
-
-	UPROPERTY(BlueprintAssignable, Category = "InteractionSystem")
-	FOnInspectDelegate OnInspect;
-
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInvestigateDelegate);
-
-	UPROPERTY(BlueprintAssignable, Category = "InteractionSystem")
-	FOnInvestigateDelegate OnInvestigate;
-
 	FOnRegisterActor OnRegisterActor;
 
-	AActor* ResolveInvestigationParentActor();
+	//AActor* ResolveInvestigationParentActor();
 
 #if WITH_EDITOR
 	void PostEditChangeProperty(struct FPropertyChangedEvent& e) override;
 	
 	//UFUNCTION(CallInEditor, Category = "InteractionSystem")
-	void CreateCamera();
+	//void CreateCamera();
 
 	//UFUNCTION(CallInEditor, Category = "InteractionSystem")
-	void RemoveCamera();
+	//void RemoveCamera();
 
-	void CreateArrow();
+	//void CreateArrow();
 
-	void RemoveArrow();
+	//void RemoveArrow();
 #endif
 
-	UCameraComponent* GetCameraComponent();
+	//UCameraComponent* GetCameraComponent();
 
-	FRotator GetInspectionRotationAdjustment();
+	//FRotator GetInspectionRotationAdjustment();
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 private:
-	UPROPERTY(EditAnywhere, Category = "InteractionSystem")
-	bool bIsInspectable = false;
+	//UPROPERTY(EditAnywhere, Category = "InteractionSystem")
+	//bool bIsInspectable = false;
 
-	UPROPERTY(EditAnywhere, Category = "InteractionSystem")
-	bool bIsInvestigatable = false;
+	//UPROPERTY(EditAnywhere, Category = "InteractionSystem")
+	//bool bIsInvestigatable = false;
 
-	UPROPERTY(EditAnywhere, Category = "InteractionSystem|Inspection Settings", meta = (EditCondition="bIsInspectable", EditConditionHides))
-	bool bIsRotatable = true;
+	//UPROPERTY(EditAnywhere, Category = "InteractionSystem|Inspection Settings", meta = (EditCondition="bIsInspectable", EditConditionHides))
+	//bool bIsRotatable = true;
 
-	UPROPERTY(EditAnywhere, Category = "InteractionSystem|Inspection Settings", meta = (EditCondition="bIsInspectable", EditConditionHides))
-	FRotator InspectionRotationAdjustment;
+	//UPROPERTY(EditAnywhere, Category = "InteractionSystem|Inspection Settings", meta = (EditCondition="bIsInspectable", EditConditionHides))
+	//FRotator InspectionRotationAdjustment;
 
-	UPROPERTY(VisibleAnywhere, Category = "InteractionSystem|Inspection Settings", meta = (EditCondition="bIsInspectable", EditConditionHides))
-	UArrowComponent* InspectionArrowComponent;
+	//UPROPERTY(VisibleAnywhere, Category = "InteractionSystem|Inspection Settings", meta = (EditCondition="bIsInspectable", EditConditionHides))
+	//UArrowComponent* InspectionArrowComponent;
 	
-	UPROPERTY(EditAnywhere, Category = "InteractionSystem|Investigation Settings")
-	bool bInvestigationExclusive = false;
+	//UPROPERTY(EditAnywhere, Category = "InteractionSystem|Investigation Settings")
+	//bool bInvestigationExclusive = false;
 
-	UPROPERTY(EditAnywhere, Category = "InteractionSystem|Investigation Settings")
-	bool bUseParentForInvestigation = true;
+	//UPROPERTY(EditAnywhere, Category = "InteractionSystem|Investigation Settings")
+	//bool bUseParentForInvestigation = true;
 
-	UPROPERTY(EditAnywhere, Category = "InteractionSystem|Investigation Settings", meta = (EditCondition="!bUseParentForInvestigation", EditConditionHides))
-	AActor*  InvestigationParentActor = nullptr;
+	//UPROPERTY(EditAnywhere, Category = "InteractionSystem|Investigation Settings", meta = (EditCondition="!bUseParentForInvestigation", EditConditionHides))
+	//AActor*  InvestigationParentActor = nullptr;
 
-	UPROPERTY(VisibleAnywhere, Category = "InteractionSystem|Investigation Settings")
-	UCameraComponent* InvestigationCameraComponent;
+	//UPROPERTY(VisibleAnywhere, Category = "InteractionSystem|Investigation Settings")
+	//UCameraComponent* InvestigationCameraComponent;
 
 	bool bIsHighlighted = false;
 
@@ -136,7 +127,7 @@ private:
 
 	UStaticMeshComponent* StaticMeshComponent;
 
-	FVector CameraPosition = FVector(100, 0, 0);
-	FRotator CameraRotation = FRotator(0, 180, 0);
-	FRotator ArrowRotation = FRotator(0,0,0);
+	//FVector CameraPosition = FVector(100, 0, 0);
+	//FRotator CameraRotation = FRotator(0, 180, 0);
+	//FRotator ArrowRotation = FRotator(0,0,0);
 };

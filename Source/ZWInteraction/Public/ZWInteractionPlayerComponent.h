@@ -28,11 +28,11 @@ public:
 
 	void DetectInteractiveObjects();		
 	void Interact();
-	void EndInvestigation();
-	void InvestigationUpperLayer();
+	//void EndInvestigation();
+	//void InvestigationUpperLayer();
 
-	bool IsInspecting();
-	bool IsInvestigating();
+	//bool IsInspecting();
+	//bool IsInvestigating();
 
 protected:
 	// Called when the game starts
