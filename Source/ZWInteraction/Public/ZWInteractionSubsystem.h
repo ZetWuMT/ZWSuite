@@ -6,7 +6,6 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "ZWInteractionSubsystem.generated.h"
 
-class AInteractionSceneCapture;
 class UZWInteractionComponent;
 class USceneComponent;
 

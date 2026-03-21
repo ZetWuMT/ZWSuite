@@ -26,7 +26,9 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void DetectInteractiveObjects();		
+	void DetectInteractiveObjects();
+	void ResolveInteractiveObject(AActor* NewInteractableObject);
+	
 	void Interact();
 	//void EndInvestigation();
 	//void InvestigationUpperLayer();
@@ -38,9 +40,11 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;	
 	
+	virtual UZWInteractionComponent* GetInteractableObjectInteractionComponent(AActor* InteractableObject);
+	
 private:
 	UPROPERTY()
 	UZWInteractionSubsystem* InteractionSubsystem;
-
-	UZWInteractionComponent* GetInteractableObjectInteractionComponent(AActor* InteractableObject);
+	
+	//void SetInteractionDetector(UObject* NewDetector);
 };

@@ -9,17 +9,12 @@
 
 UZWInteractionComponent* UZWInteractionPlayerComponent::GetInteractableObjectInteractionComponent(AActor* InteractableObject)
 {
-	if (InteractableObject == nullptr) { return nullptr; }
-	UActorComponent* ActorComponent = InteractableObject->FindComponentByClass(UZWInteractionComponent::StaticClass());
-	if (ActorComponent != nullptr)
-	{
-		UZWInteractionComponent* InteractionComponent = Cast<UZWInteractionComponent>(ActorComponent);
-		if (InteractionComponent != nullptr)
-		{
-			return InteractionComponent;
-		}
+	if (!IsValid(InteractableObject)) 
+	{ 
+		return nullptr; 
 	}
-	return nullptr;
+	
+	return InteractableObject->GetComponentByClass<UZWInteractionComponent>();
 }
 
 // Sets default values for this component's properties
@@ -54,12 +49,7 @@ void UZWInteractionPlayerComponent::TickComponent(float DeltaTime, ELevelTick Ti
 void UZWInteractionPlayerComponent::DetectInteractiveObjects()
 {
 	//TODO: Maybe change into checking the EInteractionInputMode?
-	if (InteractionSubsystem == nullptr)// || !InteractionSubsystem->IsPlayerInvestigating())
-	{
-		return;
-	}
-	
-	//if (InteractionSubsystem->IsPlayerInspecting()) { return; }
+	if (InteractionSubsystem == nullptr) return;
 
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(GetOwner());
@@ -74,50 +64,36 @@ void UZWInteractionPlayerComponent::DetectInteractiveObjects()
 	
 	FHitResult HitResult;
 	bool Hit;
-	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 
-	//@TODO: Add new version of investigation - there should be a cursor and camera should follow it.  (Also UProjectXUIManager::RequestInvestigationInputMode)
-	//if (IsValid(PlayerController) && InteractionSubsystem->IsPlayerInvestigating())
-	//{
-	//	Hit = PlayerController->GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false, HitResult);
-	//}
-	//else
-	{
-		Hit = UKismetSystemLibrary::SphereTraceSingle(GetWorld(), Start, End, TraceRadius,
-		UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true);
-	}
+	Hit = UKismetSystemLibrary::SphereTraceSingle(GetWorld(), Start, End, TraceRadius,
+	UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true);
 	
 	if (Hit)
 	{
-		InteractionSubsystem->ResetInteractableObject();
-
-		if (IsValid(InteractionSubsystem->GetInteractedObject()) && InteractionSubsystem->GetInteractedObject()->GetOwner() == HitResult.GetActor()) { return; }
-
-		//if (InteractionSubsystem->IsPlayerInvestigating() && InteractionSubsystem->IsInvestigatedObject(HitResult.GetActor())) { return; }
-
-		UZWInteractionComponent* InteractableObject = GetInteractableObjectInteractionComponent(HitResult.GetActor());
-
-		if (InteractableObject)
-		{
-			//UE_LOG(LogTemp, Log, TEXT("%s"), *(InteractableObject->GetOwner()->GetName()))
-			//if (InteractableObject->IsInvestigationExclusive())
-			//{
-			//	if (IsInvestigating() && InteractableObject->ResolveInvestigationParentActor() == InteractionSubsystem->GetInteractedObject()->GetOwner())
-			//	{
-			//		InteractableObject->ToggleHighlight(true);
-			//	}
-			//}
-			//else
-			{
-				InteractableObject->ToggleHighlight(true);
-			}				
-		}
-		else
-		{
-			InteractionSubsystem->ResetInteractableObject();
-		}
+		ResolveInteractiveObject(HitResult.GetActor());
 	}
 	else if (InteractionSubsystem->GetInteractableObject() != nullptr)
+	{
+		InteractionSubsystem->ResetInteractableObject();
+	}
+}
+
+void UZWInteractionPlayerComponent::ResolveInteractiveObject(AActor* NewInteractableObject)
+{
+	InteractionSubsystem->ResetInteractableObject();
+
+	if (IsValid(InteractionSubsystem->GetInteractedObject()) && InteractionSubsystem->GetInteractedObject()->GetOwner() == NewInteractableObject) { return; }
+		
+	UZWInteractionComponent* InteractableObject = GetInteractableObjectInteractionComponent(NewInteractableObject);
+
+	if (InteractableObject)
+	{
+		{
+			//InteractionSubsystem->SetInteractableObject(InteractableObject);
+			InteractableObject->ToggleHighlight(true);
+		}				
+	}
+	else
 	{
 		InteractionSubsystem->ResetInteractableObject();
 	}
