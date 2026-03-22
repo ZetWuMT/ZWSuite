@@ -2,9 +2,6 @@
 
 
 #include "ZWInteractionComponent.h"
-#include "ZWInteractionSubsystem.h"
-#include "Camera/CameraComponent.h"
-#include "Components/ArrowComponent.h"
 #include "Modules/ModuleManager.h"
 /*
 void UZWInteractionComponent::NotifyFlowGraph()
@@ -52,23 +49,8 @@ void UZWInteractionComponent::Investigate()
 */
 void UZWInteractionComponent::ToggleHighlight(bool IsHighlighted)
 {
-	if (StaticMeshComponent == nullptr || InteractionSubsystem == nullptr) { return; }
-
-	//if (IsInvestigationExclusive())
-	//{
-	//	if (!InteractionSubsystem->IsPlayerInvestigating())
-	//	{
-	//		return;
-	//	}
-	//
-	//	InteractionSubsystem->SetInteractableObject(this);
-	//	StaticMeshComponent->SetRenderCustomDepth(IsHighlighted);
-	//	bIsHighlighted = IsHighlighted;
-	//
-	//	return;
-	//}
-
-	//InteractionSubsystem->SetInteractableObject(this);
+	if (StaticMeshComponent == nullptr) { return; }
+	
 	StaticMeshComponent->SetRenderCustomDepth(IsHighlighted);
 	bIsHighlighted = IsHighlighted;
 }
@@ -203,9 +185,6 @@ void UZWInteractionComponent::BeginPlay()
 	StaticMeshComponent->SetCustomDepthStencilValue(1);
 
 	StaticMeshComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
-
-	UGameInstance* GameInstance = GetOwner()->GetGameInstance();
-	InteractionSubsystem = GameInstance->GetSubsystem<UZWInteractionSubsystem>();
 
 	//if (InvestigationCameraComponent)
 	//{

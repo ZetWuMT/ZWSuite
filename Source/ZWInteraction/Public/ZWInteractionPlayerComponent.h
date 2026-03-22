@@ -40,7 +40,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;	
 	
-	virtual UZWInteractionComponent* GetInteractableObjectInteractionComponent(AActor* InteractableObject);
+	virtual UZWInteractionComponent* GetInteractableObjectInteractionComponent(AActor* InteractableActor);
 	
 	TObjectPtr<UZWInteractionComponent> GetInteractableObject() { return InteractableObject; }
 	void SetInteractableObject(TObjectPtr<UZWInteractionComponent> Object);
@@ -50,10 +50,7 @@ protected:
 	void SetInteractedObject(TObjectPtr<UZWInteractionComponent> Object);
 	void ResetInteractedObject();
 	
-private:
-	UPROPERTY()
-	UZWInteractionSubsystem* InteractionSubsystem;
-	
+private:	
 	UPROPERTY()
 	TObjectPtr<UZWInteractionComponent> InteractableObject = nullptr;
 

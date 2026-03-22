@@ -6,14 +6,14 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 
-UZWInteractionComponent* UZWInteractionPlayerComponent::GetInteractableObjectInteractionComponent(AActor* InteractableObject)
+UZWInteractionComponent* UZWInteractionPlayerComponent::GetInteractableObjectInteractionComponent(AActor* InteractableActor)
 {
-	if (!IsValid(InteractableObject)) 
+	if (!IsValid(InteractableActor)) 
 	{ 
 		return nullptr; 
 	}
 	
-	return InteractableObject->GetComponentByClass<UZWInteractionComponent>();
+	return InteractableActor->GetComponentByClass<UZWInteractionComponent>();
 }
 
 void UZWInteractionPlayerComponent::SetInteractableObject(TObjectPtr<UZWInteractionComponent> Object)
@@ -102,13 +102,13 @@ void UZWInteractionPlayerComponent::ResolveInteractiveObject(AActor* NewInteract
 
 	if (IsValid(GetInteractedObject()) && GetInteractedObject()->GetOwner() == NewInteractableObject) { return; }
 		
-	UZWInteractionComponent* InteractableObject = GetInteractableObjectInteractionComponent(NewInteractableObject);
+	UZWInteractionComponent* InteractionComponent = GetInteractableObjectInteractionComponent(NewInteractableObject);
 
-	if (InteractableObject)
+	if (InteractionComponent)
 	{
 		{
-			SetInteractableObject(InteractableObject);
-			InteractableObject->ToggleHighlight(true);
+			SetInteractableObject(InteractionComponent);
+			InteractionComponent->ToggleHighlight(true);
 		}				
 	}
 	else
@@ -121,8 +121,8 @@ void UZWInteractionPlayerComponent::Interact()
 {
 	//bool IsInvestigating = InteractionSubsystem->IsPlayerInvestigating();
 
-	TObjectPtr<UZWInteractionComponent> InteractableObject = GetInteractableObject();
-	if (InteractableObject != nullptr && InteractableObject->IsHighlighted())
+	TObjectPtr<UZWInteractionComponent> InteractionComponent = GetInteractableObject();
+	if (InteractionComponent != nullptr && InteractionComponent->IsHighlighted())
 	{
 		/*if (InteractableObject->IsInspectable())
 		{
@@ -136,7 +136,7 @@ void UZWInteractionPlayerComponent::Interact()
 			return;
 		}*/
 
-		InteractableObject->Interact();			
+		InteractionComponent->Interact();			
 	}
 	/*else
 	{

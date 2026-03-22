@@ -123,8 +123,6 @@ private:
 
 	FGuid ActorGuid;
 
-	UZWInteractionSubsystem* InteractionSubsystem;
-
 	UStaticMeshComponent* StaticMeshComponent;
 
 	//FVector CameraPosition = FVector(100, 0, 0);
