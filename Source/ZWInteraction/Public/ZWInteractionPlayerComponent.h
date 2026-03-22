@@ -42,9 +42,23 @@ protected:
 	
 	virtual UZWInteractionComponent* GetInteractableObjectInteractionComponent(AActor* InteractableObject);
 	
+	TObjectPtr<UZWInteractionComponent> GetInteractableObject() { return InteractableObject; }
+	void SetInteractableObject(TObjectPtr<UZWInteractionComponent> Object);
+	void ResetInteractableObject();
+
+	TObjectPtr<UZWInteractionComponent> GetInteractedObject() { return InteractedObject; }
+	void SetInteractedObject(TObjectPtr<UZWInteractionComponent> Object);
+	void ResetInteractedObject();
+	
 private:
 	UPROPERTY()
 	UZWInteractionSubsystem* InteractionSubsystem;
+	
+	UPROPERTY()
+	TObjectPtr<UZWInteractionComponent> InteractableObject = nullptr;
+
+	UPROPERTY()
+	TObjectPtr<UZWInteractionComponent> InteractedObject = nullptr;
 	
 	//void SetInteractionDetector(UObject* NewDetector);
 };

@@ -68,7 +68,7 @@ void UZWInteractionComponent::ToggleHighlight(bool IsHighlighted)
 	//	return;
 	//}
 
-	InteractionSubsystem->SetInteractableObject(this);
+	//InteractionSubsystem->SetInteractableObject(this);
 	StaticMeshComponent->SetRenderCustomDepth(IsHighlighted);
 	bIsHighlighted = IsHighlighted;
 }

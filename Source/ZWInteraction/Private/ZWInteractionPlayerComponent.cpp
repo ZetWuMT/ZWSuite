@@ -3,7 +3,6 @@
 
 #include "ZWInteractionPlayerComponent.h"
 #include "ZWInteractionComponent.h"
-#include "ZWInteractionSubsystem.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -15,6 +14,33 @@ UZWInteractionComponent* UZWInteractionPlayerComponent::GetInteractableObjectInt
 	}
 	
 	return InteractableObject->GetComponentByClass<UZWInteractionComponent>();
+}
+
+void UZWInteractionPlayerComponent::SetInteractableObject(TObjectPtr<UZWInteractionComponent> Object)
+{
+	if (IsValid(Object))
+	{
+		InteractableObject = Object;
+	}
+}
+
+void UZWInteractionPlayerComponent::ResetInteractableObject()
+{
+	if (InteractableObject)
+	{
+		InteractableObject->ToggleHighlight(false);
+		InteractableObject = nullptr;
+	}
+}
+
+void UZWInteractionPlayerComponent::SetInteractedObject(TObjectPtr<UZWInteractionComponent> Object)
+{
+	InteractedObject = Object;
+}
+
+void UZWInteractionPlayerComponent::ResetInteractedObject()
+{
+	InteractedObject = nullptr;
 }
 
 // Sets default values for this component's properties
@@ -31,11 +57,6 @@ UZWInteractionPlayerComponent::UZWInteractionPlayerComponent()
 void UZWInteractionPlayerComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	UGameInstance* GameInstance = GetOwner()->GetGameInstance();
-	InteractionSubsystem = GameInstance->GetSubsystem<UZWInteractionSubsystem>();
-
-	//InteractionSubsystem->SpawnInteractionSceneCapture();
 }
 
 // Called every frame
@@ -48,9 +69,6 @@ void UZWInteractionPlayerComponent::TickComponent(float DeltaTime, ELevelTick Ti
 
 void UZWInteractionPlayerComponent::DetectInteractiveObjects()
 {
-	//TODO: Maybe change into checking the EInteractionInputMode?
-	if (InteractionSubsystem == nullptr) return;
-
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(GetOwner());
 
@@ -72,30 +90,30 @@ void UZWInteractionPlayerComponent::DetectInteractiveObjects()
 	{
 		ResolveInteractiveObject(HitResult.GetActor());
 	}
-	else if (InteractionSubsystem->GetInteractableObject() != nullptr)
+	else if (GetInteractableObject() != nullptr)
 	{
-		InteractionSubsystem->ResetInteractableObject();
+		ResetInteractableObject();
 	}
 }
 
 void UZWInteractionPlayerComponent::ResolveInteractiveObject(AActor* NewInteractableObject)
 {
-	InteractionSubsystem->ResetInteractableObject();
+	ResetInteractableObject();
 
-	if (IsValid(InteractionSubsystem->GetInteractedObject()) && InteractionSubsystem->GetInteractedObject()->GetOwner() == NewInteractableObject) { return; }
+	if (IsValid(GetInteractedObject()) && GetInteractedObject()->GetOwner() == NewInteractableObject) { return; }
 		
 	UZWInteractionComponent* InteractableObject = GetInteractableObjectInteractionComponent(NewInteractableObject);
 
 	if (InteractableObject)
 	{
 		{
-			//InteractionSubsystem->SetInteractableObject(InteractableObject);
+			SetInteractableObject(InteractableObject);
 			InteractableObject->ToggleHighlight(true);
 		}				
 	}
 	else
 	{
-		InteractionSubsystem->ResetInteractableObject();
+		ResetInteractableObject();
 	}
 }
 
@@ -103,7 +121,7 @@ void UZWInteractionPlayerComponent::Interact()
 {
 	//bool IsInvestigating = InteractionSubsystem->IsPlayerInvestigating();
 
-	TObjectPtr<UZWInteractionComponent> InteractableObject = InteractionSubsystem->GetInteractableObject();
+	TObjectPtr<UZWInteractionComponent> InteractableObject = GetInteractableObject();
 	if (InteractableObject != nullptr && InteractableObject->IsHighlighted())
 	{
 		/*if (InteractableObject->IsInspectable())

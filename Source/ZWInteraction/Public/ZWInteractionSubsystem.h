@@ -48,13 +48,13 @@ public:
 	//UFUNCTION(BlueprintCallable)
 	//bool IsPlayerInvestigating() { return bIsPlayerInvestigating; }
 
-	TObjectPtr<UZWInteractionComponent> GetInteractableObject() { return InteractableObject; }
-	void SetInteractableObject(TObjectPtr<UZWInteractionComponent> Object);
-	void ResetInteractableObject();
+	//TObjectPtr<UZWInteractionComponent> GetInteractableObject() { return InteractableObject; }
+	//void SetInteractableObject(TObjectPtr<UZWInteractionComponent> Object);
+	//void ResetInteractableObject();
 
-	TObjectPtr<UZWInteractionComponent> GetInteractedObject() { return InteractedObject; }
-	void SetInteractedObject(TObjectPtr<UZWInteractionComponent> Object);
-	void ResetInteractedObject();
+	//TObjectPtr<UZWInteractionComponent> GetInteractedObject() { return InteractedObject; }
+	//void SetInteractedObject(TObjectPtr<UZWInteractionComponent> Object);
+	//void ResetInteractedObject();
 
 	//TObjectPtr<AInteractionSceneCapture> GetInteractionSceneCapture() { return InteractionSceneCapture; }
 
@@ -98,15 +98,15 @@ private:
 
 	//bool bIgnoreFirstInput = false;
 
-	bool bIsPlayerInteracting = false;
+	//bool bIsPlayerInteracting = false;
 
 	//bool bIsPlayerInvestigating = false;
 
 	//bool bIsPlayerInspecting = false;
 
-	TObjectPtr<UZWInteractionComponent> InteractableObject = nullptr;
+	//TObjectPtr<UZWInteractionComponent> InteractableObject = nullptr;
 
-	TObjectPtr<UZWInteractionComponent> InteractedObject = nullptr;
+	//TObjectPtr<UZWInteractionComponent> InteractedObject = nullptr;
 
 	//TObjectPtr<AInteractionSceneCapture> InteractionSceneCapture;
 

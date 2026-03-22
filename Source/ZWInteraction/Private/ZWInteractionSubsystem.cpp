@@ -6,7 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Camera/CameraComponent.h"
 #include "Components/ArrowComponent.h"
-
+/*
 void UZWInteractionSubsystem::SetInteractableObject(TObjectPtr<UZWInteractionComponent> Object)
 {
 	if (IsValid(Object))
@@ -33,7 +33,7 @@ void UZWInteractionSubsystem::ResetInteractedObject()
 {
 	InteractedObject = nullptr;
 }
-/*
+
 void UZWInteractionSubsystem::SpawnInteractionSceneCapture()
 {
 	if (!IsValid(InteractionSceneCapture))
