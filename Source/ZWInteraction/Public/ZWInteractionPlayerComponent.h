@@ -50,6 +50,8 @@ protected:
 	void SetInteractedObject(TObjectPtr<UZWInteractionComponent> Object);
 	void ResetInteractedObject();
 	
+	virtual TPair<FVector, FVector> ResolveLineTracePoints();
+	
 private:	
 	UPROPERTY()
 	TObjectPtr<UZWInteractionComponent> InteractableObject = nullptr;
