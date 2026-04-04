@@ -29,6 +29,7 @@ public:
 	void DetectInteractiveObjects();
 	void ResolveInteractiveObject(AActor* NewInteractableObject);
 	
+	UFUNCTION(BlueprintCallable)
 	void Interact();
 	//void EndInvestigation();
 	//void InvestigationUpperLayer();
