@@ -16,6 +16,6 @@ class ZWINTERACTION_API UZWInteractionSystem_Settings : public UObject
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(Config, EditAnywhere, Category = "Interaction System", DisplayName="Investigation Input Mapping Context")
-	TSoftObjectPtr<UInputMappingContext> InvestigationMappingContext;
+	UPROPERTY(Config, EditAnywhere, Category = "Interaction System", DisplayName="Interaction Collision Channel")
+	TEnumAsByte<ECollisionChannel> InteractionCollisionChannel;
 };

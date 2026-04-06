@@ -3,6 +3,7 @@
 
 #include "ZWInteractionPlayerComponent.h"
 #include "ZWInteractionComponent.h"
+#include "ZWInteractionSystem_Settings.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -88,8 +89,14 @@ void UZWInteractionPlayerComponent::DetectInteractiveObjects()
 	
 	FHitResult HitResult;
 
+	const UZWInteractionSystem_Settings* Settings = GetDefault<UZWInteractionSystem_Settings>();
+	
+	if (!Settings) return;
+	
+	ETraceTypeQuery CollisionTrace = UEngineTypes::ConvertToTraceType(Settings->InteractionCollisionChannel);
+
 	bool Hit = UKismetSystemLibrary::SphereTraceSingle(GetWorld(), TraceStart, TraceEnd, TraceRadius,
-													   UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false,
+													   CollisionTrace, false,
 													   ActorsToIgnore, EDrawDebugTrace::None, HitResult, true);
 	
 	if (Hit)
