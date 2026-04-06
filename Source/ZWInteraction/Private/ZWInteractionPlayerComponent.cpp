@@ -43,15 +43,16 @@ void UZWInteractionPlayerComponent::ResetInteractedObject()
 	InteractedObject = nullptr;
 }
 
-TPair<FVector, FVector> UZWInteractionPlayerComponent::ResolveLineTracePoints()
+void UZWInteractionPlayerComponent::ResolveLineTracePoints(FVector& TraceStart, FVector& TraceEnd, float& TraceRadius)
 {
 	FVector DetectorLocation = GetComponentLocation();
 	FRotator DetectorRotation = GetComponentRotation();
 	
-	FVector Start = DetectorLocation;
-	FVector End = Start + UKismetMathLibrary::GetForwardVector(DetectorRotation) * 300;
+	TraceStart = DetectorLocation;
+	TraceEnd = TraceStart + UKismetMathLibrary::GetForwardVector(DetectorRotation) * 300;
 
-	return { Start, End };
+	TraceRadius = 7.f;
+	//return { Start, End };
 }
 
 // Sets default values for this component's properties
@@ -83,15 +84,17 @@ void UZWInteractionPlayerComponent::DetectInteractiveObjects()
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(GetOwner());
 
-	TPair<FVector, FVector> LineTracePoints = ResolveLineTracePoints();
+	FVector TraceStart;
+	FVector TraceEnd;
+	float TraceRadius;// = 7.f;
 	
-	float TraceRadius = 7.f;
-
+	//TPair<FVector, FVector> LineTracePoints = 
+	ResolveLineTracePoints(TraceStart, TraceEnd, TraceRadius);
 	
 	FHitResult HitResult;
 	bool Hit;
 
-	Hit = UKismetSystemLibrary::SphereTraceSingle(GetWorld(), LineTracePoints.Key, LineTracePoints.Value, TraceRadius,
+	Hit = UKismetSystemLibrary::SphereTraceSingle(GetWorld(), TraceStart, TraceEnd, TraceRadius,
 	UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true);
 	
 	if (Hit)

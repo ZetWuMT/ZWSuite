@@ -51,7 +51,8 @@ protected:
 	void SetInteractedObject(TObjectPtr<UZWInteractionComponent> Object);
 	void ResetInteractedObject();
 	
-	virtual TPair<FVector, FVector> ResolveLineTracePoints();
+	//virtual TPair<FVector, FVector> ResolveLineTracePoints();
+	virtual void ResolveLineTracePoints(FVector& TraceStart, FVector& TraceEnd, float& TraceRadius);
 	
 private:	
 	UPROPERTY()
