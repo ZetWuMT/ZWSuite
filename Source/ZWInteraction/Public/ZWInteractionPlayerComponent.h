@@ -23,7 +23,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	UFUNCTION(BlueprintCallable)
-	void Interact();
+	virtual void Interact();
 
 protected:
 	virtual void ResolveLineTracePoints(FVector& TraceStart, FVector& TraceEnd, float& TraceRadius);
