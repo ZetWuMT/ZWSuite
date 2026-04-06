@@ -27,6 +27,7 @@ public:
 
 protected:
 	virtual void ResolveLineTracePoints(FVector& TraceStart, FVector& TraceEnd, float& TraceRadius);
+	virtual void ResolveLineTraceIgnoredActors(TArray<AActor*>& ActorsToIgnore);
 	
 	virtual UZWInteractionComponent* GetInteractableObjectInteractionComponent(AActor* InteractableActor);
 	

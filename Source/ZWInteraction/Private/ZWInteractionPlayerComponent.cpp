@@ -39,6 +39,11 @@ void UZWInteractionPlayerComponent::ResolveLineTracePoints(FVector& TraceStart, 
 	TraceRadius = 7.f;
 }
 
+void UZWInteractionPlayerComponent::ResolveLineTraceIgnoredActors(TArray<AActor*>& ActorsToIgnore)
+{
+	//Do nothing
+}
+
 UZWInteractionComponent* UZWInteractionPlayerComponent::GetInteractableObjectInteractionComponent(AActor* InteractableActor)
 {
 	if (!IsValid(InteractableActor)) 
@@ -86,6 +91,7 @@ void UZWInteractionPlayerComponent::DetectInteractiveObjects()
 	float TraceRadius;
 	
 	ResolveLineTracePoints(TraceStart, TraceEnd, TraceRadius);
+	ResolveLineTraceIgnoredActors(ActorsToIgnore);
 	
 	FHitResult HitResult;
 
