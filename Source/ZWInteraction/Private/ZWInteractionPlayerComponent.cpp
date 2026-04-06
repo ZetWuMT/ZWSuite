@@ -6,6 +6,38 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 
+UZWInteractionPlayerComponent::UZWInteractionPlayerComponent()
+{
+	PrimaryComponentTick.bCanEverTick = true;
+}
+
+void UZWInteractionPlayerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	DetectInteractiveObjects();
+}
+
+void UZWInteractionPlayerComponent::Interact()
+{
+	TObjectPtr<UZWInteractionComponent> InteractionComponent = GetInteractableObject();
+	if (InteractionComponent != nullptr && InteractionComponent->IsHighlighted())
+	{
+		InteractionComponent->Interact();			
+	}
+}
+
+void UZWInteractionPlayerComponent::ResolveLineTracePoints(FVector& TraceStart, FVector& TraceEnd, float& TraceRadius)
+{
+	const FVector DetectorLocation = GetComponentLocation();
+	const FRotator DetectorRotation = GetComponentRotation();
+	
+	TraceStart = DetectorLocation;
+	TraceEnd = TraceStart + UKismetMathLibrary::GetForwardVector(DetectorRotation) * 300;
+
+	TraceRadius = 7.f;
+}
+
 UZWInteractionComponent* UZWInteractionPlayerComponent::GetInteractableObjectInteractionComponent(AActor* InteractableActor)
 {
 	if (!IsValid(InteractableActor)) 
@@ -43,42 +75,6 @@ void UZWInteractionPlayerComponent::ResetInteractedObject()
 	InteractedObject = nullptr;
 }
 
-void UZWInteractionPlayerComponent::ResolveLineTracePoints(FVector& TraceStart, FVector& TraceEnd, float& TraceRadius)
-{
-	FVector DetectorLocation = GetComponentLocation();
-	FRotator DetectorRotation = GetComponentRotation();
-	
-	TraceStart = DetectorLocation;
-	TraceEnd = TraceStart + UKismetMathLibrary::GetForwardVector(DetectorRotation) * 300;
-
-	TraceRadius = 7.f;
-	//return { Start, End };
-}
-
-// Sets default values for this component's properties
-UZWInteractionPlayerComponent::UZWInteractionPlayerComponent()
-{
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
-}
-
-// Called when the game starts
-void UZWInteractionPlayerComponent::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
-// Called every frame
-void UZWInteractionPlayerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	DetectInteractiveObjects();
-}
-
 void UZWInteractionPlayerComponent::DetectInteractiveObjects()
 {
 	TArray<AActor*> ActorsToIgnore;
@@ -86,16 +82,15 @@ void UZWInteractionPlayerComponent::DetectInteractiveObjects()
 
 	FVector TraceStart;
 	FVector TraceEnd;
-	float TraceRadius;// = 7.f;
+	float TraceRadius;
 	
-	//TPair<FVector, FVector> LineTracePoints = 
 	ResolveLineTracePoints(TraceStart, TraceEnd, TraceRadius);
 	
 	FHitResult HitResult;
-	bool Hit;
 
-	Hit = UKismetSystemLibrary::SphereTraceSingle(GetWorld(), TraceStart, TraceEnd, TraceRadius,
-	UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true);
+	bool Hit = UKismetSystemLibrary::SphereTraceSingle(GetWorld(), TraceStart, TraceEnd, TraceRadius,
+													   UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false,
+													   ActorsToIgnore, EDrawDebugTrace::None, HitResult, true);
 	
 	if (Hit)
 	{
@@ -112,10 +107,8 @@ void UZWInteractionPlayerComponent::ResolveInteractiveObject(AActor* NewInteract
 	ResetInteractableObject();
 
 	if (IsValid(GetInteractedObject()) && GetInteractedObject()->GetOwner() == NewInteractableObject) { return; }
-		
-	UZWInteractionComponent* InteractionComponent = GetInteractableObjectInteractionComponent(NewInteractableObject);
 
-	if (InteractionComponent)
+	if (UZWInteractionComponent* InteractionComponent = GetInteractableObjectInteractionComponent(NewInteractableObject))
 	{
 		{
 			SetInteractableObject(InteractionComponent);
@@ -127,59 +120,3 @@ void UZWInteractionPlayerComponent::ResolveInteractiveObject(AActor* NewInteract
 		ResetInteractableObject();
 	}
 }
-
-void UZWInteractionPlayerComponent::Interact()
-{
-	//bool IsInvestigating = InteractionSubsystem->IsPlayerInvestigating();
-
-	TObjectPtr<UZWInteractionComponent> InteractionComponent = GetInteractableObject();
-	if (InteractionComponent != nullptr && InteractionComponent->IsHighlighted())
-	{
-		/*if (InteractableObject->IsInspectable())
-		{
-			InteractableObject->Inspect();
-			return;
-		}
-
-		if (InteractableObject->IsInvestigatable())
-		{
-			InteractableObject->Investigate();
-			return;
-		}*/
-
-		InteractionComponent->Interact();			
-	}
-	/*else
-	{
-		if (IsInvestigating)
-		{
-			InteractionSubsystem->ResolveInvestigation(nullptr);
-		}
-	}*/
-}
-/*
-void UZWInteractionPlayerComponent::EndInvestigation()
-{
-	if (InteractionSubsystem->IsPlayerInvestigating())
-	{
-		InteractionSubsystem->EndInvestigation();
-	}
-}
-
-void UZWInteractionPlayerComponent::InvestigationUpperLayer()
-{
-	if (InteractionSubsystem->IsPlayerInvestigating())
-	{
-		InteractionSubsystem->ResolveInvestigation(nullptr);
-	}
-}
-
-bool UZWInteractionPlayerComponent::IsInspecting()
-{
-	return InteractionSubsystem->IsPlayerInspecting();
-}
-
-bool UZWInteractionPlayerComponent::IsInvestigating()
-{
-	return InteractionSubsystem->IsPlayerInvestigating();
-}*/

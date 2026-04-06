@@ -16,30 +16,17 @@ UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ZWINTERACTION_API UZWInteractionPlayerComponent : public UArrowComponent
 {
 	GENERATED_BODY()
-
-
-
+	
 public:	
-	// Sets default values for this component's properties
 	UZWInteractionPlayerComponent();
 	
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	void DetectInteractiveObjects();
-	void ResolveInteractiveObject(AActor* NewInteractableObject);
 	
 	UFUNCTION(BlueprintCallable)
 	void Interact();
-	//void EndInvestigation();
-	//void InvestigationUpperLayer();
-
-	//bool IsInspecting();
-	//bool IsInvestigating();
 
 protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;	
+	virtual void ResolveLineTracePoints(FVector& TraceStart, FVector& TraceEnd, float& TraceRadius);
 	
 	virtual UZWInteractionComponent* GetInteractableObjectInteractionComponent(AActor* InteractableActor);
 	
@@ -50,16 +37,14 @@ protected:
 	TObjectPtr<UZWInteractionComponent> GetInteractedObject() { return InteractedObject; }
 	void SetInteractedObject(TObjectPtr<UZWInteractionComponent> Object);
 	void ResetInteractedObject();
-	
-	//virtual TPair<FVector, FVector> ResolveLineTracePoints();
-	virtual void ResolveLineTracePoints(FVector& TraceStart, FVector& TraceEnd, float& TraceRadius);
-	
+
 private:	
+	void DetectInteractiveObjects();
+	void ResolveInteractiveObject(AActor* NewInteractableObject);
+	
 	UPROPERTY()
 	TObjectPtr<UZWInteractionComponent> InteractableObject = nullptr;
 
 	UPROPERTY()
 	TObjectPtr<UZWInteractionComponent> InteractedObject = nullptr;
-	
-	//void SetInteractionDetector(UObject* NewDetector);
 };
