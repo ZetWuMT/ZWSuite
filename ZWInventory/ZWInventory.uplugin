@@ -2,10 +2,10 @@
 	"FileVersion": 3,
 	"Version": 1,
 	"VersionName": "1.0",
-	"FriendlyName": "ZWGameplayActions",
+	"FriendlyName": "ZWInventory",
 	"Description": "",
 	"Category": "Other",
-	"CreatedBy": "",
+	"CreatedBy": "tiramisoo",
 	"CreatedByURL": "",
 	"DocsURL": "",
 	"MarketplaceURL": "",
@@ -15,19 +15,19 @@
 	"Installed": false,
 	"Modules": [
 		{
-			"Name": "ZWGameplayActions",
+			"Name": "ZWInventory",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		},
 		{
-			"Name": "ZWGameplayActionsEditor",
+			"Name": "ZWInventoryEditor",
 			"Type": "Editor",
 			"LoadingPhase": "Default"
 		}
 	],
 	"Plugins": [
 		{
-			"Name": "EnhancedInput",
+			"Name": "ZWInteraction",
 			"Enabled": true
 		}
 	]
