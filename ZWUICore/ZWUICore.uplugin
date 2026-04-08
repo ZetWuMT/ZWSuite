@@ -1,0 +1,38 @@
+﻿{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "ZWUICore",
+	"Description": "Decoupled UI Core framework based on CommonUI.",
+	"Category": "UI",
+	"CreatedBy": "tiramisoo",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "ZWUICore",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+    "Plugins": [
+		{
+			"Name": "ZWCore",
+			"Enabled": true
+		},
+        {
+          "Name": "CommonUI",
+          "Enabled": true
+        },
+        {
+          "Name": "EnhancedInput",
+          "Enabled": true
+        }
+]
+    
+}
