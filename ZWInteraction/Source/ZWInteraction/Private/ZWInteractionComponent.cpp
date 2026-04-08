@@ -2,218 +2,74 @@
 
 
 #include "ZWInteractionComponent.h"
+
+#include "ZWInteractionSystemSettings.h"
 #include "Modules/ModuleManager.h"
-/*
-void UZWInteractionComponent::NotifyFlowGraph()
-{
-	// Do nothing
-}
-*/
-// Sets default values for this component's properties
+
 UZWInteractionComponent::UZWInteractionComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	if (IsValid(GetOwner()))
-	{
-		//InspectionArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("Arrow"));
-		//InspectionArrowComponent->ArrowSize = 0.5f;
-	}	
-	
-	ActorGuid = FGuid::NewGuid();
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 void UZWInteractionComponent::Interact()
 {
-	//NotifyFlowGraph();
 	OnInteract.Broadcast();
 }
-/*
-void UZWInteractionComponent::Inspect()
-{
-	NotifyFlowGraph();
-	InteractionSubsystem->StartInspection();
-	InteractionSubsystem->AdjustInspectionRotation(InspectionRotationAdjustment);
-	OnInspect.Broadcast();
-}
 
-void UZWInteractionComponent::Investigate()
-{
-	NotifyFlowGraph();
-	InvestigationCameraComponent->SetRelativeRotation(InitialCameraRotation);
-	InteractionSubsystem->ResolveInvestigation(GetOwner());
-	OnInvestigate.Broadcast();
-}
-*/
 void UZWInteractionComponent::ToggleHighlight(bool IsHighlighted)
 {
-	if (StaticMeshComponent == nullptr) { return; }
-	
-	StaticMeshComponent->SetRenderCustomDepth(IsHighlighted);
-	bIsHighlighted = IsHighlighted;
-}
-
-void UZWInteractionComponent::BPToggleHighlight_Implementation(bool IsHighlighted)
-{
-	ToggleHighlight(IsHighlighted);
-}
-/*
-#if WITH_EDITOR
-void UZWInteractionComponent::DestroyInteractiveActor()
-{
-	OnRegisterActor.Broadcast(ActorGuid);
-	GetOwner()->Destroy();
-}
-
-AActor* UZWInteractionComponent::ResolveInvestigationParentActor()
-{
-	if (bUseParentForInvestigation)
+	bool bShouldBeHighlighted = false;
+	if (StaticMeshComponent != nullptr)
 	{
-		return GetOwner()->GetAttachParentActor();
+		StaticMeshComponent->SetRenderCustomDepth(IsHighlighted);
+		bShouldBeHighlighted = IsHighlighted;
 	}
-	return InvestigationParentActor;
-}
-
-void UZWInteractionComponent::PostEditChangeProperty(FPropertyChangedEvent& e)
-{
-	FName PropertyName = (e.Property != NULL) ? e.Property->GetFName() : NAME_None;
-	if (PropertyName == GET_MEMBER_NAME_CHECKED(UZWInteractionComponent, bIsInvestigatable))
-	{		
-		if (bIsInvestigatable)
-		{
-			CreateCamera();
-		}
-		else
-		{
-			RemoveCamera();
-		}
+	if (SkeletalMeshComponent != nullptr)
+	{
+		SkeletalMeshComponent->SetRenderCustomDepth(IsHighlighted);
+		bShouldBeHighlighted = IsHighlighted;
 	}
 	
-	if (PropertyName == GET_MEMBER_NAME_CHECKED(UZWInteractionComponent, bIsInspectable))
-	{		
-		if (bIsInspectable)
-		{
-			//CreateArrow();
-		}
-		else
-		{
-			//RemoveArrow();
-		}
-	}	
-
-	Super::PostEditChangeProperty(e);
+	bIsHighlighted = bShouldBeHighlighted;
 }
 
-void UZWInteractionComponent::CreateCamera()
-{
-	if (!InvestigationCameraComponent)
-	{
-		InvestigationCameraComponent = NewObject<UCameraComponent>(this, UCameraComponent::StaticClass(), TEXT("Camera"));
-		InvestigationCameraComponent->RegisterComponent();
-		if (IsValid(GetOwner()->GetRootComponent()))
-		{
-			InvestigationCameraComponent->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Camera"));
-			InvestigationCameraComponent->SetRelativeLocation(CameraPosition);
-			InvestigationCameraComponent->SetRelativeRotation(CameraRotation);
-		}
-	}
-}
-
-void UZWInteractionComponent::RemoveCamera()
-{
-	if (InvestigationCameraComponent != nullptr)
-	{
-		CameraPosition = InvestigationCameraComponent->GetRelativeLocation();
-		CameraRotation = InvestigationCameraComponent->GetRelativeRotation();
-		InvestigationCameraComponent->DestroyComponent();
-		InvestigationCameraComponent = nullptr;
-	}
-}
-void UZWInteractionComponent::CreateArrow()
-{
-	if (!InspectionArrowComponent)
-	{
-		InspectionArrowComponent = NewObject<UArrowComponent>(this, UArrowComponent::StaticClass(), TEXT("Arrow"));
-		InspectionArrowComponent->ArrowSize = 0.5f;
-		InspectionArrowComponent->RegisterComponent();
-		if (IsValid(GetOwner()->GetRootComponent()))
-		{
-			InspectionArrowComponent->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Arrow"));
-			InspectionArrowComponent->SetRelativeRotation(ArrowRotation);
-		}
-	}
-}
-
-void UZWInteractionComponent::RemoveArrow()
-{
-	if (InspectionArrowComponent != nullptr)
-	{
-		ArrowRotation = InspectionArrowComponent->GetRelativeRotation();
-		InspectionArrowComponent->DestroyComponent();
-		InspectionArrowComponent = nullptr;
-	}
-}
-#endif
-
-UCameraComponent *UZWInteractionComponent::GetCameraComponent()
-{
-	return InvestigationCameraComponent;
-}
-
-FRotator UZWInteractionComponent::GetInspectionRotationAdjustment()
-{
-	return InspectionRotationAdjustment;
-}
-*/
-// Called when the game starts
 void UZWInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
 	AActor* Owner = GetOwner();
+	
+	// Setting up Interaction Response for a Static Mesh Component 
 	UActorComponent* ActorComponent = Owner->GetComponentByClass(UStaticMeshComponent::StaticClass());
 	if (ActorComponent == nullptr)
 	{
 		ActorComponent = Owner->FindComponentByTag(UStaticMeshComponent::StaticClass(), FName(TEXT("MainInteractionMesh")));
 	}
-	StaticMeshComponent = Cast<UStaticMeshComponent>(ActorComponent);
+	StaticMeshComponent = Cast<UStaticMeshComponent>(ActorComponent);	
+	if (StaticMeshComponent != nullptr)
+	{
+		StaticMeshComponent->SetCustomDepthStencilValue(1);
+
+		if (const UZWInteractionSystemSettings* Settings = GetDefault<UZWInteractionSystemSettings>())
+		{
+			StaticMeshComponent->SetCollisionResponseToChannel(Settings->InteractionCollisionChannel, ECollisionResponse::ECR_Block);
+		}
+	}	
 	
-	if (StaticMeshComponent == nullptr) { return; }
-	
-	StaticMeshComponent->SetCustomDepthStencilValue(1);
+	// Setting up Interaction Response for a Skeletal Mesh Component
+	ActorComponent = Owner->GetComponentByClass(USkeletalMeshComponent::StaticClass());
+	if (ActorComponent == nullptr)
+	{
+		ActorComponent = Owner->FindComponentByTag(USkeletalMeshComponent::StaticClass(), FName(TEXT("MainInteractionMesh")));
+	}
+	SkeletalMeshComponent = Cast<USkeletalMeshComponent>(ActorComponent);	
+	if (SkeletalMeshComponent != nullptr)
+	{
+		SkeletalMeshComponent->SetCustomDepthStencilValue(1);
 
-	StaticMeshComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
-
-	//if (InvestigationCameraComponent)
-	//{
-	//	InitialCameraRotation = InvestigationCameraComponent->GetRelativeRotation();
-	//}
-}
-
-// Called every frame
-void UZWInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-	
-}
-
-void UZWInteractionComponent::DestroyComponent(bool bPromoteChildren)
-{
-	//if (InvestigationCameraComponent)
-	//{
-	//	InvestigationCameraComponent->DestroyComponent();
-	//	InvestigationCameraComponent = nullptr;
-	//}
-
-	//if (InspectionArrowComponent)
-	//{
-	//	InspectionArrowComponent->DestroyComponent();
-	//	InspectionArrowComponent = nullptr;
-	//}
-
-	Super::DestroyComponent(bPromoteChildren);
+		if (const UZWInteractionSystemSettings* Settings = GetDefault<UZWInteractionSystemSettings>())
+		{
+			SkeletalMeshComponent->SetCollisionResponseToChannel(Settings->InteractionCollisionChannel, ECollisionResponse::ECR_Block);
+		}
+	}	
 }

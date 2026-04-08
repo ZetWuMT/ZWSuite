@@ -25,7 +25,9 @@ public class ZWInteraction : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core", "EnhancedInput",
+				"Core", 
+				"EnhancedInput",
+				"DeveloperSettings", 
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

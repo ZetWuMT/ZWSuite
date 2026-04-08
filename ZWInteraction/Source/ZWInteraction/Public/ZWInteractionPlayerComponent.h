@@ -6,10 +6,6 @@
 #include "Components/ArrowComponent.h"
 #include "ZWInteractionPlayerComponent.generated.h"
 
-struct FInputActionValue;
-struct FGameplayTag;
-class UInputAction;
-class UZWInteractionSubsystem;
 class UZWInteractionComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )

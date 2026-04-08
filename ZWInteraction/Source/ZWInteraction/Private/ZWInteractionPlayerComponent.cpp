@@ -3,7 +3,7 @@
 
 #include "ZWInteractionPlayerComponent.h"
 #include "ZWInteractionComponent.h"
-#include "ZWInteractionSystem_Settings.h"
+#include "ZWInteractionSystemSettings.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -95,7 +95,7 @@ void UZWInteractionPlayerComponent::DetectInteractiveObjects()
 	
 	FHitResult HitResult;
 
-	const UZWInteractionSystem_Settings* Settings = GetDefault<UZWInteractionSystem_Settings>();
+	const UZWInteractionSystemSettings* Settings = GetDefault<UZWInteractionSystemSettings>();
 	
 	if (!Settings) return;
 	
