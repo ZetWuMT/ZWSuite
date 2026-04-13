@@ -8,7 +8,7 @@
 #include "ZWGameplayActionFactory.generated.h"
 
 UCLASS()
-class ZWGAMEPLAYACTIONS_API UZWGameplayActionFactory : public UBlueprintFactory
+class ZWGAMEPLAYACTIONSEDITOR_API UZWGameplayActionFactory : public UBlueprintFactory
 {
 	GENERATED_BODY()
 
