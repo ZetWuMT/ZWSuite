@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ZWInteractionComponent.h"
 #include "Components/ArrowComponent.h"
 #include "ZWInteractionPlayerComponent.generated.h"
 
@@ -30,10 +31,11 @@ protected:
 	TObjectPtr<UZWInteractionComponent> GetInteractableObject() { return InteractableObject; }
 	void SetInteractableObject(TObjectPtr<UZWInteractionComponent> Object);
 	void ResetInteractableObject();
-
+	
 	TObjectPtr<UZWInteractionComponent> GetInteractedObject() { return InteractedObject; }
 	void SetInteractedObject(TObjectPtr<UZWInteractionComponent> Object);
 	void ResetInteractedObject();
+	
 
 private:	
 	void DetectInteractiveObjects();
