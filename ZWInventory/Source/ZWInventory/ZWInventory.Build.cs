@@ -26,7 +26,7 @@ public class ZWInventory : ModuleRules
 			new string[]
 			{
 				"Core",
-				"GameplayTags"
+				"GameplayTags",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -40,6 +40,8 @@ public class ZWInventory : ModuleRules
 				"Slate",
 				"SlateCore", 
 				"ZWInteraction",
+				"NetCore",
+				"DeveloperSettings"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

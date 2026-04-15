@@ -30,7 +30,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSoftObjectPtr<UZWInventoryItemDefinition> ItemDef;
-	//TSubclassOf<UInventoryItemDefinition> ItemDef;
 };
 
 USTRUCT(BlueprintType)

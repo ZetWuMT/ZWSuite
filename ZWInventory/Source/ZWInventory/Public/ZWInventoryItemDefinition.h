@@ -86,6 +86,13 @@ public:
 
 public:
 	const UZWInventoryItemFragment* FindFragmentByClass(TSubclassOf<UZWInventoryItemFragment> FragmentClass) const;
+	
+	template <typename FragmentClass>
+	const FragmentClass* FindFragmentByClass() const
+	{
+		const UZWInventoryItemFragment* FoundFragment = FindFragmentByClass(FragmentClass::StaticClass());
+		return Cast<FragmentClass>(FoundFragment);
+	}
 };
 
 //@TODO: Make into a subsystem instead?

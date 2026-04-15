@@ -48,10 +48,6 @@ class ZWINVENTORY_API UZWInventoryItemInstance : public UObject
 public:
 	UZWInventoryItemInstance(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	//~UObject interface
-	//virtual bool IsSupportedForNetworking() const override { return true; }
-	//~End of UObject interface
-
 	// Adds a specified number of stacks to the tag (does nothing if StackCount is below 1)
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category=Inventory)
 	void AddStatTagStack(FGameplayTag Tag, int32 StackCount);
@@ -68,7 +64,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category=Inventory)
 	bool HasStatTag(FGameplayTag Tag) const;
 	
-	//TSubclassOf<UInventoryItemDefinition> GetItemDef() const { return ItemDef; }
+	UFUNCTION(BlueprintPure, Category = "Inventory|Stacking")
+	int32 GetStackCount() const;
+	
+	UFUNCTION(BlueprintPure, Category = "Inventory|Stacking")
+	int32 GetMaxStackCount() const;
+
+	UFUNCTION(BlueprintPure, Category = "Inventory|Stacking")
+	int32 GetTotalStackCount() const;
+	
 	TSoftObjectPtr<UZWInventoryItemDefinition> GetItemDef() const { return ItemDef; }
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure=false, meta=(DeterminesOutputType=FragmentClass))
@@ -81,26 +85,18 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable, Category=Inventory)
-	TSoftObjectPtr<UZWInventoryItemDefinition> GetItemDefinition() {return ItemDef;}
-	
+	TSoftObjectPtr<UZWInventoryItemDefinition> GetItemDefinition() {return ItemDef;}	
 
 	void SaveItemInstance(FZWInventoryItemInstanceSaveData& SaveData);
 
 	void LoadItemInstance(FZWInventoryItemInstanceSaveData& SaveData);
-	
-	//FActorSpawnParameters ActorSpawnParams;
 
 private:
-//#if UE_WITH_IRIS
-	/** Register all replication fragments */
-//	virtual void RegisterReplicationFragments(UE::Net::FFragmentRegistrationContext& Context, UE::Net::EFragmentRegistrationFlags RegistrationFlags) override;
-//#endif // UE_WITH_IRIS
 
 	void SetItemDef(TSoftObjectPtr<UZWInventoryItemDefinition> InDef);
 
 	friend struct FZWInventoryList;
 
-private:
 	UPROPERTY()
 	FGameplayTagStackContainer StatTags;
 

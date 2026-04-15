@@ -10,6 +10,8 @@
 //#include "Iris/ReplicationSystem/ReplicationFragmentUtil.h"
 //#endif // UE_WITH_IRIS
 
+#include "ZWInventorySettings.h"
+#include "Fragments/ZWInventoryFragment_SetStats.h"
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ZWInventoryItemInstance)
@@ -20,25 +22,7 @@ UZWInventoryItemInstance::UZWInventoryItemInstance(const FObjectInitializer& Obj
 	: Super(ObjectInitializer)
 {
 }
-/*
-void UInventoryItemInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	//DOREPLIFETIME(ThisClass, StatTags);
-	//DOREPLIFETIME(ThisClass, ItemDef);
-}
-
-#if UE_WITH_IRIS
-void UInventoryItemInstance::RegisterReplicationFragments(UE::Net::FFragmentRegistrationContext& Context, UE::Net::EFragmentRegistrationFlags RegistrationFlags)
-{
-	using namespace UE::Net;
-
-	// Build descriptors and allocate PropertyReplicationFragments for this object
-	FReplicationFragmentUtil::CreateAndRegisterFragmentsForObject(this, Context, RegistrationFlags);
-}
-#endif // UE_WITH_IRIS
-*/
 void UZWInventoryItemInstance::AddStatTagStack(FGameplayTag Tag, int32 StackCount)
 {
 	StatTags.AddStack(Tag, StackCount);
@@ -59,20 +43,72 @@ bool UZWInventoryItemInstance::HasStatTag(FGameplayTag Tag) const
 	return StatTags.ContainsTag(Tag);
 }
 
+int32 UZWInventoryItemInstance::GetStackCount() const
+{
+	const UZWInventorySettings* Settings = GetDefault<UZWInventorySettings>();
+	
+	// If stacking is disabled globally, every item is treated as a single instance (count = 1)
+	if (!Settings->bEnableStacking || !Settings->StackCountTag.IsValid())
+	{
+		return 1;
+	}
+
+	// Current stack count is dynamic, so we check the Instance's StatTagStack.
+	// We return at least 1, assuming the item exists.
+	return FMath::Max(1, GetStatTagStackCount(Settings->StackCountTag));
+}
+
+int32 UZWInventoryItemInstance::GetMaxStackCount() const
+{
+	const UZWInventorySettings* Settings = GetDefault<UZWInventorySettings>();
+	
+	if (!Settings->bEnableStacking || !Settings->MaxStackCountTag.IsValid())
+	{
+		return 1;
+	}
+
+	// Max Stack Count is static, so we look for it in the Item Definition's fragment
+	if (const UZWInventoryFragment_SetStats* StatFragment = FindFragmentByClass<UZWInventoryFragment_SetStats>())
+	{
+		// Look up the value mapped to the MaxStackCountTag defined in project settings
+		int32 FoundMax = StatFragment->GetItemStatByTag(Settings->MaxStackCountTag);
+		
+		// If the tag exists in the map and is greater than 0, return it. Otherwise default to 1.
+		return FoundMax > 0 ? FoundMax : 1;
+	}
+
+	return 1;
+}
+
+int32 UZWInventoryItemInstance::GetTotalStackCount() const
+{
+	const UZWInventorySettings* Settings = GetDefault<UZWInventorySettings>();
+	
+	if (!Settings->bEnableStacking || !Settings->TotalStackCountTag.IsValid())
+	{
+		// -1 could represent "infinity" / "no limit"
+		return -1; 
+	}
+
+	if (const UZWInventoryFragment_SetStats* StatFragment = FindFragmentByClass<UZWInventoryFragment_SetStats>())
+	{
+		return StatFragment->GetItemStatByTag(Settings->TotalStackCountTag);
+	}
+
+	return -1;
+}
+
 void UZWInventoryItemInstance::SaveItemInstance(FZWInventoryItemInstanceSaveData& SaveData)
 {
 	FZWInventoryItemDefinitionSaveData ItemDefinitionSaveData;
 
 	ItemDefinitionSaveData.Class = ItemDef->GetClass();
-
-	// Cannot be DefaultObject
+	
 	UZWInventoryItemDefinition* LoadedItemDef = ItemDef.LoadSynchronous();
 	if (IsValid(LoadedItemDef))
 	{
 		return LoadedItemDef->SaveDefinition(ItemDefinitionSaveData);
 	}
-	//ItemDef->GetDefaultObject<UInventoryItemDefinition>()->SaveDefinition(ItemDefinitionSaveData);
-	//UInventoryItemDefinition* ItemDefinition = Cast<UInventoryItemDefinition>(ItemDef);
 	SaveData.InventoryItemDefinitionSaveData = ItemDefinitionSaveData;
 	
 	FMemoryWriter MemWriter(SaveData.Data, true);
@@ -87,8 +123,7 @@ void UZWInventoryItemInstance::LoadItemInstance(FZWInventoryItemInstanceSaveData
 	FObjectAndNameAsStringProxyArchive Ar(MemReader, true);
 	Ar.ArIsSaveGame = true;
 	Serialize(Ar);
-
-	//UInventoryItemDefinition* ItemDefinition = NewObject<UInventoryItemDefinition>();
+	
 	UZWInventoryItemDefinition* ItemDefinition = NewObject<UZWInventoryItemDefinition>();
 	ItemDefinition->LoadDefinition(SaveData.InventoryItemDefinitionSaveData);
 }
@@ -106,8 +141,7 @@ const UZWInventoryItemFragment* UZWInventoryItemInstance::FindFragmentByClass(TS
 		if (!IsValid(LoadedItemDef)) return nullptr;
 		{
 			return LoadedItemDef->FindFragmentByClass(FragmentClass);
-		}
-		
+		}		
 	}
 
 	return nullptr;

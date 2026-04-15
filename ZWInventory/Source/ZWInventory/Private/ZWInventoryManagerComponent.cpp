@@ -6,16 +6,17 @@
 #include "Engine/World.h"
 #include "ZWInventoryItemDefinition.h"
 #include "ZWInventoryItemInstance.h"
+#include "ZWInventorySettings.h"
 #include "ZWInventorySubsystem.h"
+#include "Fragments/ZWInventoryFragment_SetStats.h"
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ZWInventoryManagerComponent)
 
-//class UEvidenceFragment_EvidenceType;
 class FLifetimeProperty;
 struct FReplicationFlags;
 
-//UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_ProjectX_Inventory_Message_StackChanged, "ProjectX.Inventory.Message.StackChanged");
+//UE_DEFINE_GAMEPLAY_TAG_STATIC(TAG_ZWInventory_Message_StackChanged, "Inventory.Message.StackChanged");
 
 //////////////////////////////////////////////////////////////////////
 // FInventoryEntry
@@ -37,7 +38,58 @@ FString FZWInventoryEntry::GetDebugString() const
 	return FString::Printf(TEXT("%s (%d x %s)"), *GetNameSafe(Instance), StackCount, *GetNameSafe(LoadedItemDef));
 }
 
-//@TODO: FOr some reason Item Instance doesnt get saved/loaded correctly and results with a crash
+void FZWInventoryEntry::PreReplicatedRemove(const FZWInventoryList& InArraySerializer)
+{
+	//InArraySerializer.BroadcastChangeMessage(*this, LastObservedCount, 0);
+}
+
+void FZWInventoryEntry::PostReplicatedAdd(const FZWInventoryList& InArraySerializer)
+{
+	SyncInstanceToEntry();
+
+	// 2. Opcjonalnie: Wyślij wiadomość, że podniesiono nowy przedmiot od zera
+	// Stara ilość: 0, Nowa ilość: StackCount
+	// InArraySerializer.BroadcastChangeMessage(*this, 0, StackCount);
+
+	// 3. Zapisz obecny stan na przyszłość
+	LastObservedCount = StackCount;
+}
+
+void FZWInventoryEntry::PostReplicatedChange(const FZWInventoryList& InArraySerializer)
+{
+	// 1. Zsynchronizuj Tagi na Instancji
+	SyncInstanceToEntry();
+
+	// 2. Wyślij wiadomość o różnicy (Delta) do UI!
+	// InArraySerializer.BroadcastChangeMessage(*this, LastObservedCount, StackCount);
+
+	// 3. Zapisz nowy stan
+	LastObservedCount = StackCount;
+}
+
+void FZWInventoryEntry::SyncInstanceToEntry()
+{
+	if (Instance)
+	{
+		const UZWInventorySettings* Settings = GetDefault<UZWInventorySettings>();
+		if (Settings->bEnableStacking && Settings->StackCountTag.IsValid())
+		{
+			// Resetujemy tag do zera i ustawiamy nową wartość na sztywno,
+			// gwarantując 100% zgodności między Strukturą a Instancją.
+			
+			int32 CurrentTagCount = Instance->GetStatTagStackCount(Settings->StackCountTag);
+			if (CurrentTagCount != StackCount)
+			{
+				// Usuwamy stary tag (jeśli był)
+				Instance->RemoveStatTagStack(Settings->StackCountTag, CurrentTagCount);
+				// Wrzucamy nową, prawidłową wartość ze Struktury
+				Instance->AddStatTagStack(Settings->StackCountTag, StackCount);
+			}
+		}
+	}
+}
+
+//@TODO: For some reason Item Instance doesnt get saved/loaded correctly and results with a crash
 void FZWInventoryEntry::SaveEntry(FZWInventoryEntrySaveData& EntrySaveData)
 {
 	FZWInventoryItemInstanceSaveData InstanceSaveData;
@@ -57,36 +109,36 @@ void FZWInventoryEntry::LoadEntry(FZWInventoryEntrySaveData& EntrySaveData)
 //////////////////////////////////////////////////////////////////////
 // FInventoryList
 
-//void FInventoryList::PreReplicatedRemove(const TArrayView<int32> RemovedIndices, int32 FinalSize)
-//{
-//	for (int32 Index : RemovedIndices)
-//	{
-//		FInventoryEntry& Stack = Entries[Index];
-//		BroadcastChangeMessage(Stack, /*OldCount=*/ Stack.StackCount, /*NewCount=*/ 0);
-//		Stack.LastObservedCount = 0;
-//	}
-//}
-//
-//void FInventoryList::PostReplicatedAdd(const TArrayView<int32> AddedIndices, int32 FinalSize)
-//{
-//	for (int32 Index : AddedIndices)
-//	{
-//		FInventoryEntry& Stack = Entries[Index];
-//		BroadcastChangeMessage(Stack, /*OldCount=*/ 0, /*NewCount=*/ Stack.StackCount);
-//		Stack.LastObservedCount = Stack.StackCount;
-//	}
-//}
-//
-//void FInventoryList::PostReplicatedChange(const TArrayView<int32> ChangedIndices, int32 FinalSize)
-//{
-//	for (int32 Index : ChangedIndices)
-//	{
-//		FInventoryEntry& Stack = Entries[Index];
-//		check(Stack.LastObservedCount != INDEX_NONE);
-//		BroadcastChangeMessage(Stack, /*OldCount=*/ Stack.LastObservedCount, /*NewCount=*/ Stack.StackCount);
-//		Stack.LastObservedCount = Stack.StackCount;
-//	}
-//}
+void FZWInventoryList::PreReplicatedRemove(const TArrayView<int32> RemovedIndices, int32 FinalSize)
+{
+	for (int32 Index : RemovedIndices)
+	{
+		FZWInventoryEntry& Stack = Entries[Index];
+		BroadcastChangeMessage(Stack, /*OldCount=*/ Stack.StackCount, /*NewCount=*/ 0);
+		Stack.LastObservedCount = 0;
+	}
+}
+
+void FZWInventoryList::PostReplicatedAdd(const TArrayView<int32> AddedIndices, int32 FinalSize)
+{
+	for (int32 Index : AddedIndices)
+	{
+		FZWInventoryEntry& Stack = Entries[Index];
+		BroadcastChangeMessage(Stack, /*OldCount=*/ 0, /*NewCount=*/ Stack.StackCount);
+		Stack.LastObservedCount = Stack.StackCount;
+	}
+}
+
+void FZWInventoryList::PostReplicatedChange(const TArrayView<int32> ChangedIndices, int32 FinalSize)
+{
+	for (int32 Index : ChangedIndices)
+	{
+		FZWInventoryEntry& Stack = Entries[Index];
+		check(Stack.LastObservedCount != INDEX_NONE);
+		BroadcastChangeMessage(Stack, /*OldCount=*/ Stack.LastObservedCount, /*NewCount=*/ Stack.StackCount);
+		Stack.LastObservedCount = Stack.StackCount;
+	}
+}
 
 void FZWInventoryList::BroadcastChangeMessage(FZWInventoryEntry& Entry, int32 OldCount, int32 NewCount)
 {
@@ -97,7 +149,7 @@ void FZWInventoryList::BroadcastChangeMessage(FZWInventoryEntry& Entry, int32 Ol
 	Message.Delta = NewCount - OldCount;
 
 	//UGameplayMessageSubsystem& MessageSystem = UGameplayMessageSubsystem::Get(OwnerComponent->GetWorld());
-	//MessageSystem.BroadcastMessage(TAG_ProjectX_Inventory_Message_StackChanged, Message);
+	//MessageSystem.BroadcastMessage(TAG_ZWInventory_Message_StackChanged, Message);
 }
 
 UZWInventoryItemInstance* FZWInventoryList::AddEntry(TSoftObjectPtr<UZWInventoryItemDefinition> ItemDef, int32 StackCount)
@@ -111,7 +163,7 @@ UZWInventoryItemInstance* FZWInventoryList::AddEntry(TSoftObjectPtr<UZWInventory
 	check(OwningActor->HasAuthority());	
 
 	FZWInventoryEntry& NewEntry = Entries.AddDefaulted_GetRef();
-	NewEntry.Instance = NewObject<UZWInventoryItemInstance>(OwnerComponent->GetOwner());  //@TODO: Using the actor instead of component as the outer due to UE-127172
+	NewEntry.Instance = NewObject<UZWInventoryItemInstance>(OwningActor);  //@TODO: Using the actor instead of component as the outer due to UE-127172
 	NewEntry.Instance->SetItemDef(ItemDef);
 	
 	for (UZWInventoryItemFragment* Fragment : ItemDef->Fragments)
@@ -122,11 +174,11 @@ UZWInventoryItemInstance* FZWInventoryList::AddEntry(TSoftObjectPtr<UZWInventory
 		}
 	}
 	NewEntry.StackCount = StackCount;
+	//NewEntry.SyncInstanceToEntry(); //@TODO: For Multiplayer
+	
+	MarkItemDirty(NewEntry);
+	
 	Result = NewEntry.Instance;
-
-	//const UInventoryItemDefinition* ItemCDO = GetDefault<UInventoryItemDefinition>(ItemDef);
-	//MarkItemDirty(NewEntry);
-
 	return Result;
 }
 
@@ -143,7 +195,7 @@ void FZWInventoryList::RemoveEntry(UZWInventoryItemInstance* Instance)
 		if (Entry.Instance == Instance)
 		{
 			EntryIt.RemoveCurrent();
-			//MarkArrayDirty();
+			MarkArrayDirty();
 		}
 	}
 }
@@ -175,7 +227,7 @@ TArray<UZWInventoryItemInstance*> FZWInventoryList::GetAllItems() const
 	Results.Reserve(Entries.Num());
 	for (const FZWInventoryEntry& Entry : Entries)
 	{
-		if (Entry.Instance != nullptr) //@TODO: Would prefer to not deal with this here and hide it further?
+		if (Entry.Instance != nullptr)
 		{
 			Results.Add(Entry.Instance);
 		}
@@ -218,13 +270,6 @@ void UZWInventoryManagerComponent::EndPlay(const EEndPlayReason::Type EndPlayRea
 
 	Super::EndPlay(EndPlayReason);
 }
-/*
-void UInventoryManagerComponent::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(ThisClass, InventoryList);
-}*/
 
 bool UZWInventoryManagerComponent::CanAddItemDefinition(TSoftObjectPtr<UZWInventoryItemDefinition> ItemDef, int32 StackCount)
 {
@@ -232,19 +277,80 @@ bool UZWInventoryManagerComponent::CanAddItemDefinition(TSoftObjectPtr<UZWInvent
 	return true;
 }
 
-UZWInventoryItemInstance* UZWInventoryManagerComponent::AddItemDefinition(TSoftObjectPtr<UZWInventoryItemDefinition> ItemDef, int32 StackCount)
+TArray<UZWInventoryItemInstance*> UZWInventoryManagerComponent::AddItemDefinition(TSoftObjectPtr<UZWInventoryItemDefinition> ItemDef, int32 StackCount)
 {
-	UZWInventoryItemInstance* Result = nullptr;
-	if (ItemDef != nullptr)
+	TArray<UZWInventoryItemInstance*> AffectedInstances;
+	
+	if (!ItemDef || StackCount <= 0)
 	{
-		Result = InventoryList.AddEntry(ItemDef, StackCount);
-		
-		if (IsUsingRegisteredSubObjectList() && IsReadyForReplication() && Result)
+		return AffectedInstances;
+	}
+	
+	const UZWInventorySettings* Settings = GetDefault<UZWInventorySettings>();
+	int32 RemainingCountToAdd = StackCount;
+	
+	if (Settings->bEnableStacking && Settings->StackCountTag.IsValid())
+	{
+		TArray<UZWInventoryItemInstance*> ExistingInstances = FindItemsByDefinition(ItemDef);
+
+		for (UZWInventoryItemInstance* ExistingItem : ExistingInstances)
 		{
-			AddReplicatedSubObject(Result);
+			if (RemainingCountToAdd <= 0) break;
+
+			const int32 CurrentStack = ExistingItem->GetStackCount();
+			const int32 MaxStack = ExistingItem->GetMaxStackCount();
+
+			if (CurrentStack < MaxStack)
+			{
+				const int32 RoomLeft = MaxStack - CurrentStack;
+				const int32 AmountToAddHere = FMath::Min(RoomLeft, RemainingCountToAdd);
+
+				ExistingItem->AddStatTagStack(Settings->StackCountTag, AmountToAddHere);
+				
+				RemainingCountToAdd -= AmountToAddHere;
+				AffectedInstances.Add(ExistingItem);
+			}
 		}
 	}
-	return Result;
+	
+	// 2. Jeśli zostało nam jeszcze coś do dodania, tworzymy nowe sloty
+	while (RemainingCountToAdd > 0)
+	{
+		int32 MaxStack = 1;
+		
+		// Opcjonalnie: odczytanie MaxStack przed utworzeniem nowej instancji z CDO (Default Object)
+		if (Settings->bEnableStacking)
+		{
+			if (const UZWInventoryFragment_SetStats* StatFragment = ItemDef.LoadSynchronous()->FindFragmentByClass<UZWInventoryFragment_SetStats>())
+			//if (const UZWInventoryFragment_SetStats* StatFragment = Cast<UZWInventoryFragment_SetStats>(ItemDef.LoadSynchronous()->FindFragmentByClass(UZWInventoryFragment_SetStats::StaticClass()));
+			{
+				MaxStack = StatFragment->GetItemStatByTag(Settings->MaxStackCountTag);
+				MaxStack = MaxStack > 0 ? MaxStack : 1;
+			}
+		}
+
+		int32 AmountForNewInstance = Settings->bEnableStacking ? FMath::Min(MaxStack, RemainingCountToAdd) : 1;
+
+		// Tworzymy nową instancję korzystając z Twojej metody
+		UZWInventoryItemInstance* NewInstance = InventoryList.AddEntry(ItemDef, AmountForNewInstance);
+		
+		if (!NewInstance) break;		
+
+		if (Settings->bEnableStacking && Settings->StackCountTag.IsValid())
+		{
+			NewInstance->AddStatTagStack(Settings->StackCountTag, AmountForNewInstance);	
+		}			
+
+		if (IsUsingRegisteredSubObjectList() && IsReadyForReplication())
+		{
+			AddReplicatedSubObject(NewInstance);
+		}
+
+		RemainingCountToAdd -= AmountForNewInstance;
+		AffectedInstances.Add(NewInstance);
+	}
+
+	return AffectedInstances;
 }
 
 void UZWInventoryManagerComponent::AddItemInstance(UZWInventoryItemInstance* ItemInstance)
@@ -271,6 +377,24 @@ TArray<UZWInventoryItemInstance*> UZWInventoryManagerComponent::GetAllItems() co
 	return InventoryList.GetAllItems();
 }
 
+TArray<UZWInventoryItemInstance*> UZWInventoryManagerComponent::FindItemsByDefinition(
+	TSoftObjectPtr<UZWInventoryItemDefinition> ItemDef) const
+{
+	TArray<UZWInventoryItemInstance*> FoundItems;
+	
+	for (const FZWInventoryEntry& Entry : InventoryList.Entries)
+	{
+		UZWInventoryItemInstance* Instance = Entry.Instance;
+
+		if (IsValid(Instance) && Instance->GetItemDef() == ItemDef)
+		{
+			FoundItems.Add(Instance);
+		}
+	}
+
+	return FoundItems;
+}
+
 UZWInventoryItemInstance* UZWInventoryManagerComponent::FindFirstItemStackByDefinition(TSoftObjectPtr<UZWInventoryItemDefinition> ItemDef) const
 {
 	for (const FZWInventoryEntry& Entry : InventoryList.Entries)
@@ -292,16 +416,15 @@ UZWInventoryItemInstance* UZWInventoryManagerComponent::FindFirstItemStackByDefi
 int32 UZWInventoryManagerComponent::GetTotalItemCountByDefinition(TSoftObjectPtr<UZWInventoryItemDefinition> ItemDef) const
 {
 	int32 TotalCount = 0;
+	
 	for (const FZWInventoryEntry& Entry : InventoryList.Entries)
 	{
 		UZWInventoryItemInstance* Instance = Entry.Instance;
 
-		if (IsValid(Instance))
+		if (IsValid(Instance) && Instance->GetItemDef() == ItemDef)
 		{
-			if (Instance->GetItemDef() == ItemDef)
-			{
-				++TotalCount;
-			}
+			// We now query the Instance itself for its tag-based stack count!
+			TotalCount += Instance->GetStackCount(); 
 		}
 	}
 
@@ -311,27 +434,45 @@ int32 UZWInventoryManagerComponent::GetTotalItemCountByDefinition(TSoftObjectPtr
 bool UZWInventoryManagerComponent::ConsumeItemsByDefinition(TSoftObjectPtr<UZWInventoryItemDefinition> ItemDef, int32 NumToConsume)
 {
 	AActor* OwningActor = GetOwner();
-	if (!OwningActor || !OwningActor->HasAuthority())
+	if (!OwningActor || !OwningActor->HasAuthority() || NumToConsume <= 0)
 	{
 		return false;
 	}
 
-	//@TODO: N squared right now as there's no acceleration structure
-	int32 TotalConsumed = 0;
-	while (TotalConsumed < NumToConsume)
+	int32 TotalAvailable = GetTotalItemCountByDefinition(ItemDef);
+	if (TotalAvailable < NumToConsume)
 	{
-		if (UZWInventoryItemInstance* Instance = UZWInventoryManagerComponent::FindFirstItemStackByDefinition(ItemDef))
+		return false; // Not enough items to consume
+	}
+
+	const UZWInventorySettings* Settings = GetDefault<UZWInventorySettings>();
+	int32 RemainingToConsume = NumToConsume;
+	
+	TArray<UZWInventoryItemInstance*> ExistingInstances = FindItemsByDefinition(ItemDef);
+
+	for (UZWInventoryItemInstance* Instance : ExistingInstances)
+	{
+		if (RemainingToConsume <= 0) break;
+
+		const int32 CurrentStack = Instance->GetStackCount();
+		const int32 AmountToConsumeHere = FMath::Min(CurrentStack, RemainingToConsume);
+
+		if (Settings->bEnableStacking && Settings->StackCountTag.IsValid())
 		{
-			InventoryList.RemoveEntry(Instance);
-			++TotalConsumed;
+			Instance->RemoveStatTagStack(Settings->StackCountTag, AmountToConsumeHere);
 		}
-		else
+
+		RemainingToConsume -= AmountToConsumeHere;
+
+		// If the stack is now empty (or theoretically <= 0), destroy the instance entirely
+		// Note: Ensure your GetStackCount() returns 0 or you handle this logic according to your Tag implementation
+		if (Instance->GetStackCount() <= 0 || (!Settings->bEnableStacking))
 		{
-			return false;
+			RemoveItemInstance(Instance);
 		}
 	}
 
-	return TotalConsumed == NumToConsume;
+	return RemainingToConsume == 0;
 }
 
 FZWInventoryManagerComponentSaveData UZWInventoryManagerComponent::SaveInventoryManager()
@@ -372,57 +513,3 @@ void UZWInventoryManagerComponent::LoadInventoryManager(FZWInventoryManagerCompo
 		AddItemDefinition(ItemDef);
 	}
 }
-
-/*
-void UInventoryManagerComponent::ReadyForReplication()
-{
-	Super::ReadyForReplication();
-
-	// Register existing UInventoryItemInstance
-	if (IsUsingRegisteredSubObjectList())
-	{
-		for (const FInventoryEntry& Entry : InventoryList.Entries)
-		{
-			UInventoryItemInstance* Instance = Entry.Instance;
-
-			if (IsValid(Instance))
-			{
-				AddReplicatedSubObject(Instance);
-			}
-		}
-	}
-}
-
-bool UInventoryManagerComponent::ReplicateSubobjects(UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags)
-{
-	bool WroteSomething = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
-
-	for (FInventoryEntry& Entry : InventoryList.Entries)
-	{
-		UInventoryItemInstance* Instance = Entry.Instance;
-
-		if (Instance && IsValid(Instance))
-		{
-			WroteSomething |= Channel->ReplicateSubobject(Instance, *Bunch, *RepFlags);
-		}
-	}
-
-	return WroteSomething;
-}*/
-
-//////////////////////////////////////////////////////////////////////
-//
-
-// UCLASS(Abstract)
-// class UInventoryFilter : public UObject
-// {
-// public:
-// 	virtual bool PassesFilter(UInventoryItemInstance* Instance) const { return true; }
-// };
-
-// UCLASS()
-// class UInventoryFilter_HasTag : public UInventoryFilter
-// {
-// public:
-// 	virtual bool PassesFilter(UInventoryItemInstance* Instance) const { return true; }
-// };

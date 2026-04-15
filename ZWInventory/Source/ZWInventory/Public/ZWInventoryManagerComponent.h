@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "ZWInventoryItemInstance.h"
 #include "Components/ActorComponent.h"
+#include "Net/Serialization/FastArraySerializer.h"
 #include "ZWInventoryManagerComponent.generated.h"
 
 class UZWInventoryItemDefinition;
@@ -13,7 +14,6 @@ class UZWInventoryManagerComponent;
 class UObject;
 struct FFrame;
 struct FZWInventoryList;
-//struct FNetDeltaSerializeInfo;
 struct FReplicationFlags;
 
 USTRUCT()
@@ -98,7 +98,7 @@ struct FZWInventoryChangeMessage
 
 /** A single entry in an inventory */
 USTRUCT(BlueprintType)
-struct FZWInventoryEntry// : public FFastArraySerializerItem
+struct FZWInventoryEntry : public FFastArraySerializerItem
 {
 	GENERATED_BODY()
 
@@ -106,9 +106,18 @@ struct FZWInventoryEntry// : public FFastArraySerializerItem
 	{}
 
 	FString GetDebugString() const;
+	
+	// --- FUNKCJE DLA KLIENTA (FAST ARRAY) ---
+	// Te funkcje wywołają się automatycznie na Kliencie po replikacji
+	void PreReplicatedRemove(const FZWInventoryList& InArraySerializer);
+	void PostReplicatedAdd(const FZWInventoryList& InArraySerializer);
+	void PostReplicatedChange(const FZWInventoryList& InArraySerializer);
+
+	// --- FUNKCJA POMOCNICZA ---
+	// Funkcja "Lustro" - aktualizuje Tagi w instancji na podstawie obecnego StackCount
+	void SyncInstanceToEntry();
 
 	void SaveEntry(FZWInventoryEntrySaveData& EntrySaveData);
-
 	void LoadEntry(FZWInventoryEntrySaveData& EntrySaveData);
 
 private:
@@ -127,10 +136,11 @@ private:
 
 /** List of inventory items */
 USTRUCT(BlueprintType)
-struct FZWInventoryList// : public FFastArraySerializer
+struct FZWInventoryList : public FFastArraySerializer
 {
 	GENERATED_BODY()
 
+public:	
 	FZWInventoryList()
 		: OwnerComponent(nullptr)
 	{
@@ -142,19 +152,18 @@ struct FZWInventoryList// : public FFastArraySerializer
 	}
 
 	TArray<UZWInventoryItemInstance*> GetAllItems() const;
-
-public:/*
+	
 	//~FFastArraySerializer contract
 	void PreReplicatedRemove(const TArrayView<int32> RemovedIndices, int32 FinalSize);
 	void PostReplicatedAdd(const TArrayView<int32> AddedIndices, int32 FinalSize);
 	void PostReplicatedChange(const TArrayView<int32> ChangedIndices, int32 FinalSize);
 	//~End of FFastArraySerializer contract
-
+	
 	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms)
 	{
-		return FFastArraySerializer::FastArrayDeltaSerialize<FInventoryEntry, FInventoryList>(Entries, DeltaParms, *this);
-	}*/
-
+		return FastArrayDeltaSerialize<FZWInventoryEntry, FZWInventoryList>(Entries, DeltaParms, *this);
+	}
+	
 	UZWInventoryItemInstance* AddEntry(TSoftObjectPtr<UZWInventoryItemDefinition> ItemClass, int32 StackCount);
 	void AddEntry(UZWInventoryItemInstance* Instance);
 
@@ -167,10 +176,8 @@ public:/*
 private:
 	void BroadcastChangeMessage(FZWInventoryEntry& Entry, int32 OldCount, int32 NewCount);
 
-private:
 	friend UZWInventoryManagerComponent;
-
-private:
+	
 	// Replicated list of items
 	UPROPERTY(SaveGame)
 	TArray<FZWInventoryEntry> Entries;
@@ -182,7 +189,7 @@ private:
 template<>
 struct TStructOpsTypeTraits<FZWInventoryList> : public TStructOpsTypeTraitsBase2<FZWInventoryList>
 {
-	//enum { WithNetDeltaSerializer = true };
+	enum { WithNetDeltaSerializer = true };
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -197,7 +204,7 @@ public:
 	bool CanAddItemDefinition(TSoftObjectPtr<UZWInventoryItemDefinition> ItemDef, int32 StackCount = 1);
 
 	UFUNCTION(BlueprintCallable, /*BlueprintAuthorityOnly,*/ Category=Inventory)
-	UZWInventoryItemInstance* AddItemDefinition(TSoftObjectPtr<UZWInventoryItemDefinition> ItemDef, int32 StackCount = 1);
+	TArray<UZWInventoryItemInstance*> AddItemDefinition(TSoftObjectPtr<UZWInventoryItemDefinition> ItemDef, int32 StackCount = 1);
 
 	UFUNCTION(BlueprintCallable, /*BlueprintAuthorityOnly,*/ Category=Inventory)
 	void AddItemInstance(UZWInventoryItemInstance* ItemInstance);
@@ -209,15 +216,13 @@ public:
 	TArray<UZWInventoryItemInstance*> GetAllItems() const;
 
 	UFUNCTION(BlueprintCallable, Category=Inventory, BlueprintPure)
+	TArray<UZWInventoryItemInstance*> FindItemsByDefinition(TSoftObjectPtr<UZWInventoryItemDefinition> ItemDef) const;
+	
+	UFUNCTION(BlueprintCallable, Category=Inventory, BlueprintPure)
 	UZWInventoryItemInstance* FindFirstItemStackByDefinition(TSoftObjectPtr<UZWInventoryItemDefinition> ItemDef) const;
 
 	int32 GetTotalItemCountByDefinition(TSoftObjectPtr<UZWInventoryItemDefinition> ItemDef) const;
 	bool ConsumeItemsByDefinition(TSoftObjectPtr<UZWInventoryItemDefinition> ItemDef, int32 NumToConsume);
-
-	//~UObject interface
-	//virtual bool ReplicateSubobjects(class UActorChannel* Channel, class FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
-	//virtual void ReadyForReplication() override;
-	//~End of UObject interface
 
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -227,6 +232,6 @@ public:
 	void LoadInventoryManager(FZWInventoryManagerComponentSaveData& InventoryManagerSaveData);
 
 private:
-	UPROPERTY(/*Replicated*/VisibleAnywhere, Category=Inventory, SaveGame)
+	UPROPERTY(VisibleAnywhere, Category=Inventory, SaveGame)
 	FZWInventoryList InventoryList;
 };
