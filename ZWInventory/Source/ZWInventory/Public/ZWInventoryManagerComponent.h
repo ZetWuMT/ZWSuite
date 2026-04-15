@@ -220,8 +220,11 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category=Inventory, BlueprintPure)
 	UZWInventoryItemInstance* FindFirstItemStackByDefinition(TSoftObjectPtr<UZWInventoryItemDefinition> ItemDef) const;
-
+	
+	UFUNCTION(BlueprintCallable, Category=Inventory, BlueprintPure)	
 	int32 GetTotalItemCountByDefinition(TSoftObjectPtr<UZWInventoryItemDefinition> ItemDef) const;
+	
+	UFUNCTION(BlueprintCallable, Category=Inventory)
 	bool ConsumeItemsByDefinition(TSoftObjectPtr<UZWInventoryItemDefinition> ItemDef, int32 NumToConsume);
 
 	virtual void BeginPlay() override;

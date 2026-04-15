@@ -35,7 +35,7 @@ public:
 	*  This is the tag used to specify, how many items can be stacked in a single stack. 
 	*  Adding more items to the inventory will add additional stack containing remaining items.
 	*/
-	UPROPERTY(Config, EditAnywhere, Category = "Inventory", DisplayName="Max Stack CountTag", meta=(EditCondition="bEnableStacking", EditConditionHides))
+	UPROPERTY(Config, EditAnywhere, Category = "Inventory", DisplayName="Max Stack Count Tag", meta=(EditCondition="bEnableStacking", EditConditionHides))
 	FGameplayTag MaxStackCountTag;
 	
 	/**

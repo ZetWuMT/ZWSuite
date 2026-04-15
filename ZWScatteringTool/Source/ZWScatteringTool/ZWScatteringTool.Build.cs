@@ -39,6 +39,7 @@ public class ZWScatteringTool : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore", 
+				"ZWInteraction",
 				"ZWInventory",
 				// ... add private dependencies that you statically link with here ...	
 			}

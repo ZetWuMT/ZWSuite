@@ -4,7 +4,9 @@
 #include "LootScattering/ZWLootScatterer.h"
 #include "IPickupable.h"
 #include "ZWInventoryComponent.h"
+#include "../../../../../ZWInteraction/Source/ZWInteraction/Public/ZWInteractionComponent.h"
 #include "Algo/RandomShuffle.h"
+#include "Engine/StaticMeshActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "LootScattering/ZWLootProbe.h"
 
@@ -43,7 +45,7 @@ void AZWLootScatterer::ScatterLoot()
 	if (AllProbes.IsEmpty()) return;
 
 	// NOWOŚĆ: Mapa przechowująca zaplanowany loot dla danego punktu (Proba)
-	TMap<AZWLootProbe*, FInventoryPickup> PlannedSpawns;
+	TMap<AZWLootProbe*, FZWLootSpawnParams> PlannedSpawns;
 
 	// 2. FAZA PLANOWANIA (Logika z poprzedniego kroku, ale bez spawnowania)
 	for (const FZWLootScatterEntry& Entry : LootTable)
@@ -89,7 +91,8 @@ void AZWLootScatterer::ScatterLoot()
 			NewTemplate.StackCount = AmountToSpawnHere;
 
 			// Dodajemy do Proba (jeśli Prob nie miał jeszcze lootu, TMap stworzy nowy wpis automatycznie)
-			PlannedSpawns.FindOrAdd(TargetProbe).Templates.Add(NewTemplate);
+			PlannedSpawns.FindOrAdd(TargetProbe).InventoryPickup.Templates.Add(NewTemplate);
+			PlannedSpawns.Find(TargetProbe)->StaticMesh = Entry.ItemStaticMesh;
 
 			// Aktualizacja liczników
 			CurrentTotalSpawned += AmountToSpawnHere;
@@ -98,31 +101,55 @@ void AZWLootScatterer::ScatterLoot()
 	}
 
 	// 3. FAZA SPAWNOWANIA (Fizyczne pojawienie się Aktorów w świecie)
-	for (const TTuple<AZWLootProbe*, FInventoryPickup>& PlannedSpawn : PlannedSpawns)
+	for (const TTuple<AZWLootProbe*, FZWLootSpawnParams>& PlannedSpawn : PlannedSpawns)
 	{
 		AZWLootProbe* Probe = PlannedSpawn.Key;
-		const FInventoryPickup& PickupDataToGrant = PlannedSpawn.Value;
+		const FInventoryPickup& PickupDataToGrant = PlannedSpawn.Value.InventoryPickup;
 
 		FTransform SpawnTransform = Probe->GetActorTransform();
 		
 		AActor* NewPickup = GetWorld()->SpawnActorDeferred<AActor>(
-			AActor::StaticClass(), SpawnTransform, this, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+			AStaticMeshActor::StaticClass(), SpawnTransform, this, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
 
 		if (NewPickup)
 		{
 			// UWAGA: Tutaj przypisujesz dane do swojego komponentu/aktora.
 			// Zakładam, że Twój Aktor Pickupa ma InventoryComponent, a ten ma zmienną typu FInventoryPickup
 			
-			UActorComponent* NewComp = NewPickup->AddComponentByClass(UZWInventoryComponent::StaticClass(), false, FTransform::Identity, true);
-			if (!NewComp)
+			if (UStaticMeshComponent* StaticMeshComponent = NewPickup->FindComponentByClass<UStaticMeshComponent>())
 			{
-				UE_LOG(LogTemp, Error, TEXT("Loot Scatterer: New Actor Component not created!"));
-				return;
+				if (UStaticMesh* NewStaticMesh = PlannedSpawn.Value.StaticMesh.LoadSynchronous())
+				{
+					StaticMeshComponent->SetStaticMesh(NewStaticMesh);;	
+				}				
 			}
 			
-			if (UZWInventoryComponent* InvComp = Cast<UZWInventoryComponent>(NewComp))
+			UActorComponent* NewIntComp = NewPickup->AddComponentByClass(UZWInteractionComponent::StaticClass(), false, FTransform::Identity, true);
+			if (!NewIntComp)
 			{
-				InvComp->GetPickupInventory() = PickupDataToGrant;
+				UE_LOG(LogTemp, Error, TEXT("Loot Scatterer: New Interaction Component not created!"));
+				NewPickup->Destroy(); // Usuń niekompletny aktor
+				continue; // Przejdź do następnego zaplanowanego spawnu
+			}
+			NewIntComp->RegisterComponent();
+
+			UActorComponent* NewInvComp = NewPickup->AddComponentByClass(UZWInventoryComponent::StaticClass(), false, FTransform::Identity, false);
+			if (!NewInvComp)
+			{
+				UE_LOG(LogTemp, Error, TEXT("Loot Scatterer: New Inventory Component not created!"));
+				NewPickup->Destroy(); // Usuń niekompletny aktor
+				continue; // Przejdź do następnego zaplanowanego spawnu
+			}
+			NewInvComp->RegisterComponent();
+
+			if (UZWInventoryComponent* InvComp = Cast<UZWInventoryComponent>(NewInvComp))
+			{
+				
+				InvComp->SetPickupInventory(PickupDataToGrant);
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Loot Scatterer: Failed to cast NewInvComp to UZWInventoryComponent for actor %s."), *NewPickup->GetName());
 			}
 
 			// W tym miejscu wstrzykujesz zebraną paczkę z mapy do nowo powstałego Aktora.

@@ -9,6 +9,7 @@
 	"CreatedByURL": "",
 	"DocsURL": "",
 	"MarketplaceURL": "",
+	"EnabledByDefault" : false,
 	"CanContainContent": true,
 	"IsBetaVersion": false,
 	"IsExperimentalVersion": false,
@@ -23,6 +24,10 @@
 	"Plugins": [
 		{
 			"Name": "ZWInventory",
+			"Enabled": true
+		},
+		{
+			"Name": "ZWInteraction",
 			"Enabled": true
 		}
 	]

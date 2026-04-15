@@ -281,7 +281,8 @@ TArray<UZWInventoryItemInstance*> UZWInventoryManagerComponent::AddItemDefinitio
 {
 	TArray<UZWInventoryItemInstance*> AffectedInstances;
 	
-	if (!ItemDef || StackCount <= 0)
+	// @TODO: Check if this .LoadSynchronous() check is the best way to check for a valid SoftObjectPtr
+	if (!ItemDef.LoadSynchronous() || StackCount <= 0)
 	{
 		return AffectedInstances;
 	}

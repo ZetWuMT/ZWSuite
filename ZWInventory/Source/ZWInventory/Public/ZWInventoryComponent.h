@@ -19,6 +19,7 @@ public:
 	UZWInventoryComponent();
 
 	virtual FInventoryPickup GetPickupInventory() const override;
+	void SetPickupInventory(const FInventoryPickup& InPickupInventory);
 
 protected:
 	// Called when the game starts

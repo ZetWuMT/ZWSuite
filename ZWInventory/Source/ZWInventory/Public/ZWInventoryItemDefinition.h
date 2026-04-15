@@ -49,18 +49,25 @@ struct FZWInventoryItemDefinitionSaveData
 
 //////////////////////////////////////////////////////////////////////
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInstanceCreatedDelegate, UZWInventoryItemInstance*, Instance);
+
 // Represents a fragment of an item definition
-UCLASS(DefaultToInstanced, EditInlineNew, Abstract)
+UCLASS(DefaultToInstanced, EditInlineNew, Abstract, Blueprintable)
 class ZWINVENTORY_API UZWInventoryItemFragment : public UObject
 {
 	GENERATED_BODY()
 
 public:
-	virtual void OnInstanceCreated(UZWInventoryItemInstance* Instance) const {}
+	
+	virtual void OnInstanceCreated(UZWInventoryItemInstance* Instance) const { OnItemInstanceCreated.Broadcast(Instance); }
 
 	virtual void SaveFragment(FZWInventoryItemDefinitionSaveData& InventoryItemDefinitionSaveData) {}
 
-	virtual void LoadFragment(FZWInventoryItemFragmentSaveData& InventoryItemFragmentSaveData) {}
+	virtual void LoadFragment(FZWInventoryItemFragmentSaveData& InventoryItemFragmentSaveData) {}		
+	
+	//@TODO: Make it a blueprint event so the fragments can be created 
+	UPROPERTY(BlueprintAssignable, Category=ZWInventoryItemFragment, DisplayName="On Instance Created")
+	FOnInstanceCreatedDelegate OnItemInstanceCreated;
 };
 
 /**

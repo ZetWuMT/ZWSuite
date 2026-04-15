@@ -25,6 +25,11 @@ FInventoryPickup UZWInventoryComponent::GetPickupInventory() const
 	return StaticInventory;
 }
 
+void UZWInventoryComponent::SetPickupInventory(const FInventoryPickup& InPickupInventory)
+{
+	StaticInventory = InPickupInventory;
+}
+
 void UZWInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();

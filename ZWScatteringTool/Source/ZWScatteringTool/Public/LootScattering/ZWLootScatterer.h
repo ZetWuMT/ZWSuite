@@ -17,6 +17,10 @@ struct FZWLootScatterEntry
 {
 	GENERATED_BODY()
 	
+	// The StaticMesh to spawn
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loot")
+	TSoftObjectPtr<UStaticMesh> ItemStaticMesh;
+	
 	// The item to spawn
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Loot")
 	TSoftObjectPtr<UZWInventoryItemDefinition> ItemDefinition;
@@ -45,7 +49,17 @@ struct FZWLootScatterEntry
 	FGameplayTagContainer ExclusionTags;
 };
 
-
+USTRUCT()
+struct FZWLootSpawnParams
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(Transient)
+	FInventoryPickup InventoryPickup;
+	
+	UPROPERTY(Transient)
+	TSoftObjectPtr<UStaticMesh> StaticMesh;
+};
 // ------- Loot Scatterer ---------
 
 UCLASS()
