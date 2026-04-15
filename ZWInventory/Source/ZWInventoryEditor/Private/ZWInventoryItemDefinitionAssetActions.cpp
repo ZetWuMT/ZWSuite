@@ -2,7 +2,7 @@
 
 
 #include "ZWInventoryItemDefinitionAssetActions.h"
-
+#include "ZWInventoryEditor.h"
 #include "ZWInventoryItemDefinition.h"
 
 FText ZWInventoryItemDefinitionAssetActions::GetName() const
@@ -22,5 +22,5 @@ FColor ZWInventoryItemDefinitionAssetActions::GetTypeColor() const
 
 uint32 ZWInventoryItemDefinitionAssetActions::GetCategories()
 {
-	return FModuleManager::LoadModuleChecked<FZWInventoryEditorModule>("InventoryEditor").GetInventoryAssetCategory();
+	return FModuleManager::LoadModuleChecked<FZWInventoryEditorModule>("ZWInventoryEditor").GetInventoryAssetCategory();
 }

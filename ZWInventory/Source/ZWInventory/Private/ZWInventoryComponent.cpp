@@ -4,6 +4,7 @@
 #include "ZWInventoryComponent.h"
 
 #include "ZWInteractionComponent.h"
+#include "ZWInventoryManagerComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/PlayerState.h"
 #include "Kismet/GameplayStatics.h"
