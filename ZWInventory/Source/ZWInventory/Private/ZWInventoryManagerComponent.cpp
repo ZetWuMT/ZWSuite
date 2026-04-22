@@ -350,6 +350,8 @@ TArray<UZWInventoryItemInstance*> UZWInventoryManagerComponent::AddItemDefinitio
 		RemainingCountToAdd -= AmountForNewInstance;
 		AffectedInstances.Add(NewInstance);
 	}
+	
+	OnItemAdded.Broadcast(ItemDef->DisplayName, StackCount);
 
 	return AffectedInstances;
 }

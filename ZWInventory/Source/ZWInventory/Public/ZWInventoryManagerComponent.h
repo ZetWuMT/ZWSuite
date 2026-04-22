@@ -192,6 +192,8 @@ struct TStructOpsTypeTraits<FZWInventoryList> : public TStructOpsTypeTraitsBase2
 	enum { WithNetDeltaSerializer = true };
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FItemAddedDelegate, FText, ItemName, int32, StackCount);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ZWINVENTORY_API UZWInventoryManagerComponent : public UActorComponent
 {
@@ -233,6 +235,9 @@ public:
 	FZWInventoryManagerComponentSaveData SaveInventoryManager();
 
 	void LoadInventoryManager(FZWInventoryManagerComponentSaveData& InventoryManagerSaveData);
+	
+	UPROPERTY(BlueprintAssignable, Category= "Inventory")
+	FItemAddedDelegate OnItemAdded;
 
 private:
 	UPROPERTY(VisibleAnywhere, Category=Inventory, SaveGame)

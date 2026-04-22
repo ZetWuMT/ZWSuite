@@ -28,7 +28,7 @@ public class ZWUIStateTree : ModuleRules
 				"Core", 
 				"StateTreeModule",
 				"GameplayTags",
-				"DeveloperSettings"
+				"DeveloperSettings",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

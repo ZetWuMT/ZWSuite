@@ -6,6 +6,7 @@
 #include "Engine/DeveloperSettings.h"
 #include "ZWUIStateTreeSettings.generated.h"
 
+class UStateTree;
 /**
  * 
  */
