@@ -28,7 +28,7 @@ void UZWInputComponent::InitializeInput()
 			{
 				if (UInputAction* InputAction = GenericInputAction.InputAction.LoadSynchronous())
 				{
-					BindAction(InputAction, ETriggerEvent::Started, this, &UZWInputComponent::HandleGenericInput, ActionTag);
+					BindAction(InputAction, GenericInputAction.TriggerEvent, this, &UZWInputComponent::HandleGenericInput, ActionTag);
 				}
 			}
 		}

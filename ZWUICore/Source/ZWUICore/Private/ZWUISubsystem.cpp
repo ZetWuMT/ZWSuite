@@ -10,6 +10,7 @@
 #include "ZWUIPlayerHUBWidget.h"
 #include "ZWUIRootLayout.h"
 #include "Components/Overlay.h"
+#include "Components/OverlaySlot.h"
 #include "Engine/AssetManager.h"
 #include "Input/CommonUIActionRouterBase.h"
 #include "Widgets/CommonActivatableWidgetContainer.h"
@@ -67,7 +68,10 @@ void UZWUISubsystem::PlayerControllerChanged(APlayerController* NewPlayerControl
 					if (UClass* HUDClass = UISettings->MainHUDClass.LoadSynchronous())
 					{
 						UUserWidget* MainHUD = CreateWidget<UUserWidget>(PlayerController, HUDClass);
-						RootLayout->GameLayer->AddChild(MainHUD);
+						UOverlaySlot* NewSlot = Cast<UOverlaySlot>(RootLayout->GameLayer->AddChild(MainHUD));
+						NewSlot->SetPadding(FMargin());
+						NewSlot->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
+						NewSlot->SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
 					}
 				}
 				return;

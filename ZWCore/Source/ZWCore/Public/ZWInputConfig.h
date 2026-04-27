@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "Engine/DataAsset.h"
+#include "InputTriggers.h"
 #include "ZWInputConfig.generated.h"
 
 class UInputAction;
@@ -22,6 +23,9 @@ struct FZWInputAction
 	// Logiczny tag, który ma zostać wysłany po wciśnięciu (np. "UI.Action.Inventory")
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (Categories = "InputTag"))
 	FGameplayTag InputTag;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	ETriggerEvent TriggerEvent = ETriggerEvent::Started;
 };
 
 /**
