@@ -5,7 +5,6 @@
 #include "IPickupable.h"
 #include "ZWInventoryComponent.h"
 #include "../../../../../ZWInteraction/Source/ZWInteraction/Public/ZWInteractionComponent.h"
-#include "Algo/RandomShuffle.h"
 #include "Engine/StaticMeshActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "LootScattering/ZWLootProbe.h"
@@ -13,97 +12,40 @@
 // Sets default values
 AZWLootScatterer::AZWLootScatterer()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	ProbeClass = AZWLootProbe::StaticClass();
 }
 
-// Called when the game starts or when spawned
-void AZWLootScatterer::BeginPlay()
+void AZWLootScatterer::PerformScattering(const TArray<AZWScatterProbe*>& AvailableProbes)
 {
-	Super::BeginPlay();
-	
-	if (HasAuthority())
-	{
-		ScatterLoot();
-	}
-}
+	TMap<AZWScatterProbe*, FZWLootSpawnParams> PlannedSpawns;
 
-void AZWLootScatterer::ScatterLoot()
-{
-	// 1. Zbieramy wszystkie Proby z levelu
-	TArray<AActor*> FoundActors;
-	UGameplayStatics::GetAllActorsOfClass(this, AZWLootProbe::StaticClass(), FoundActors);
-
-	TArray<AZWLootProbe*> AllProbes;
-	for (AActor* Actor : FoundActors)
-	{
-		if (AZWLootProbe* Probe = Cast<AZWLootProbe>(Actor))
-		{
-			AllProbes.Add(Probe);
-		}
-	}
-
-	if (AllProbes.IsEmpty()) return;
-
-	// NOWOŚĆ: Mapa przechowująca zaplanowany loot dla danego punktu (Proba)
-	TMap<AZWLootProbe*, FZWLootSpawnParams> PlannedSpawns;
-
-	// 2. FAZA PLANOWANIA (Logika z poprzedniego kroku, ale bez spawnowania)
-	for (const FZWLootScatterEntry& Entry : LootTable)
+	// 1. FAZA PLANOWANIA
+	for (const FZWLootScatterEntry& Entry : ScatterEntryTable)
 	{
 		if (Entry.ItemDefinition.IsNull()) continue;
 
-		TArray<AZWLootProbe*> ValidProbes;
-		for (AZWLootProbe* Probe : AllProbes)
+		// Używamy metody z klasy bazowej, która oddaje nam gotowy plan rozlokowania dla tego wpisu!
+		TMap<AZWScatterProbe*, int32> EntryAllocations = CalculateSpawnsForEntry(Entry, AvailableProbes);
+
+		for (const TTuple<AZWScatterProbe*, int32>& Allocation : EntryAllocations)
 		{
-			// Opcjonalnie: Jeśli nie chcesz, żeby przedmioty się łączyły, odkomentuj poniższe.
-			// Ale zazwyczaj chcemy łączyć loot w "skrzynkach", więc to omijamy!
-			// if (PlannedSpawns.Contains(Probe)) continue; 
+			AZWScatterProbe* TargetProbe = Allocation.Key;
+			int32 AmountToSpawn = Allocation.Value;
 
-			if (Entry.ExclusionTags.IsValid() && Probe->LocationTags.HasAny(Entry.ExclusionTags))
-			{
-				continue;
-			}
-			ValidProbes.Add(Probe);
-		}
-
-		Algo::RandomShuffle(ValidProbes);
-
-		int32 CurrentTotalSpawned = 0;
-		int32 ProbesUsedForThisItem = 0;
-
-		for (AZWLootProbe* TargetProbe : ValidProbes)
-		{
-			if (ProbesUsedForThisItem >= Entry.MaxProbesToUse) break;
-
-			int32 AmountToSpawnHere = FMath::RandRange(Entry.MinStackPerProbe, Entry.MaxStackPerProbe);
-			if (CurrentTotalSpawned + AmountToSpawnHere > Entry.MaxTotalItems)
-			{
-				AmountToSpawnHere = Entry.MaxTotalItems - CurrentTotalSpawned;
-			}
-
-			if (AmountToSpawnHere <= 0) break;
-
-			// --- ZAPISUJEMY W MAPIE (ZAMIAST SPAWNOWAĆ) ---
-			
-			// Tworzymy Template z Twojej struktury
 			FPickupTemplate NewTemplate;
 			NewTemplate.ItemDef = Entry.ItemDefinition;
-			NewTemplate.StackCount = AmountToSpawnHere;
+			NewTemplate.StackCount = AmountToSpawn;
 
-			// Dodajemy do Proba (jeśli Prob nie miał jeszcze lootu, TMap stworzy nowy wpis automatycznie)
+			// Dodajemy do Proba w naszym własnym słowniku (Mapie)
 			PlannedSpawns.FindOrAdd(TargetProbe).InventoryPickup.Templates.Add(NewTemplate);
 			PlannedSpawns.Find(TargetProbe)->StaticMesh = Entry.ItemStaticMesh;
-
-			// Aktualizacja liczników
-			CurrentTotalSpawned += AmountToSpawnHere;
-			ProbesUsedForThisItem++;
 		}
 	}
 
-	// 3. FAZA SPAWNOWANIA (Fizyczne pojawienie się Aktorów w świecie)
-	for (const TTuple<AZWLootProbe*, FZWLootSpawnParams>& PlannedSpawn : PlannedSpawns)
+	// 2. FAZA SPAWNOWANIA (Pozostaje w 100% z Twojej starej logiki)
+	for (const TTuple<AZWScatterProbe*, FZWLootSpawnParams>& PlannedSpawn : PlannedSpawns)
 	{
-		AZWLootProbe* Probe = PlannedSpawn.Key;
+		AZWScatterProbe* Probe = PlannedSpawn.Key;
 		const FInventoryPickup& PickupDataToGrant = PlannedSpawn.Value.InventoryPickup;
 
 		FTransform SpawnTransform = Probe->GetActorTransform();
@@ -113,59 +55,26 @@ void AZWLootScatterer::ScatterLoot()
 
 		if (NewPickup)
 		{
-			// UWAGA: Tutaj przypisujesz dane do swojego komponentu/aktora.
-			// Zakładam, że Twój Aktor Pickupa ma InventoryComponent, a ten ma zmienną typu FInventoryPickup
-			
 			if (UStaticMeshComponent* StaticMeshComponent = NewPickup->FindComponentByClass<UStaticMeshComponent>())
 			{
 				if (UStaticMesh* NewStaticMesh = PlannedSpawn.Value.StaticMesh.LoadSynchronous())
 				{
-					StaticMeshComponent->SetStaticMesh(NewStaticMesh);;	
+					StaticMeshComponent->SetStaticMesh(NewStaticMesh);	
 				}				
 			}
 			
 			UActorComponent* NewIntComp = NewPickup->AddComponentByClass(UZWInteractionComponent::StaticClass(), false, FTransform::Identity, true);
-			if (!NewIntComp)
-			{
-				UE_LOG(LogTemp, Error, TEXT("Loot Scatterer: New Interaction Component not created!"));
-				NewPickup->Destroy(); // Usuń niekompletny aktor
-				continue; // Przejdź do następnego zaplanowanego spawnu
-			}
-			NewIntComp->RegisterComponent();
+			if (NewIntComp) NewIntComp->RegisterComponent();
 
 			UActorComponent* NewInvComp = NewPickup->AddComponentByClass(UZWInventoryComponent::StaticClass(), false, FTransform::Identity, false);
-			if (!NewInvComp)
-			{
-				UE_LOG(LogTemp, Error, TEXT("Loot Scatterer: New Inventory Component not created!"));
-				NewPickup->Destroy(); // Usuń niekompletny aktor
-				continue; // Przejdź do następnego zaplanowanego spawnu
-			}
-			NewInvComp->RegisterComponent();
+			if (NewInvComp) NewInvComp->RegisterComponent();
 
 			if (UZWInventoryComponent* InvComp = Cast<UZWInventoryComponent>(NewInvComp))
 			{
-				
 				InvComp->SetPickupInventory(PickupDataToGrant);
 			}
-			else
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Loot Scatterer: Failed to cast NewInvComp to UZWInventoryComponent for actor %s."), *NewPickup->GetName());
-			}
-
-			// W tym miejscu wstrzykujesz zebraną paczkę z mapy do nowo powstałego Aktora.
-			// NewPickup->TwojaZmiennaFInventoryPickup = PickupDataToGrant;
 
 			UGameplayStatics::FinishSpawningActor(NewPickup, SpawnTransform);
-		}
-	}	
-	
-	// 4. FAZA CZYSZCZENIA (Sprzątanie mapy)
-	// Iterujemy po oryginalnej tablicy wszystkich pobranych punktów i niszczymy je.
-	for (AZWLootProbe* Probe : AllProbes)
-	{
-		if (IsValid(Probe))
-		{
-			Probe->Destroy();
 		}
 	}
 }
