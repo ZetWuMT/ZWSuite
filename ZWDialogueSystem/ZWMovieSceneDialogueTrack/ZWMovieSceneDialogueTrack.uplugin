@@ -1,41 +1,42 @@
-﻿{
+{
 	"FileVersion": 3,
 	"Version": 1,
 	"VersionName": "1.0",
-	"FriendlyName": "ZWInputStateTree",
+	"FriendlyName": "ZWMovieSceneDialogueTrack",
 	"Description": "",
 	"Category": "Other",
 	"CreatedBy": "",
 	"CreatedByURL": "",
 	"DocsURL": "",
 	"MarketplaceURL": "",
-	"EnabledByDefault" : false,
+	"SupportURL": "",
 	"CanContainContent": true,
 	"IsBetaVersion": false,
 	"IsExperimentalVersion": false,
 	"Installed": false,
 	"Modules": [
 		{
-			"Name": "ZWInputStateTree",
+			"Name": "ZWMovieSceneDialogueTrack",
 			"Type": "Runtime",
+			"LoadingPhase": "PreDefault"
+		},
+		{
+			"Name": "ZWMovieSceneDialogueTrackEditor",
+			"Type": "Editor",
 			"LoadingPhase": "Default"
 		}
 	],
 	"Plugins": [
 		{
-			"Name": "ZWInput",
+			"Name": "AssetSearch",
 			"Enabled": true
 		},
 		{
-			"Name": "EnhancedInput",
+			"Name": "EditorScriptingUtilities",
 			"Enabled": true
 		},
 		{
-			"Name": "StateTree",
-			"Enabled": true
-		},
-		{
-			"Name": "ZWGameplayActions",
+			"Name": "CommonUI",
 			"Enabled": true
 		}
 	]

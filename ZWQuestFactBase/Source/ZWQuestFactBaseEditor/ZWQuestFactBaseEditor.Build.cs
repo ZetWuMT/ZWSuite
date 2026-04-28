@@ -1,10 +1,10 @@
-﻿// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 using UnrealBuildTool;
 
-public class ZWInputStateTree : ModuleRules
+public class ZWQuestFactBaseEditor : ModuleRules
 {
-	public ZWInputStateTree(ReadOnlyTargetRules Target) : base(Target)
+	public ZWQuestFactBaseEditor(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		
@@ -26,12 +26,7 @@ public class ZWInputStateTree : ModuleRules
 			new string[]
 			{
 				"Core",
-				"GameplayTags",
-				"EnhancedInput",
-				"StateTreeModule",
-				"DeveloperSettings", 
-				"ZWInput",
-				"ZWGameplayActions"
+                "ZWQuestFactBase",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -40,10 +35,16 @@ public class ZWInputStateTree : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
+				"Projects",
+				"InputCore",
+				"EditorFramework",
+				"UnrealEd",
+				"ToolMenus",
 				"CoreUObject",
 				"Engine",
 				"Slate",
-				"SlateCore"
+				"SlateCore",
+                "EditorScriptingUtilities",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
