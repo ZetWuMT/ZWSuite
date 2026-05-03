@@ -12,10 +12,10 @@ class IZWDialogueLineHandler;
 
 using FZWDialogueTokenPtr = TSharedPtr<FZWDialogueToken>;
 
-/*
-TODO: Potential multi-casts for additional subsystems if needed
-DECLARE_MULTICAST_DELEGATE_OneParam(FDialogueStartedEvent, Timeline*);
-DECLARE_MULTICAST_DELEGATE_OneParam(FDialogueEndedEvent, Timeline*);*/
+
+//TODO: Potential multi-casts for additional subsystems if needed
+DECLARE_MULTICAST_DELEGATE_OneParam(FDialogueStartedEvent, const FGuid);
+DECLARE_MULTICAST_DELEGATE_OneParam(FDialogueEndedEvent, const FGuid);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FDialogueTickEvent, const FGuid, float);
 
 
@@ -88,13 +88,12 @@ class ZWMOVIESCENEDIALOGUETRACK_API UZWMovieSceneDialogueSubsystem : public UGam
     GENERATED_BODY()
 
 public:
-    /*
-    TODO: Potential multi-casts for additional subsystems if needed
+    
+    //@TODO: Potential multi-casts for additional subsystems if needed
     FDialogueStartedEvent DialogueStartedEvent;
-    FDialogueEndedEvent DialogueEndedEvent;*/
+    FDialogueEndedEvent DialogueEndedEvent;
     FDialogueTickEvent DialogueTickEvent;
     
-public:
     virtual void Deinitialize() override;
 
     void TickDialogue(FGuid EventID, float CurrentTime);
@@ -105,9 +104,9 @@ public:
     void RegisterDialogueHandler(IZWDialogueLineHandler* Handler);
     void UnregisterDialogueHandler(IZWDialogueLineHandler* Handler);
 
-private:
+private: 
     void CloseDialogueLine(const FGuid& EventID);
-
+    
     TArray<FZWDialogueData> CurrentDialogueLines;
 
     TArray<TWeakInterfacePtr<IZWDialogueLineHandler>> DialogueLineHandlers;
