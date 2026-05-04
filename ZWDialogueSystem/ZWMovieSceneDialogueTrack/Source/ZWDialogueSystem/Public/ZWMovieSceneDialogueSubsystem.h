@@ -65,12 +65,12 @@ enum class EZWStartDialogueResult
 };
 
 UINTERFACE(Blueprintable)
-class ZWMOVIESCENEDIALOGUETRACK_API UZWDialogueLineHandler : public UInterface
+class ZWDIALOGUESYSTEM_API UZWDialogueLineHandler : public UInterface
 {
     GENERATED_BODY()
 };
 
-class ZWMOVIESCENEDIALOGUETRACK_API IZWDialogueLineHandler
+class ZWDIALOGUESYSTEM_API IZWDialogueLineHandler
 {
     GENERATED_BODY()
 
@@ -83,7 +83,7 @@ public:
 };
 
 UCLASS()
-class ZWMOVIESCENEDIALOGUETRACK_API UZWMovieSceneDialogueSubsystem : public UGameInstanceSubsystem
+class ZWDIALOGUESYSTEM_API UZWMovieSceneDialogueSubsystem : public UGameInstanceSubsystem
 {
     GENERATED_BODY()
 

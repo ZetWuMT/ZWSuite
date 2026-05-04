@@ -5,14 +5,14 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "Delegates/Delegate.h"
-#include "QuestChoiceChangeableObject.h"
-#include "QuestChoiceData.generated.h"
+#include "ZWDialogueChoiceChangeableObject.h"
+#include "ZWDialogueChoiceData.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ZWMOVIESCENEDIALOGUETRACK_API UQuestChoiceData : public UQuestChoiceChangeableObject
+class ZWDIALOGUESYSTEM_API UZWDialogueChoiceData : public UZWDialogueChoiceChangeableObject
 {
 	GENERATED_BODY()
 

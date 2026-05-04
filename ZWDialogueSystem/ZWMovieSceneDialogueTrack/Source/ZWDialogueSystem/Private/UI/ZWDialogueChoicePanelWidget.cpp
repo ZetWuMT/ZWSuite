@@ -1,28 +1,28 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "QuestChoicePanelWidget.h"
+#include "UI/ZWDialogueChoicePanelWidget.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Input/CommonUIInputTypes.h"
-#include "QuestChoiceWidget.h"
-#include "QuestChoiceData.h"
+#include "UI/ZWDialogueChoiceWidget.h"
+#include "ZWDialogueChoiceData.h"
 
-void UQuestChoicePanelWidget::SetupView(const TObjectPtr<UQuestChoicePanelWidgetData>& Data)
+void UZWDialogueChoicePanelWidget::SetupView(const TObjectPtr<UZWDialogueChoicePanelWidgetData>& Data)
 {
-    ChoiceWidgetData = Cast<UQuestChoicePanelWidgetData>(Data);
+    ChoiceWidgetData = Cast<UZWDialogueChoicePanelWidgetData>(Data);
     check(ChoiceWidgetData);
 
     int32 ChoiceIndex = 0;
     CurrentChoiceIndex = 0;
 
-    for (UQuestChoiceData* ChoiceData : ChoiceWidgetData->MainChoices)
+    for (UZWDialogueChoiceData* ChoiceData : ChoiceWidgetData->MainChoices)
     {
         CreateChoice(ChoiceData, ChoiceIndex);
         ChoiceIndex++;
     }
 
-    for (UQuestChoiceData* ChoiceData : ChoiceWidgetData->Choices)
+    for (UZWDialogueChoiceData* ChoiceData : ChoiceWidgetData->Choices)
     {
         CreateChoice(ChoiceData, ChoiceIndex);
         ChoiceIndex++;
@@ -31,7 +31,7 @@ void UQuestChoicePanelWidget::SetupView(const TObjectPtr<UQuestChoicePanelWidget
     SelectChoice(EChoiceSelection::Current);
 }
 
-void UQuestChoicePanelWidget::SelectAndConfirmChoiceAtIndex(int Index)
+void UZWDialogueChoicePanelWidget::SelectAndConfirmChoiceAtIndex(int Index)
 {
     if (Choices.Num() > Index)
     {
@@ -43,7 +43,7 @@ void UQuestChoicePanelWidget::SelectAndConfirmChoiceAtIndex(int Index)
     }
 }
 
-void UQuestChoicePanelWidget::NativeOnActivated()
+void UZWDialogueChoicePanelWidget::NativeOnActivated()
 {
     Super::NativeOnActivated();
 
@@ -52,7 +52,7 @@ void UQuestChoicePanelWidget::NativeOnActivated()
         NextChoiceActionHandle = RegisterUIActionBinding(FBindUIActionArgs(
             NextChoiceActionData,
             false,
-            FSimpleDelegate::CreateUObject(this, &UQuestChoicePanelWidget::SelectNextChoice)));
+            FSimpleDelegate::CreateUObject(this, &UZWDialogueChoicePanelWidget::SelectNextChoice)));
     }
 
     if (!PreviousChoiceActionHandle.IsValid() && !PreviousChoiceActionData.IsNull())
@@ -60,7 +60,7 @@ void UQuestChoicePanelWidget::NativeOnActivated()
         PreviousChoiceActionHandle = RegisterUIActionBinding(FBindUIActionArgs(
             PreviousChoiceActionData,
             false,
-            FSimpleDelegate::CreateUObject(this, &UQuestChoicePanelWidget::SelectPreviousChoice)));
+            FSimpleDelegate::CreateUObject(this, &UZWDialogueChoicePanelWidget::SelectPreviousChoice)));
     }
 
     if (!ConfirmChoiceActionHandle.IsValid() && !ConfirmChoiceActionData.IsNull())
@@ -68,11 +68,11 @@ void UQuestChoicePanelWidget::NativeOnActivated()
         ConfirmChoiceActionHandle = RegisterUIActionBinding(FBindUIActionArgs(
             ConfirmChoiceActionData,
             false,
-            FSimpleDelegate::CreateUObject(this, &UQuestChoicePanelWidget::ConfirmSelectedChoice)));
+            FSimpleDelegate::CreateUObject(this, &UZWDialogueChoicePanelWidget::ConfirmSelectedChoice)));
     }
 }
 
-void UQuestChoicePanelWidget::NativeOnDeactivated()
+void UZWDialogueChoicePanelWidget::NativeOnDeactivated()
 {
     bIsActive = false;
     Choices.Empty();
@@ -84,20 +84,20 @@ void UQuestChoicePanelWidget::NativeOnDeactivated()
 }
 
 /*
-FReply UQuestChoicePanelWidget::NativeOnMouseWheel(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+FReply UZWDialogueChoicePanelWidget::NativeOnMouseWheel(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
     UE_LOG(LogTemp, Log, TEXT("Wheel"));
     return FReply::Handled();
 }
 
-FReply UQuestChoicePanelWidget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
+FReply UZWDialogueChoicePanelWidget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {    
     //return InKeyEvent.GetKey() == FKey("F") ? OnKeyUp(InGeometry, InKeyEvent).NativeReply : FReply::Unhandled();
     UE_LOG(LogTemp, Log, TEXT("BANG"));
     return FReply::Unhandled();
 }*/
 
-void UQuestChoicePanelWidget::ShowQuestChoicePanelWidget()
+void UZWDialogueChoicePanelWidget::ShowDialogueChoicePanelWidget()
 {
     if (!bIsActive)
     {
@@ -107,7 +107,7 @@ void UQuestChoicePanelWidget::ShowQuestChoicePanelWidget()
     }    
 }
 
-void UQuestChoicePanelWidget::HideQuestChoicePanelWidget()
+void UZWDialogueChoicePanelWidget::HideDialogueChoicePanelWidget()
 {
     if (bIsActive)
     {
@@ -120,17 +120,17 @@ void UQuestChoicePanelWidget::HideQuestChoicePanelWidget()
     }
 }
 
-void UQuestChoicePanelWidget::SelectNextChoice()
+void UZWDialogueChoicePanelWidget::SelectNextChoice()
 {
     SelectChoice(EChoiceSelection::Next);
 }
 
-void UQuestChoicePanelWidget::SelectPreviousChoice()
+void UZWDialogueChoicePanelWidget::SelectPreviousChoice()
 {
     SelectChoice(EChoiceSelection::Previous);
 }
 
-void UQuestChoicePanelWidget::ConfirmSelectedChoice()
+void UZWDialogueChoicePanelWidget::ConfirmSelectedChoice()
 {
     if (bAlreadySelectedChoice)
     {
@@ -145,7 +145,7 @@ void UQuestChoicePanelWidget::ConfirmSelectedChoice()
     ChoiceWidgetData->SetDirty(true);
 }
 
-UQuestChoicePanelWidgetData* UQuestChoicePanelWidget::GetChoiceWidgetData()
+UZWDialogueChoicePanelWidgetData* UZWDialogueChoicePanelWidget::GetChoiceWidgetData()
 {
     if (ChoiceWidgetData != nullptr)
     {
@@ -155,7 +155,7 @@ UQuestChoicePanelWidgetData* UQuestChoicePanelWidget::GetChoiceWidgetData()
     return nullptr;
 }
 
-void UQuestChoicePanelWidget::CreateChoice(UQuestChoiceData* ChoiceData, int32 Index)
+void UZWDialogueChoicePanelWidget::CreateChoice(UZWDialogueChoiceData* ChoiceData, int32 Index)
 {
     if (ChoiceData->bSingleUse && ChoiceData->bWasChosen)
     {
@@ -165,13 +165,13 @@ void UQuestChoicePanelWidget::CreateChoice(UQuestChoiceData* ChoiceData, int32 I
     UUserWidget* Widget = CreateWidget(this, ChoiceWidgetRef);
     ChoicesBox->AddChildToVerticalBox(Widget);
 
-    UQuestChoiceWidget* ChoiceWidget = Cast<UQuestChoiceWidget>(Widget);
+    UZWDialogueChoiceWidget* ChoiceWidget = Cast<UZWDialogueChoiceWidget>(Widget);
     ChoiceWidget->SetChoiceData(ChoiceData);
 
     Choices.Add(Index, ChoiceWidget);
 }
 
-void UQuestChoicePanelWidget::SelectChoice(EChoiceSelection ChoiceToSelect)
+void UZWDialogueChoicePanelWidget::SelectChoice(EChoiceSelection ChoiceToSelect)
 {
     switch (ChoiceToSelect)
     {

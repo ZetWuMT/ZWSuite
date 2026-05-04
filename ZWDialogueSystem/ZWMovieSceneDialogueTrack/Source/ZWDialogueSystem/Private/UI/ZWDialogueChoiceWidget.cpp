@@ -1,25 +1,25 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "QuestChoiceWidget.h"
+#include "UI/ZWDialogueChoiceWidget.h"
 
-void UQuestChoiceWidget::SelectChoice()
+void UZWDialogueChoiceWidget::SelectChoice()
 {
 	ChoiceBoxText->SetColorAndOpacity(FLinearColor::Gray);
 }
 
-void UQuestChoiceWidget::UnselectChoice()
+void UZWDialogueChoiceWidget::UnselectChoice()
 {
 	ChoiceBoxText->SetColorAndOpacity(FLinearColor::White);
 }
 
-void UQuestChoiceWidget::SetChoiceData(UQuestChoiceData* ChoiceData)
+void UZWDialogueChoiceWidget::SetChoiceData(UZWDialogueChoiceData* ChoiceData)
 {
 	//ChoiceBoxText->Text = ChoiceData->ChoiceText;
 	ChoiceBoxText->SetText(ChoiceData->ChoiceText);
 }
 
-FName UQuestChoiceWidget::ChooseAndGetChoiceLabel()
+FName UZWDialogueChoiceWidget::ChooseAndGetChoiceLabel()
 {
 	return FName(ChoiceBoxText->GetText().ToString());
 }

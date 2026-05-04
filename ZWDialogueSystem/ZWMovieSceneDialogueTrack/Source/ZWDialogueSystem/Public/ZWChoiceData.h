@@ -2,19 +2,19 @@
 
 #pragma once
 #include "CoreMinimal.h"
-#include "ChoiceData.generated.h"
+#include "ZWChoiceData.generated.h"
 
 /**
  * 
  */
 USTRUCT()
-struct ZWMOVIESCENEDIALOGUETRACK_API FDialogueChoice
+struct ZWDIALOGUESYSTEM_API FZWDialogueChoice
 {
     GENERATED_BODY()
 
-    FDialogueChoice() = default;
+    FZWDialogueChoice() = default;
 
-    FDialogueChoice(FGuid Guid) : Guid(Guid)
+    FZWDialogueChoice(FGuid Guid) : Guid(Guid)
     {
     }
 
@@ -43,10 +43,10 @@ struct ZWMOVIESCENEDIALOGUETRACK_API FDialogueChoice
 };
 
 USTRUCT()
-struct ZWMOVIESCENEDIALOGUETRACK_API FChoiceData
+struct ZWDIALOGUESYSTEM_API FZWChoiceData
 {
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, Category = "Choices", /*EditFixedSize,*/ meta = (TitleProperty = "SocketName"))
-    TArray<FDialogueChoice> Choices;
+    TArray<FZWDialogueChoice> Choices;
 };

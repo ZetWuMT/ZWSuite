@@ -3,16 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "QuestChoiceData.h"
+#include "CommonActivatableWidget.h"
+#include "ZWDialogueChoiceData.h"
 #include "Components/TextBlock.h"
 #include "CommonActivatableWidget.h"
-#include "QuestChoiceWidget.generated.h"
+#include "ZWDialogueChoiceWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ZWMOVIESCENEDIALOGUETRACK_API UQuestChoiceWidget : public UCommonActivatableWidget
+class ZWDIALOGUESYSTEM_API UZWDialogueChoiceWidget : public UCommonActivatableWidget
 {
 	GENERATED_BODY()
 
@@ -23,7 +24,7 @@ public:
 	void SelectChoice();
 	void UnselectChoice();
 
-	void SetChoiceData(UQuestChoiceData* ChoiceData);
+	void SetChoiceData(UZWDialogueChoiceData* ChoiceData);
 	FName ChooseAndGetChoiceLabel();
 	
 };

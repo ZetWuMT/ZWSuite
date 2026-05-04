@@ -2,7 +2,7 @@
 	"FileVersion": 3,
 	"Version": 1,
 	"VersionName": "1.0",
-	"FriendlyName": "ZWMovieSceneDialogueTrack",
+	"FriendlyName": "ZWDialogueSystem",
 	"Description": "",
 	"Category": "Other",
 	"CreatedBy": "",
@@ -23,6 +23,11 @@
 		{
 			"Name": "ZWMovieSceneDialogueTrackEditor",
 			"Type": "Editor",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "ZWDialogueSystem",
+			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		}
 	],

@@ -3,24 +3,24 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "QuestChoiceData.h"
-#include "QuestChoiceChangeableObject.h"
-#include "QuestChoicePanelWidgetData.generated.h"
+#include "ZWDialogueChoiceData.h"
+#include "ZWDialogueChoiceChangeableObject.h"
+#include "ZWDialogueChoicePanelWidgetData.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ZWMOVIESCENEDIALOGUETRACK_API UQuestChoicePanelWidgetData : public UQuestChoiceChangeableObject
+class ZWDIALOGUESYSTEM_API UZWDialogueChoicePanelWidgetData : public UZWDialogueChoiceChangeableObject
 {
     GENERATED_BODY()
 
 public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-    TArray<TObjectPtr<UQuestChoiceData>> MainChoices;
+    TArray<TObjectPtr<UZWDialogueChoiceData>> MainChoices;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-    TArray<TObjectPtr<UQuestChoiceData>> Choices;
+    TArray<TObjectPtr<UZWDialogueChoiceData>> Choices;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
     FName ConfirmedChoice;
