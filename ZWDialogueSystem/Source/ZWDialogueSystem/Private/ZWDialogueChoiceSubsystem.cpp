@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ZWDialogueChoiceSubsystem.h"
-#include "ZWDialogueChoicePanelWidgetData.h"
+#include "UI/ZWDialogueChoicePanelWidgetData.h"
 
 void UZWDialogueChoiceSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
