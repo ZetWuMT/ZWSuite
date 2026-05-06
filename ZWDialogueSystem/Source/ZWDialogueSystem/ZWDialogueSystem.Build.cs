@@ -11,6 +11,7 @@ public class ZWDialogueSystem : ModuleRules
             {
                 "Core", 
                 "CommonUI",
+                "GameplayTags",
             }
         );
 
@@ -20,7 +21,8 @@ public class ZWDialogueSystem : ModuleRules
                 "CoreUObject",
                 "Engine",
                 "Slate",
-                "SlateCore"
+                "SlateCore",
+                "UMG"
             }
         );
     }
