@@ -5,6 +5,7 @@
 #include "IPickupable.h"
 #include "ZWInventoryComponent.h"
 #include "../../../../../ZWInteraction/Source/ZWInteraction/Public/ZWInteractionComponent.h"
+#include "Algo/RandomShuffle.h"
 #include "Engine/StaticMeshActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "LootScattering/ZWLootProbe.h"
@@ -18,6 +19,8 @@ AZWLootScatterer::AZWLootScatterer()
 void AZWLootScatterer::PerformScattering(const TArray<AZWScatterProbe*>& AvailableProbes)
 {
 	TMap<AZWScatterProbe*, FZWLootSpawnParams> PlannedSpawns;
+	
+	Algo::RandomShuffle(ScatterEntryTable);
 
 	// 1. FAZA PLANOWANIA
 	for (const FZWLootScatterEntry& Entry : ScatterEntryTable)

@@ -53,4 +53,6 @@ public:
 	
 private:
 	virtual void PerformScattering(const TArray<AZWScatterProbe*>& AvailableProbes) override;
+	
+	//@TODO: Add option to not spawn at all and to spawn only a globally limited amount of items
 };

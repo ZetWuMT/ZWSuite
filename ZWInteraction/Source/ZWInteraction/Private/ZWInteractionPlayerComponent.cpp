@@ -2,6 +2,8 @@
 
 
 #include "ZWInteractionPlayerComponent.h"
+
+#include "ScreenPass.h"
 #include "ZWInteractionComponent.h"
 #include "ZWInteractionSystemSettings.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -30,13 +32,19 @@ void UZWInteractionPlayerComponent::Interact()
 
 void UZWInteractionPlayerComponent::ResolveLineTracePoints(FVector& TraceStart, FVector& TraceEnd, float& TraceRadius)
 {
-	const FVector DetectorLocation = GetComponentLocation();
-	const FRotator DetectorRotation = GetComponentRotation();
+	FVector DetectorLocation = GetComponentLocation();
+	FVector DetectorDirection = UKismetMathLibrary::GetForwardVector(GetComponentRotation());
+	if (APlayerController* PC = Cast<APlayerController>(GetOwner()->GetInstigatorController()))
+	{
+		int32 ScreenSizeX, ScreenSizeY;
+		PC->GetViewportSize(ScreenSizeX, ScreenSizeY);
+		PC->DeprojectScreenPositionToWorld(ScreenSizeX * 0.5f, ScreenSizeY * 0.5f, DetectorLocation, DetectorDirection);
+	}
 	
 	TraceStart = DetectorLocation;
-	TraceEnd = TraceStart + UKismetMathLibrary::GetForwardVector(DetectorRotation) * 300;
+	TraceEnd = TraceStart + DetectorDirection * DetectionRange;
 
-	TraceRadius = 7.f;
+	TraceRadius = DetectionTraceRadius;	
 }
 
 void UZWInteractionPlayerComponent::ResolveLineTraceIgnoredActors(TArray<AActor*>& ActorsToIgnore)
@@ -88,9 +96,8 @@ void UZWInteractionPlayerComponent::DetectInteractiveObjects()
 
 	FVector TraceStart;
 	FVector TraceEnd;
-	float TraceRadius;
 	
-	ResolveLineTracePoints(TraceStart, TraceEnd, TraceRadius);
+	ResolveLineTracePoints(TraceStart, TraceEnd, DetectionTraceRadius);
 	ResolveLineTraceIgnoredActors(ActorsToIgnore);
 	
 	FHitResult HitResult;
@@ -100,10 +107,12 @@ void UZWInteractionPlayerComponent::DetectInteractiveObjects()
 	if (!Settings) return;
 	
 	ETraceTypeQuery CollisionTrace = UEngineTypes::ConvertToTraceType(Settings->InteractionCollisionChannel);
+	
+	EDrawDebugTrace::Type DetectionDrawDebugTrace = bDrawDebugTrace ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None;
 
-	bool Hit = UKismetSystemLibrary::SphereTraceSingle(GetWorld(), TraceStart, TraceEnd, TraceRadius,
+	bool Hit = UKismetSystemLibrary::SphereTraceSingle(GetWorld(), TraceStart, TraceEnd, DetectionTraceRadius,
 													   CollisionTrace, false,
-													   ActorsToIgnore, EDrawDebugTrace::None, HitResult, true);
+													   ActorsToIgnore, DetectionDrawDebugTrace, HitResult, true);
 	
 	if (Hit)
 	{
@@ -132,4 +141,6 @@ void UZWInteractionPlayerComponent::ResolveInteractiveObject(AActor* NewInteract
 	{
 		ResetInteractableObject();
 	}
+	
+	
 }

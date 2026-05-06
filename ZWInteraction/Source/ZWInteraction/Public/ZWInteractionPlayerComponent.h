@@ -36,6 +36,14 @@ protected:
 	void SetInteractedObject(TObjectPtr<UZWInteractionComponent> Object);
 	void ResetInteractedObject();
 	
+	UPROPERTY(EditDefaultsOnly, Category="Interaction", meta=(ClampMin="0", UIMin="0", ClampMax="20", UIMax="20"))
+	float DetectionTraceRadius = 7.f;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Interaction", meta=(ClampMin="0", UIMin="0", ClampMax="2000", UIMax="2000"))
+	float DetectionRange = 400.f;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Interaction")
+	bool bDrawDebugTrace = false;
 
 private:	
 	void DetectInteractiveObjects();
