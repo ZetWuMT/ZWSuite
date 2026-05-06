@@ -6,16 +6,16 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "ZWMovieSceneDialogueSubsystem.h"
-#include "QuestChoicePanelWidgetData.h"
-#include "QuestChoiceSubsystem.generated.h"
+#include "UI/ZWDialogueChoicePanelWidgetData.h"
+#include "ZWDialogueChoiceSubsystem.generated.h"
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnChoiceStartedDelegate, const TObjectPtr<UQuestChoicePanelWidgetData>&);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnChoiceStartedDelegate, const TObjectPtr<UZWDialogueChoicePanelWidgetData>&);
 
 /**
  * 
  */
 UCLASS()
-class ZWMOVIESCENEDIALOGUETRACK_API UQuestChoiceSubsystem : public UGameInstanceSubsystem, public IZWDialogueLineHandler
+class ZWDIALOGUESYSTEM_API UZWDialogueChoiceSubsystem : public UGameInstanceSubsystem, public IZWDialogueLineHandler
 {
 	GENERATED_BODY()
 
@@ -39,9 +39,9 @@ public:
     void OnShowChoiceDialogueLine(const FGuid& ChoiceSectionID, const FZWDialogueData& DialogueData);
     const FZWDialogueData& GetDialogueLineToShowDuringChoice(const FGuid& ChoiceSectionID) const;
 
-    void SetPanelWidgetData(const TObjectPtr<UQuestChoicePanelWidgetData>& ChoiceData);
+    void SetPanelWidgetData(const TObjectPtr<UZWDialogueChoicePanelWidgetData>& ChoiceData);
 
-    void ReceiveDataFromQuestChoicePanelWidget(UQuestChoiceChangeableObject* ChoiceData);
+    void ReceiveDataFromQuestChoicePanelWidget(UZWDialogueChoiceChangeableObject* ChoiceData);
 	
 private:
     void ResetChosenOptions();

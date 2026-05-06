@@ -1,0 +1,27 @@
+﻿using UnrealBuildTool;
+
+public class ZWDialogueSystem : ModuleRules
+{
+    public ZWDialogueSystem(ReadOnlyTargetRules Target) : base(Target)
+    {
+        PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+
+        PublicDependencyModuleNames.AddRange(
+            new string[]
+            {
+                "Core", 
+                "CommonUI",
+            }
+        );
+
+        PrivateDependencyModuleNames.AddRange(
+            new string[]
+            {
+                "CoreUObject",
+                "Engine",
+                "Slate",
+                "SlateCore"
+            }
+        );
+    }
+}

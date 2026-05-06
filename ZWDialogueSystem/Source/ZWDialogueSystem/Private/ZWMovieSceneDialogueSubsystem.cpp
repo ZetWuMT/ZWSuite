@@ -1,6 +1,6 @@
 #include "ZWMovieSceneDialogueSubsystem.h"
 #include "Engine/Engine.h"
-#include "LevelSequence.h"
+//#include "LevelSequence.h"
 
 FZWDialogueToken::FZWDialogueToken(UZWMovieSceneDialogueSubsystem* DialogueSubsystem, const FGuid& DialogueEventID) 
     : EventID(DialogueEventID)
@@ -29,11 +29,24 @@ void UZWMovieSceneDialogueSubsystem::Deinitialize()
 }
 
 void UZWMovieSceneDialogueSubsystem::TickDialogue(FGuid EventID, float CurrentTime)
-{
-    
+{    
     //TODO: Potential multi-casts for additional subsystems if needed
     DialogueTickEvent.Broadcast(EventID, CurrentTime);
     
+    const FZWDialogueData* CloseDialogueData = CurrentDialogueLines.FindByKey(EventID);
+    check(CloseDialogueData != nullptr);
+    
+    for (const TWeakInterfacePtr<IZWDialogueLineHandler>& DialogueLineHandlerWeak : DialogueLineHandlers)
+    {
+        if (IZWDialogueLineHandler* DialogueLineHandler = DialogueLineHandlerWeak.Get())
+        {
+            DialogueLineHandler->OnDialogueLineUpdated(*CloseDialogueData);
+            if (CloseDialogueData->FinalDialogueLineHandler == DialogueLineHandlerWeak)
+            {
+                break;
+            }
+        }
+    }    
 }
 
 FZWDialogueTokenPtr UZWMovieSceneDialogueSubsystem::TriggerDialogueLine(const FZWDialogueDetails& DialogueDetails)

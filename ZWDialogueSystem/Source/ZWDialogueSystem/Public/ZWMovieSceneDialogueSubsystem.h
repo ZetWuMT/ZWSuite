@@ -12,10 +12,10 @@ class IZWDialogueLineHandler;
 
 using FZWDialogueTokenPtr = TSharedPtr<FZWDialogueToken>;
 
-/*
-TODO: Potential multi-casts for additional subsystems if needed
-DECLARE_MULTICAST_DELEGATE_OneParam(FDialogueStartedEvent, Timeline*);
-DECLARE_MULTICAST_DELEGATE_OneParam(FDialogueEndedEvent, Timeline*);*/
+
+//TODO: Potential multi-casts for additional subsystems if needed
+DECLARE_MULTICAST_DELEGATE_OneParam(FDialogueStartedEvent, const FGuid);
+DECLARE_MULTICAST_DELEGATE_OneParam(FDialogueEndedEvent, const FGuid);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FDialogueTickEvent, const FGuid, float);
 
 
@@ -65,12 +65,12 @@ enum class EZWStartDialogueResult
 };
 
 UINTERFACE(Blueprintable)
-class ZWMOVIESCENEDIALOGUETRACK_API UZWDialogueLineHandler : public UInterface
+class ZWDIALOGUESYSTEM_API UZWDialogueLineHandler : public UInterface
 {
     GENERATED_BODY()
 };
 
-class ZWMOVIESCENEDIALOGUETRACK_API IZWDialogueLineHandler
+class ZWDIALOGUESYSTEM_API IZWDialogueLineHandler
 {
     GENERATED_BODY()
 
@@ -83,18 +83,17 @@ public:
 };
 
 UCLASS()
-class ZWMOVIESCENEDIALOGUETRACK_API UZWMovieSceneDialogueSubsystem : public UGameInstanceSubsystem
+class ZWDIALOGUESYSTEM_API UZWMovieSceneDialogueSubsystem : public UGameInstanceSubsystem
 {
     GENERATED_BODY()
 
 public:
-    /*
-    TODO: Potential multi-casts for additional subsystems if needed
+    
+    //@TODO: Potential multi-casts for additional subsystems if needed
     FDialogueStartedEvent DialogueStartedEvent;
-    FDialogueEndedEvent DialogueEndedEvent;*/
+    FDialogueEndedEvent DialogueEndedEvent;
     FDialogueTickEvent DialogueTickEvent;
     
-public:
     virtual void Deinitialize() override;
 
     void TickDialogue(FGuid EventID, float CurrentTime);
@@ -105,9 +104,9 @@ public:
     void RegisterDialogueHandler(IZWDialogueLineHandler* Handler);
     void UnregisterDialogueHandler(IZWDialogueLineHandler* Handler);
 
-private:
+private: 
     void CloseDialogueLine(const FGuid& EventID);
-
+    
     TArray<FZWDialogueData> CurrentDialogueLines;
 
     TArray<TWeakInterfacePtr<IZWDialogueLineHandler>> DialogueLineHandlers;

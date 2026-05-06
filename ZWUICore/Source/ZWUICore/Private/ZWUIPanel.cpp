@@ -42,7 +42,7 @@ void UZWUIPanel::NativeOnInitialized()
 							{
 								// Załóżmy, że dodałeś taki delegat w Subsystemie:
 								// FOnPanelClosedDelegate OnGenericUIActionTriggered;
-								Subsystem->OnGameplayTagSent.Broadcast(ActionTag); 
+								Subsystem->OnGameplayTagSent.Broadcast(ActionTag);
 						
 								// ^ (Możesz tu użyć OnPanelClosed, albo stworzyć nowy delegat np. OnGenericUIAction)
 							}

@@ -25,7 +25,7 @@ struct FZWDialogueWidgetData
  * 
  */
 UCLASS(Abstract)
-class ZWMOVIESCENEDIALOGUETRACK_API UZWMovieSceneDialogueWidget : public UUserWidget, public IZWDialogueLineHandler
+class ZWDIALOGUESYSTEM_API UZWMovieSceneDialogueWidget : public UUserWidget, public IZWDialogueLineHandler
 {
 	GENERATED_BODY()
 	

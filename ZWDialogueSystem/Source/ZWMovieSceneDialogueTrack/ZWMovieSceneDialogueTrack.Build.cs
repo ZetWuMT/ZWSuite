@@ -25,7 +25,8 @@ public class ZWMovieSceneDialogueTrack : ModuleRules
             "MovieScene",
             "MovieSceneTracks",
             "Slate",
-            "SlateCore"
+            "SlateCore", 
+            "ZWDialogueSystem"
         });
 
         if (Target.Type == TargetType.Editor)

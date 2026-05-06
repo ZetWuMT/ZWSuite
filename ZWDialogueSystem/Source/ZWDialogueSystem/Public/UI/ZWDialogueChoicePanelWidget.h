@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "QuestChoiceData.h"
-#include "QuestChoiceWidget.h"
-#include "QuestChoicePanelWidgetData.h"
+#include "ZWDialogueChoiceData.h"
+#include "ZWDialogueChoiceWidget.h"
+#include "ZWDialogueChoicePanelWidgetData.h"
 #include "Components/VerticalBox.h"
 #include "CommonActivatableWidget.h"
-#include "QuestChoicePanelWidget.generated.h"
+#include "ZWDialogueChoicePanelWidget.generated.h"
 
-class UQuestChoiceData;
+class UZWDialogueChoiceData;
 class UProgressBar;
 class UVerticalBox;
 
@@ -26,25 +26,25 @@ enum class EChoiceSelection : uint8
  * 
  */
 UCLASS()
-class ZWMOVIESCENEDIALOGUETRACK_API UQuestChoicePanelWidget : public UCommonActivatableWidget
+class ZWDIALOGUESYSTEM_API UZWDialogueChoicePanelWidget : public UCommonActivatableWidget
 {
     GENERATED_BODY()
 
 public:
-    void SetupView(const TObjectPtr<UQuestChoicePanelWidgetData>& ChoiceData);
+    void SetupView(const TObjectPtr<UZWDialogueChoicePanelWidgetData>& ChoiceData);
 
     UFUNCTION(BlueprintCallable, Category = DialogueUI)
     void SelectAndConfirmChoiceAtIndex(int Index);
 
-    const TMap<int, UQuestChoiceWidget*>& GetChoices() const
+    const TMap<int, UZWDialogueChoiceWidget*>& GetChoices() const
     {
         return Choices;
     }
 
-    void ShowQuestChoicePanelWidget();
-    void HideQuestChoicePanelWidget();
+    void ShowDialogueChoicePanelWidget();
+    void HideDialogueChoicePanelWidget();
 
-    UQuestChoicePanelWidgetData* GetChoiceWidgetData();
+    UZWDialogueChoicePanelWidgetData* GetChoiceWidgetData();
 
 protected:
     virtual void NativeOnActivated() override;
@@ -68,7 +68,7 @@ protected:
     UVerticalBox* ChoicesBox = nullptr;
 
     UPROPERTY(EditAnywhere)
-    TSubclassOf<UQuestChoiceWidget> ChoiceWidgetRef;
+    TSubclassOf<UZWDialogueChoiceWidget> ChoiceWidgetRef;
 
     UPROPERTY(EditDefaultsOnly, Category = "Input Actions Data")
     FDataTableRowHandle NextChoiceActionData;
@@ -89,11 +89,11 @@ protected:
 
 private:
     //virtual TOptional<FUIInputConfig> GetDesiredInputConfig() const override;
-    void CreateChoice(UQuestChoiceData* ChoiceData, int32 Index);
+    void CreateChoice(UZWDialogueChoiceData* ChoiceData, int32 Index);
     void SelectChoice(EChoiceSelection ChoiceToSelect);
 
     UPROPERTY()
-    UQuestChoicePanelWidgetData* ChoiceWidgetData = nullptr;
-    TMap<int, UQuestChoiceWidget*> Choices;
+    UZWDialogueChoicePanelWidgetData* ChoiceWidgetData = nullptr;
+    TMap<int, UZWDialogueChoiceWidget*> Choices;
     bool bAlreadySelectedChoice = false;
 };
