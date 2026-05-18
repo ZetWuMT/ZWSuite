@@ -15,8 +15,14 @@ class ZWMOVIESCENEDIALOGUETRACK_API UZWMovieSceneDialogueSection : public UMovie
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(VisibleAnywhere, Category = "Guid")
+	FGuid EventID;
+	
 	UPROPERTY(EditAnywhere, Category = "Speaker")
-	FText Speaker = FText::FromString("");
+	FName Speaker = FName("");
+	
+	UPROPERTY(EditAnywhere, Category = "Speaker")
+	FText LocalizedSpeaker = FText::FromString("");
 
 	UPROPERTY(EditAnywhere, Category = "Dialogue")
 	FText DialogueText = FText::FromString("");

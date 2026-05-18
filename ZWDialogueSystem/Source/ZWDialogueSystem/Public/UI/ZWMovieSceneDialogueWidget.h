@@ -14,7 +14,7 @@ USTRUCT(BlueprintType)
 struct FZWDialogueWidgetData
 {
     GENERATED_BODY()
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Speaker")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SpeakerID")
     FText Speaker;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Dialogue Line")
@@ -51,7 +51,7 @@ private:
     FGuid DialogueEventID;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-    //UTextBlock* Speaker;
+    //UTextBlock* SpeakerID;
     TObjectPtr<UTextBlock> Speaker;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))

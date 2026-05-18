@@ -46,7 +46,8 @@ uint32 UZWMovieSceneDialogueWidget::GetOrder() const
 EZWStartDialogueResult UZWMovieSceneDialogueWidget::OnStartDialogueLine(const FZWDialogueData& DialogueData)
 {
     DialogueEventID = DialogueData.EventID;
-    SetDialogueData(FZWDialogueWidgetData{ DialogueData.Speaker, DialogueData.DialogueLine }); 
+    FText SpeakerName = DialogueData.Speaker.IsEmpty() ? FText::FromName(DialogueData.SpeakerID) : DialogueData.Speaker;
+    SetDialogueData(FZWDialogueWidgetData{ SpeakerName, DialogueData.DialogueLine }); 
     DialogueText->SetVisibility(ESlateVisibility::Visible);
 
     return EZWStartDialogueResult::Handled;
@@ -72,6 +73,6 @@ void UZWMovieSceneDialogueWidget::NativeDestruct()
 Possibly needed when animation is included, but it's not handled atm
 void UZWMovieSceneDialogueWidget::OnDialogueLineUpdated(const FZWDialogueData DialogueData)
 {
-    SetDialogueData(FZWDialogueWidgetData{DialogueData.Speaker, DialogueData.DialogueLine});
+    SetDialogueData(FZWDialogueWidgetData{DialogueData.SpeakerID, DialogueData.DialogueLine});
 }
 */

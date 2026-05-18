@@ -73,8 +73,9 @@ void FZWMovieSceneDialogueSectionTemplate::Evaluate(const FMovieSceneEvaluationO
 
     FZWDialogueDetails DialogueData;
     //TODO: Check if refering to node is necessary. Might be in the future.
-    //DialogueData.SectionID = Section->NodeGuid;
-    DialogueData.Speaker = Section->Speaker;
+    //DialogueData = Section->EventID;
+    DialogueData.SpeakerID = Section->Speaker;
+    DialogueData.Speaker = Section->LocalizedSpeaker;
     DialogueData.DialogueText = Section->DialogueText;
 
     //Commented out with the TODO above

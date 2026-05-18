@@ -2,6 +2,11 @@
 #include "Engine/Engine.h"
 //#include "LevelSequence.h"
 
+FZWDialogueData::FZWDialogueData()
+    : EventID(FGuid::NewGuid())
+{
+}
+
 FZWDialogueToken::FZWDialogueToken(UZWMovieSceneDialogueSubsystem* DialogueSubsystem, const FGuid& DialogueEventID) 
     : EventID(DialogueEventID)
     , DialogueSubsystemWeak(DialogueSubsystem)
@@ -55,6 +60,7 @@ FZWDialogueTokenPtr UZWMovieSceneDialogueSubsystem::TriggerDialogueLine(const FZ
 
     FZWDialogueData DialogueData;
     DialogueData.EventID = DialogueEventID;
+    DialogueData.SpeakerID = DialogueDetails.SpeakerID;
     DialogueData.Speaker = DialogueDetails.Speaker;
     DialogueData.DialogueLine = DialogueDetails.DialogueText;
 

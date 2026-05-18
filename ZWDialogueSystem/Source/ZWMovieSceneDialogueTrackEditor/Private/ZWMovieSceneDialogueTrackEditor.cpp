@@ -186,7 +186,7 @@ FText FZWDialogueSection::GetSectionTitle() const
 	{
 		FString SectionText;
 
-		if (!DialogueSection->Speaker.IsEmpty())
+		if (!DialogueSection->Speaker.IsNone())
 		{
 			SectionText.Append(DialogueSection->Speaker.ToString());
 			SectionText.Append(": ");

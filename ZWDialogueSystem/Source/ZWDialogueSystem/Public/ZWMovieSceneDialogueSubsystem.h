@@ -19,18 +19,28 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FDialogueEndedEvent, const FGuid);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FDialogueTickEvent, const FGuid, float);
 
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FZWDialogueData
 {
     GENERATED_BODY()
 
 public:
+    FZWDialogueData();
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue")
     FGuid EventID;
 
-    UPROPERTY(EditAnywhere)
+    /**
+     * This is the FName identifier of the speaker. The localizable version should be defined separately.
+     * You need to define the GetAvailableSpeakers method to determine, who can be a speaker.
+     */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue", meta = (GetOptions = "GetAvailableSpeakers"))
+    FName SpeakerID;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue")
     FText Speaker;
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue")
     FText DialogueLine;
 
     TWeakInterfacePtr<IZWDialogueLineHandler> FinalDialogueLineHandler = nullptr;
@@ -51,6 +61,7 @@ private:
 
 struct FZWDialogueDetails
 {
+    FName SpeakerID;
     FText Speaker;
     FText DialogueText;
 
