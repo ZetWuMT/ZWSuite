@@ -1,11 +1,11 @@
 #include "ZWMovieSceneDialogueSubsystem.h"
+
+#include "ZWDialogueData.h"
+#include "ZWDialogueLineHandler.h"
 #include "Engine/Engine.h"
 //#include "LevelSequence.h"
 
-FZWDialogueData::FZWDialogueData()
-    : EventID(FGuid::NewGuid())
-{
-}
+
 
 FZWDialogueToken::FZWDialogueToken(UZWMovieSceneDialogueSubsystem* DialogueSubsystem, const FGuid& DialogueEventID) 
     : EventID(DialogueEventID)
