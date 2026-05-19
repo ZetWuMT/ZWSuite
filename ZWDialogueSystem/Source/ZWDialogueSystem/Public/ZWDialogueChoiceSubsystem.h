@@ -4,6 +4,8 @@
 
 #include "Containers/Map.h"
 #include "CoreMinimal.h"
+#include "ZWDialogueData.h"
+#include "ZWDialogueLineHandler.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "ZWMovieSceneDialogueSubsystem.h"
 #include "UI/ZWDialogueChoicePanelWidgetData.h"

@@ -2,11 +2,12 @@
 
 #include "ZWDialogueAudioData.h"
 #include "UObject/WeakInterfacePtr.h"
+#include "ZWDialogueData.generated.h"
 
 class IZWDialogueLineHandler;
 
 USTRUCT(BlueprintType)
-struct FZWDialogueData
+struct ZWDIALOGUESYSTEM_API FZWDialogueData
 {
 	GENERATED_BODY()
 
@@ -31,6 +32,7 @@ public:
 
 	TWeakInterfacePtr<IZWDialogueLineHandler> FinalDialogueLineHandler = nullptr;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue")
 	FZWDialogueAudioData AudioData;
 };
 

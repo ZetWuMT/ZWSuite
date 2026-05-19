@@ -39,12 +39,7 @@ struct FZWDialogueDetails
     float Progress; // In Seconds
 };
 
-enum class EZWStartDialogueResult
-{
-    Handled,
-    Unhandled,
-    Final
-};
+
 
 UCLASS()
 class ZWDIALOGUESYSTEM_API UZWMovieSceneDialogueSubsystem : public UGameInstanceSubsystem

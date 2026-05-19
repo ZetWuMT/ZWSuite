@@ -6,6 +6,13 @@
 #include "UObject/Interface.h"
 #include "ZWDialogueLineHandler.generated.h"
 
+enum class EZWStartDialogueResult
+{
+    Handled,
+    Unhandled,
+    Final
+};
+
 UINTERFACE(Blueprintable)
 class ZWDIALOGUESYSTEM_API UZWDialogueLineHandler : public UInterface
 {

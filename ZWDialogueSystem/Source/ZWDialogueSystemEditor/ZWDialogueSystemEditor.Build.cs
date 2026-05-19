@@ -1,8 +1,8 @@
 ﻿using UnrealBuildTool;
 
-public class ZWDialogueSystem : ModuleRules
+public class ZWDialogueSystemEditor : ModuleRules
 {
-    public ZWDialogueSystem(ReadOnlyTargetRules Target) : base(Target)
+    public ZWDialogueSystemEditor(ReadOnlyTargetRules Target) : base(Target)
     {
         PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
@@ -10,9 +10,8 @@ public class ZWDialogueSystem : ModuleRules
             new string[]
             {
                 "Core", 
-                "CommonUI",
-                "GameplayTags",
-                "DeveloperSettings"
+                "ZWDialogueSystem",
+                "BlueprintEditorLibrary"
             }
         );
 
@@ -23,7 +22,8 @@ public class ZWDialogueSystem : ModuleRules
                 "Engine",
                 "Slate",
                 "SlateCore",
-                "UMG",
+                "HTTP",
+                "Json"
             }
         );
     }
