@@ -60,12 +60,21 @@ void FZWDialogueAudioGenerator::Execute(const FZWDialogueData& InData, const FSt
     FString SavePath = FPaths::ProjectContentDir() / TEXT("Localization/Audio") / LangCode / FileName;
 
     // 4. Bindowanie odpowiedzi i wysyłka
-	Request->OnProcessRequestComplete().BindSP(this, &FZWDialogueAudioGenerator::OnTTSResponseReceived);
+	TSharedRef<FZWDialogueAudioGenerator> StrongThis = AsShared();
+    
+	// Bindowanie przez lambdę, która przetrzymuje StrongThis w pamięci aż do końca requestu
+	Request->OnProcessRequestComplete().BindLambda([StrongThis](FHttpRequestPtr Req, FHttpResponsePtr Res, bool bWasSuccessful)
+	{
+		StrongThis->OnTTSResponseReceived(Req, Res, bWasSuccessful);
+	});
+
 	Request->ProcessRequest();
 }
 
 void FZWDialogueAudioGenerator::OnTTSResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
+	UE_LOG(LogTemp, Warning, TEXT("OnTTSResponseReceived called."));
+	
 	bool bSuccess = false;
 	
 	if (bWasSuccessful && Response.IsValid() && Response->GetResponseCode() == 200)
@@ -88,6 +97,8 @@ void FZWDialogueAudioGenerator::OnTTSResponseReceived(FHttpRequestPtr Request, F
 				{
 					WorkingData.AudioData.PrecalculatedDuration = (float)(AudioBytes.Num() - 44) / (float)ByteRate;
 				}
+				
+				UE_LOG(LogTemp, Warning, TEXT("Wyliczono długość: %f sekund"), WorkingData.AudioData.PrecalculatedDuration);
 
 				FString FileName = WorkingData.AudioData.AudioGuid.ToString() + TEXT(".wav");
 				FString SavePath = FPaths::ProjectContentDir() / TEXT("Localization/Audio") / TargetLang / FileName;

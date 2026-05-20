@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "MovieSceneSection.h"
+#include "ZWDialogueData.h"
 #include "ZWMovieSceneDialogueSection.generated.h"
 
 /**
@@ -15,16 +16,19 @@ class ZWMOVIESCENEDIALOGUETRACK_API UZWMovieSceneDialogueSection : public UMovie
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere, Category = "Guid")
-	FGuid EventID;
+	//UPROPERTY(VisibleAnywhere, Category = "Guid")
+	//FGuid EventID;
 	
-	UPROPERTY(EditAnywhere, Category = "Speaker")
-	FName Speaker = FName("");
+	//UPROPERTY(EditAnywhere, Category = "Speaker")
+	//FName Speaker = FName("");
 	
-	UPROPERTY(EditAnywhere, Category = "Speaker")
-	FText LocalizedSpeaker = FText::FromString("");
+	//UPROPERTY(EditAnywhere, Category = "Speaker")
+	//FText LocalizedSpeaker = FText::FromString("");
 
-	UPROPERTY(EditAnywhere, Category = "Dialogue")
-	FText DialogueText = FText::FromString("");
+	//UPROPERTY(EditAnywhere, Category = "Dialogue")
+	//FText DialogueText = FText::FromString("");
+	
+	UPROPERTY(EditAnywhere)
+	FZWDialogueData DialogueData;
 	
 };

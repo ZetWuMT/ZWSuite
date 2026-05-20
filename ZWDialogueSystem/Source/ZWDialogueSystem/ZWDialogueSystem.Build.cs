@@ -12,7 +12,8 @@ public class ZWDialogueSystem : ModuleRules
                 "Core", 
                 "CommonUI",
                 "GameplayTags",
-                "DeveloperSettings"
+                "DeveloperSettings", 
+                "RuntimeAudioImporter"
             }
         );
 

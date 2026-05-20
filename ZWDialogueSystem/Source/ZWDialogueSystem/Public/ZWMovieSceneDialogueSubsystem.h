@@ -1,9 +1,10 @@
 #pragma once
 
+#include "RuntimeAudioImporterLibrary.h"
+#include "ZWDialogueData.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "ZWMovieSceneDialogueSubsystem.generated.h"
 
-struct FZWDialogueData;
 class ULevelSequence;
 class FZWDialogueToken;
 class IZWDialogueLineHandler;
@@ -66,9 +67,25 @@ public:
 private: 
     void CloseDialogueLine(const FGuid& EventID);
     
+    void NotifyHandlers(FZWDialogueData DialogueData);
+    
+    void OnAudioImportProgress(int32 InProgress);
+    void OnAudioImportFinished(URuntimeAudioImporterLibrary* Importer, UImportedSoundWave* ImportedSoundWave, ERuntimeImportStatus Result);
+    
     TArray<FZWDialogueData> CurrentDialogueLines;
 
     TArray<TWeakInterfacePtr<IZWDialogueLineHandler>> DialogueLineHandlers;
 
     friend FZWDialogueToken;
+    
+    // Mapa trzymająca aktywne tokeny dialogów powiązane z EventID
+    TMap<FGuid, FZWDialogueData> PendingAudioDialogues;
+
+    // Mapa wiążąca konkretną instancję importera z EventID, żebyśmy wiedzieli 
+    // który plik właśnie skończył się dekodować w wątku
+    UPROPERTY()
+    TMap<FGuid, URuntimeAudioImporterLibrary*> ActiveImports;
+
+    // Pomocnicza struktura wewnętrzna do śledzenia czasu, jeśli audio jeszcze się ładuje
+    TMap<FGuid, float> PendingPlaybackTimes;
 };

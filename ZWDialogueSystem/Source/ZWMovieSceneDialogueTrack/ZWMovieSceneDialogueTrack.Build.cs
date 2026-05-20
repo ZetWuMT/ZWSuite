@@ -12,7 +12,8 @@ public class ZWMovieSceneDialogueTrack : ModuleRules
         {
             "LevelSequence",
             "UMG",
-            "CommonUI"
+            "CommonUI",
+            "ZWDialogueSystem"
         });
 
         PrivateDependencyModuleNames.AddRange(new[]
@@ -26,7 +27,6 @@ public class ZWMovieSceneDialogueTrack : ModuleRules
             "MovieSceneTracks",
             "Slate",
             "SlateCore", 
-            "ZWDialogueSystem"
         });
 
         if (Target.Type == TargetType.Editor)

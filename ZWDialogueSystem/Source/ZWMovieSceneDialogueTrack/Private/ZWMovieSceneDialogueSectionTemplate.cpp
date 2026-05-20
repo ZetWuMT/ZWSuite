@@ -5,6 +5,7 @@
 #include "Engine/World.h"
 #include "Evaluation/MovieSceneEvaluation.h"
 #include "IMovieScenePlayer.h"
+#include "ZWDialogueData.h"
 #include "ZWMovieSceneDialogueSubsystem.h"
 #include "ZWMovieSceneDialogueSection.h"
 #include "Engine/Engine.h"
@@ -23,7 +24,7 @@ struct FZWMovieSceneDialogueEditorTemplatePersistentData : IPersistentEvaluation
 
 struct FZWMovieSceneDialogueExecutionToken final : IMovieSceneExecutionToken
 {
-    FZWMovieSceneDialogueExecutionToken(TObjectPtr<const UZWMovieSceneDialogueSection> InDialogueSection, const FZWDialogueDetails& EvaluatedDialogueData)
+    FZWMovieSceneDialogueExecutionToken(TObjectPtr<const UZWMovieSceneDialogueSection> InDialogueSection, const FZWDialogueData& EvaluatedDialogueData)
         : DialogueSection(MoveTemp(InDialogueSection))
         , DialogueData(EvaluatedDialogueData)
     {
@@ -45,15 +46,15 @@ struct FZWMovieSceneDialogueExecutionToken final : IMovieSceneExecutionToken
             }
         }
 
-        if (DialoguePersistentData.Token && DialogueSubsystem != nullptr)
+        if (DialoguePersistentData.Token->EventID.IsValid() && DialogueSubsystem != nullptr)
         {
-            DialogueSubsystem->TickDialogue(DialoguePersistentData.Token->EventID, DialogueData.Progress);
+            DialogueSubsystem->TickDialogue(DialoguePersistentData.Token->EventID, DialogueData.AudioData.PrecalculatedDuration);
         }
     }
-
+    
 private:
     TObjectPtr<const UZWMovieSceneDialogueSection> DialogueSection = nullptr;
-    FZWDialogueDetails DialogueData;
+    FZWDialogueData DialogueData;
 };
 
 FZWMovieSceneDialogueSectionTemplate::FZWMovieSceneDialogueSectionTemplate(const UZWMovieSceneDialogueSection& InSection) : Section(&InSection)
@@ -71,12 +72,12 @@ void FZWMovieSceneDialogueSectionTemplate::Evaluate(const FMovieSceneEvaluationO
 {
     check(Section);
 
-    FZWDialogueDetails DialogueData;
+   // FZWDialogueDetails DialogueData;
     //TODO: Check if refering to node is necessary. Might be in the future.
     //DialogueData = Section->EventID;
-    DialogueData.SpeakerID = Section->Speaker;
-    DialogueData.Speaker = Section->LocalizedSpeaker;
-    DialogueData.DialogueText = Section->DialogueText;
+    //DialogueData.SpeakerID = Section->Speaker;
+    //DialogueData.Speaker = Section->LocalizedSpeaker;
+    //DialogueData.DialogueText = Section->DialogueText;
 
     //Commented out with the TODO above
     /*if (!DialogueData.SectionID.IsValid())
@@ -87,7 +88,7 @@ void FZWMovieSceneDialogueSectionTemplate::Evaluate(const FMovieSceneEvaluationO
         }
     }*/
 
-    ExecutionTokens.Add(FZWMovieSceneDialogueExecutionToken(Section, DialogueData));
+    ExecutionTokens.Add(FZWMovieSceneDialogueExecutionToken(Section, Section->DialogueData));
 }
 
 void FZWMovieSceneDialogueSectionTemplate::SetupOverrides()

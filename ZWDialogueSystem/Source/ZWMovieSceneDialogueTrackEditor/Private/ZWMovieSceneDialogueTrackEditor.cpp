@@ -185,13 +185,14 @@ FText FZWDialogueSection::GetSectionTitle() const
 	if (DialogueSection)
 	{
 		FString SectionText;
-
-		if (!DialogueSection->Speaker.IsNone())
+		
+		if (!DialogueSection->DialogueData.Speaker.IsEmpty())
 		{
-			SectionText.Append(DialogueSection->Speaker.ToString());
+			SectionText.Append(DialogueSection->DialogueData.Speaker.ToString());
 			SectionText.Append(": ");
-		}	
-		SectionText.Append(DialogueSection->DialogueText.ToString());
+		}
+		SectionText.Append(DialogueSection->DialogueData.DialogueLine.ToString());
+
 
 	return FText::FromString(SectionText);
 	}
