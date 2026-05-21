@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ZWDialogueLineHandler.h"
 #include "ZWMovieSceneDialogueSubsystem.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
