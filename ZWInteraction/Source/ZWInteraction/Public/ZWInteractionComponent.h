@@ -39,6 +39,12 @@ public:
 	FOnInteractDelegate OnInteract;
 
 private:
+	UFUNCTION(BlueprintCallable)
+	void AddStaticMeshesToHighlightPool(TArray<UStaticMeshComponent*> Components);
+	
+	UFUNCTION(BlueprintCallable)
+	void AddSkeletalMeshesToHighlightPool(TArray<USkeletalMeshComponent*> Components);
+	
 	bool bIsHighlighted = false;
 
 	UPROPERTY(Transient)
@@ -46,4 +52,10 @@ private:
 	
 	UPROPERTY(Transient)
 	USkeletalMeshComponent* SkeletalMeshComponent;
+	
+	UPROPERTY(Transient)
+	TArray<UStaticMeshComponent*> AdditionalStaticMeshComponents;
+	
+	UPROPERTY(Transient)
+	TArray<USkeletalMeshComponent*> AdditionalSkeletalMeshComponents;
 };

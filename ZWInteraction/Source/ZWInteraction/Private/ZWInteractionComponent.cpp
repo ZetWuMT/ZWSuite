@@ -23,14 +23,38 @@ void UZWInteractionComponent::ToggleHighlight(bool IsHighlighted)
 	{
 		StaticMeshComponent->SetRenderCustomDepth(IsHighlighted);
 		bShouldBeHighlighted = IsHighlighted;
+		if (!AdditionalStaticMeshComponents.IsEmpty())
+		{
+			for (UStaticMeshComponent* Component : AdditionalStaticMeshComponents)
+			{
+				Component->SetRenderCustomDepth(IsHighlighted);
+			}
+		}
 	}
 	if (SkeletalMeshComponent != nullptr)
 	{
 		SkeletalMeshComponent->SetRenderCustomDepth(IsHighlighted);
 		bShouldBeHighlighted = IsHighlighted;
+		if (!AdditionalSkeletalMeshComponents.IsEmpty())
+		{
+			for (USkeletalMeshComponent* Component : AdditionalSkeletalMeshComponents)
+			{
+				Component->SetRenderCustomDepth(IsHighlighted);
+			}
+		}
 	}
 	
 	bIsHighlighted = bShouldBeHighlighted;
+}
+
+void UZWInteractionComponent::AddStaticMeshesToHighlightPool(TArray<UStaticMeshComponent*> Components)
+{
+	AdditionalStaticMeshComponents = Components;
+}
+
+void UZWInteractionComponent::AddSkeletalMeshesToHighlightPool(TArray<USkeletalMeshComponent*> Components)
+{
+	AdditionalSkeletalMeshComponents = Components;
 }
 
 void UZWInteractionComponent::BeginPlay()
