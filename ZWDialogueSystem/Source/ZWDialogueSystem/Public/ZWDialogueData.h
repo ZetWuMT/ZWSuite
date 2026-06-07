@@ -34,5 +34,7 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue")
 	FZWDialogueAudioData AudioData;
+	
+	bool operator==(const FZWDialogueData& Other) const;
 };
 
