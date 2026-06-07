@@ -242,4 +242,6 @@ public:
 private:
 	UPROPERTY(VisibleAnywhere, Category=Inventory, SaveGame)
 	FZWInventoryList InventoryList;
+	
+	void SortItemStacks(TSoftObjectPtr<UZWInventoryItemDefinition> ItemDef);
 };

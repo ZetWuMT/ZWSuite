@@ -20,6 +20,9 @@ public:
 
 	virtual FInventoryPickup GetPickupInventory() const override;
 	void SetPickupInventory(const FInventoryPickup& InPickupInventory);
+	
+	UFUNCTION(BlueprintCallable, Category="InteractionSystem")
+	void ToggleInteraction(bool bIsInteractable);
 
 protected:
 	// Called when the game starts
@@ -31,6 +34,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere)
 	FInventoryPickup StaticInventory;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="InteractionSystem")
+	bool bIsInteractableFromStart = true;
 
 private:
 	UZWInteractionComponent* InteractionComponent;

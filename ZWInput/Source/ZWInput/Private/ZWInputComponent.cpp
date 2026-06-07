@@ -38,6 +38,7 @@ void UZWInputComponent::InitializeInput()
 void UZWInputComponent::HandleGenericInput(const FInputActionValue& ActionValue, FGameplayTag InputTag)
 {
 	OnInputTagTriggered.Broadcast(InputTag, ActionValue);
+	OnInputTagSimpleTriggered.Broadcast(InputTag);	
 }
 
 const UZWInputConfig* UZWInputComponent::GetInputConfigAsset()
