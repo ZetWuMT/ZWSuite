@@ -54,8 +54,8 @@ int32 UZWInventoryItemInstance::GetStackCount() const
 	}
 
 	// Current stack count is dynamic, so we check the Instance's StatTagStack.
-	// We return at least 1, assuming the item exists.
-	return FMath::Max(1, GetStatTagStackCount(Settings->StackCountTag));
+	// We return at least 0, as the count shouldn't ever be negative.
+	return FMath::Max(0, GetStatTagStackCount(Settings->StackCountTag));
 }
 
 int32 UZWInventoryItemInstance::GetMaxStackCount() const

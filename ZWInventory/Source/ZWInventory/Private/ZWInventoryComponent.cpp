@@ -17,6 +17,7 @@ UZWInventoryComponent::UZWInventoryComponent()
 	if (!InteractionComponent)
 	{
 		InteractionComponent = CreateDefaultSubobject<UZWInteractionComponent>(TEXT("InteractionComponent"));
+		InteractionComponent->bAutoActivate = bIsInteractableFromStart;
 	}
 }
 
@@ -30,6 +31,21 @@ void UZWInventoryComponent::SetPickupInventory(const FInventoryPickup& InPickupI
 	StaticInventory = InPickupInventory;
 }
 
+void UZWInventoryComponent::ToggleInteraction(bool bIsInteractable)
+{
+	if (InteractionComponent && !bIsInteractableFromStart)
+	{
+		if (bIsInteractable)
+		{
+			InteractionComponent->Activate();
+		}
+		else
+		{
+			InteractionComponent->Deactivate();
+		}
+	}
+}
+
 void UZWInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -39,7 +55,12 @@ void UZWInventoryComponent::BeginPlay()
 	if (IsValid(InteractionComponent) && !InteractionComponent->OnInteract.IsAlreadyBound(this, &UZWInventoryComponent::SetupInteraction))
 	{
 		InteractionComponent->OnInteract.AddDynamic(this, &UZWInventoryComponent::SetupInteraction);	
-	}	
+		
+		if (!bIsInteractableFromStart)
+		{
+			InteractionComponent->Deactivate();
+		}
+	}		
 }
 
 void UZWInventoryComponent::OnComponentDestroyed(bool bDestroyingHierarchy)

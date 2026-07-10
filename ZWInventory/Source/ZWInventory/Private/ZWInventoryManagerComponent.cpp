@@ -474,6 +474,8 @@ bool UZWInventoryManagerComponent::ConsumeItemsByDefinition(TSoftObjectPtr<UZWIn
 			RemoveItemInstance(Instance);
 		}
 	}
+	
+	SortItemStacks(ItemDef);
 
 	return RemainingToConsume == 0;
 }
@@ -514,5 +516,58 @@ void UZWInventoryManagerComponent::LoadInventoryManager(FZWInventoryManagerCompo
 	{
 		ItemDef->LoadDefinition(InventoryManagerSaveData.DefinitionRecords[ItemDef]);
 		AddItemDefinition(ItemDef);
+	}
+}
+
+void UZWInventoryManagerComponent::SortItemStacks(TSoftObjectPtr<UZWInventoryItemDefinition> ItemDef)
+{
+	AActor* OwningActor = GetOwner();
+	if (!OwningActor || !OwningActor->HasAuthority())
+	{
+		return;
+	}
+	
+	const UZWInventorySettings* Settings = GetDefault<UZWInventorySettings>();
+	if (!Settings->bEnableStacking && !Settings->StackCountTag.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Stacking is disabled or the Stack Count Tag is invalid. Check settings."))
+	}
+
+	int32 TotalAvailable = GetTotalItemCountByDefinition(ItemDef);
+	if (TotalAvailable <= 0)
+	{
+		return; // No items to sort
+	}	
+	
+	TArray<UZWInventoryItemInstance*> ExistingInstances = FindItemsByDefinition(ItemDef);
+	TArray<UZWInventoryItemInstance*> InstancesToRemove;
+	UZWInventoryItemInstance* CurrentInstance = nullptr;
+
+	for (UZWInventoryItemInstance* Instance : ExistingInstances)
+	{		
+		if (CurrentInstance == nullptr)
+		{
+			if (Instance->GetStackCount() == Instance->GetMaxStackCount()) continue;
+			
+			CurrentInstance = Instance;
+			continue;
+		}
+		
+		int32 StackCount = Instance->GetStackCount();
+		int32 StackCountToFill =  CurrentInstance->GetMaxStackCount() - CurrentInstance->GetStackCount();
+		
+		if (StackCount <= StackCountToFill)
+		{
+			CurrentInstance->AddStatTagStack(Settings->StackCountTag, StackCount);
+			RemoveItemInstance(Instance);
+		}
+		else
+		{		
+			CurrentInstance->AddStatTagStack(Settings->StackCountTag, StackCountToFill);
+			Instance->RemoveStatTagStack(Settings->StackCountTag, StackCountToFill);
+			CurrentInstance = Instance;
+		}
+		
+		ensure(CurrentInstance->GetStackCount() <= CurrentInstance->GetMaxStackCount());
 	}
 }

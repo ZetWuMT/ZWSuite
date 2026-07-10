@@ -9,6 +9,7 @@
 #include "ZWInputComponent.generated.h"
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FZWInputTagEvent, FGameplayTag /* InputTag*/, const FInputActionValue& /* InputActionValue*/);
+DECLARE_MULTICAST_DELEGATE_OneParam(FZWInputTagSimpleEvent, FGameplayTag /* InputTag*/);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class ZWINPUT_API UZWInputComponent : public UEnhancedInputComponent
@@ -25,6 +26,7 @@ public:
 	void BindNativeAction(FGameplayTag InputTag, ETriggerEvent TriggerEvent, UserClass* Object, FuncType Func);
 	
 	FZWInputTagEvent OnInputTagTriggered;
+	FZWInputTagSimpleEvent OnInputTagSimpleTriggered;
 
 private:
 	void HandleGenericInput(const FInputActionValue& ActionValue, FGameplayTag InputTag);

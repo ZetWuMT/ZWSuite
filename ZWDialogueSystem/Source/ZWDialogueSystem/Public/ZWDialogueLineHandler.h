@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ZWDialogueData.h"
 #include "UObject/Interface.h"
 #include "ZWDialogueData.h"
 #include "ZWDialogueLineHandler.generated.h"

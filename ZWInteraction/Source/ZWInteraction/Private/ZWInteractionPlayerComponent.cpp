@@ -132,6 +132,7 @@ void UZWInteractionPlayerComponent::ResolveInteractiveObject(AActor* NewInteract
 
 	if (UZWInteractionComponent* InteractionComponent = GetInteractableObjectInteractionComponent(NewInteractableObject))
 	{
+		if (InteractionComponent->IsActive())
 		{
 			SetInteractableObject(InteractionComponent);
 			InteractionComponent->ToggleHighlight(true);
