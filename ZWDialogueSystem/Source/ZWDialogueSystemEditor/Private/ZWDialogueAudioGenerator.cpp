@@ -4,6 +4,7 @@
 #include "ZWDialogueAudioGenerator.h"
 #include "ZWDialogueData.h"
 #include "HttpModule.h"
+#include "ZWDialogueSettings.h"
 #include "Interfaces/IHttpResponse.h"
 
 void FZWDialogueAudioGenerator::Execute(const FZWDialogueData& InData, const FString& ApiKey, const FString& LangCode, FOnTTSRequestCompleted InCallback)
@@ -34,7 +35,20 @@ void FZWDialogueAudioGenerator::Execute(const FZWDialogueData& InData, const FSt
     TSharedPtr<FJsonObject> VoiceObj = MakeShareable(new FJsonObject());
     VoiceObj->SetStringField(TEXT("languageCode"), LangCode); 
     // W profesjonalnym narzędziu "name" głosu dobierałbyś dynamicznie na podstawie SpeakerId
-    VoiceObj->SetStringField(TEXT("name"), LangCode == "pl-PL" ? "pl-PL-Wavenet-B" : "en-GB-Chirp3-HD-Aoede"); 
+    //VoiceObj->SetStringField(TEXT("name"), LangCode == "pl-PL" ? "pl-PL-Wavenet-B" : "en-GB-Chirp3-HD-Aoede");
+	FString SpeakerName = "";
+	if (const UZWDialogueSettings* DialogueSettings = GetDefault<UZWDialogueSettings>())
+	{
+		if (DialogueSettings->AudioGenerationData)
+		{
+			SpeakerName = *DialogueSettings->AudioGenerationData->SpeakerVoiceNames.Find(InData.SpeakerID);	
+			if (SpeakerName == "")
+			{
+				SpeakerName = DialogueSettings->DefaultVoiceName;
+			}
+		}		
+	}
+	VoiceObj->SetStringField(TEXT("name"), SpeakerName);
     RequestObj->SetObjectField(TEXT("voice"), VoiceObj);
 
     TSharedPtr<FJsonObject> AudioConfigObj = MakeShareable(new FJsonObject());

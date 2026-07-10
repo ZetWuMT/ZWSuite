@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ZWDialogueSystemAudioGenerationData.h"
 #include "Engine/DeveloperSettings.h"
 #include "ZWDialogueSettings.generated.h"
-
 /**
  * 
  */
@@ -32,4 +32,7 @@ public:
 	// Domyślny głos (np. "pl-PL-Wavenet-B")
 	UPROPERTY(Config, EditAnywhere, Category = "TTS")
 	FString DefaultVoiceName;
+	
+	UPROPERTY(Config, EditAnywhere, Category = "TTS")
+	TSoftObjectPtr<UZWDialogueSystemAudioGenerationData> AudioGenerationData;
 };

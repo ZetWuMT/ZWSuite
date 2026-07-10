@@ -46,7 +46,7 @@ struct FZWMovieSceneDialogueExecutionToken final : IMovieSceneExecutionToken
             }
         }
 
-        if (DialoguePersistentData.Token->EventID.IsValid() && DialogueSubsystem != nullptr)
+        if (DialoguePersistentData.Token && DialoguePersistentData.Token->EventID.IsValid() && DialogueSubsystem != nullptr)
         {
             DialogueSubsystem->TickDialogue(DialoguePersistentData.Token->EventID, DialogueData.AudioData.PrecalculatedDuration);
         }
