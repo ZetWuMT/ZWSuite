@@ -1,4 +1,4 @@
-﻿using UnrealBuildTool;
+using UnrealBuildTool;
 
 public class ZWDialogueSystem : ModuleRules
 {
@@ -13,7 +13,9 @@ public class ZWDialogueSystem : ModuleRules
                 "CommonUI",
                 "GameplayTags",
                 "DeveloperSettings", 
-                "RuntimeAudioImporter"
+                "RuntimeAudioImporter",
+                "ZWQuestFactBase",
+                "ZWUICore"
             }
         );
 

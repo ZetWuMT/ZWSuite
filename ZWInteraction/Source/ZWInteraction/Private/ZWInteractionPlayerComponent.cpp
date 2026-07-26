@@ -6,6 +6,8 @@
 #include "ScreenPass.h"
 #include "ZWInteractionComponent.h"
 #include "ZWInteractionSystemSettings.h"
+#include "Engine/World.h"
+#include "Engine/Engine.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -117,11 +119,18 @@ void UZWInteractionPlayerComponent::DetectInteractiveObjects()
 	if (Hit)
 	{
 		ResolveInteractiveObject(HitResult.GetActor());
+		GetInteractableObjectName(HitResult.GetActor()->GetName());
+		if (bPrintInteractableObjectName && GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(1337, 0.0f, FColor::Green, FString::Printf(TEXT("Interactable: %s"), *HitResult.GetActor()->GetName()));
+		}
 	}
 	else if (GetInteractableObject() != nullptr)
 	{
 		ResetInteractableObject();
 	}
+	
+
 }
 
 void UZWInteractionPlayerComponent::ResolveInteractiveObject(AActor* NewInteractableObject)

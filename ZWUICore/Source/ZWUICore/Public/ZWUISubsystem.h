@@ -66,6 +66,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ZW|UI")
 	void ClosePanelWidget(FGameplayTag PanelTag);
 	
+	UFUNCTION(BlueprintPure, Category = "ZW|UI")
+	UZWUIRootLayout* GetRootLayout() const { return RootLayout; }
+
 	void RegisterPanel(UZWUIPanel* Panel);
 	void UnregisterPanel(UZWUIPanel* Panel);
 	

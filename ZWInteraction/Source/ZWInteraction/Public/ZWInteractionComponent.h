@@ -45,8 +45,10 @@ private:
 	UFUNCTION(BlueprintCallable)
 	void AddSkeletalMeshesToHighlightPool(TArray<USkeletalMeshComponent*> Components);
 	
+protected:
 	bool bIsHighlighted = false;
 
+private:
 	UPROPERTY(Transient)
 	UStaticMeshComponent* StaticMeshComponent;
 	

@@ -2,6 +2,7 @@
 
 #pragma once
 #include "CoreMinimal.h"
+#include "ZWQuestFact.h"
 #include "ZWChoiceData.generated.h"
 
 /**
@@ -32,6 +33,9 @@ struct ZWDIALOGUESYSTEM_API FZWDialogueChoice
 
     UPROPERTY(EditAnywhere, Category = "Choice")
     bool bSingleUse = false;
+
+    UPROPERTY(EditAnywhere, Category = "Choice")
+    FZWQuestFactCondition Condition;
 
     /*Optional Quality of Life elements
     UPROPERTY(EditAnywhere, Category = "Choice", meta = (GetOptions = "GetChoiceIconStrings"))

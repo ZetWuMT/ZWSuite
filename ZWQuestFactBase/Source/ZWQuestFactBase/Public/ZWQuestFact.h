@@ -14,6 +14,37 @@ struct FZWQuestFactSearchableName
 	FName QuestFactName;
 };
 
+UENUM(BlueprintType)
+enum class QuestFactCompareType : uint8 
+{
+	Equal,
+	Less,
+	Greater,
+	LessEqual,
+	GreaterEqual,
+	Not
+};
+
+USTRUCT(BlueprintType)
+struct ZWQUESTFACTBASE_API FZWQuestFactCondition
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Condition")
+    bool bUseCondition = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Condition", meta = (EditCondition = "bUseCondition", GetOptions = "GetFactNames"))
+    FZWQuestFactSearchableName FactName;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Condition", meta = (EditCondition = "bUseCondition"))
+    QuestFactCompareType CompareType = QuestFactCompareType::Equal;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Condition", meta = (EditCondition = "bUseCondition"))
+    int32 FactValue = 1;
+
+    bool Evaluate(const UObject* WorldContextObject) const;
+};
+
 /**
  * 
  */

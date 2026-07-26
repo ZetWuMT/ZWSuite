@@ -7,7 +7,7 @@
 #include "ZWDialogueChoiceWidget.h"
 #include "ZWDialogueChoicePanelWidgetData.h"
 #include "Components/VerticalBox.h"
-#include "CommonActivatableWidget.h"
+#include "ZWUIPanel.h"
 #include "ZWDialogueChoicePanelWidget.generated.h"
 
 class UZWDialogueChoiceData;
@@ -26,7 +26,7 @@ enum class EChoiceSelection : uint8
  * 
  */
 UCLASS()
-class ZWDIALOGUESYSTEM_API UZWDialogueChoicePanelWidget : public UCommonActivatableWidget
+class ZWDIALOGUESYSTEM_API UZWDialogueChoicePanelWidget : public UZWUIPanel
 {
     GENERATED_BODY()
 

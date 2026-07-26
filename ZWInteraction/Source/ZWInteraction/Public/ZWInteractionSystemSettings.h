@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/DeveloperSettings.h"
 #include "UObject/Object.h"
 #include "ZWInteractionSystemSettings.generated.h"
 

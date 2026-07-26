@@ -9,7 +9,7 @@
 
 class UZWInteractionComponent;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( ClassGroup=(Custom), BlueprintType, meta=(BlueprintSpawnableComponent) )
 class ZWINTERACTION_API UZWInteractionPlayerComponent : public UArrowComponent
 {
 	GENERATED_BODY()
@@ -21,6 +21,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	virtual void Interact();
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void GetInteractableObjectName(const FString& InteractableObjectName);
 
 protected:
 	virtual void ResolveLineTracePoints(FVector& TraceStart, FVector& TraceEnd, float& TraceRadius);
@@ -36,14 +39,17 @@ protected:
 	void SetInteractedObject(TObjectPtr<UZWInteractionComponent> Object);
 	void ResetInteractedObject();
 	
-	UPROPERTY(EditDefaultsOnly, Category="Interaction", meta=(ClampMin="0", UIMin="0", ClampMax="20", UIMax="20"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction|Debug", meta=(ClampMin="0", UIMin="0", ClampMax="20", UIMax="20", AllowPrivateAccess="true"))
 	float DetectionTraceRadius = 7.f;
 	
-	UPROPERTY(EditDefaultsOnly, Category="Interaction", meta=(ClampMin="0", UIMin="0", ClampMax="2000", UIMax="2000"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction|Debug", meta=(ClampMin="0", UIMin="0", ClampMax="2000", UIMax="2000", AllowPrivateAccess="true"))
 	float DetectionRange = 400.f;
 	
-	UPROPERTY(EditDefaultsOnly, Category="Interaction")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction|Debug", meta=(AllowPrivateAccess="true"))
 	bool bDrawDebugTrace = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Interaction|Debug", meta=(AllowPrivateAccess="true"))
+	bool bPrintInteractableObjectName = false;
 
 private:	
 	void DetectInteractiveObjects();

@@ -9,6 +9,7 @@
 UZWInteractionComponent::UZWInteractionComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	bAutoActivate = true;
 }
 
 void UZWInteractionComponent::Interact()
