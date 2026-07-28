@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "StateTreeInstanceData.h"
 #include "StateTreeReference.h"
+#include "Tickable.h"
 #include "Subsystems/LocalPlayerSubsystem.h"
 #include "ZWUIStateTreeSubsystem.generated.h"
 

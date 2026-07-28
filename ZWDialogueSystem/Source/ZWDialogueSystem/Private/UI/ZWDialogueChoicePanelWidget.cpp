@@ -4,9 +4,11 @@
 #include "UI/ZWDialogueChoicePanelWidget.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
-#include "Input/CommonUIInputTypes.h"
 #include "UI/ZWDialogueChoiceWidget.h"
 #include "ZWDialogueChoiceData.h"
+#include "ZWDialogueChoiceSubsystem.h"
+#include "Engine/GameInstance.h"
+#include "ZWUISubsystem.h"
 
 void UZWDialogueChoicePanelWidget::SetupView(const TObjectPtr<UZWDialogueChoicePanelWidgetData>& Data)
 {
@@ -47,28 +49,24 @@ void UZWDialogueChoicePanelWidget::NativeOnActivated()
 {
     Super::NativeOnActivated();
 
-    if (!NextChoiceActionHandle.IsValid() && !NextChoiceActionData.IsNull())
+    if (UGameInstance* GameInstance = GetGameInstance())
     {
-        NextChoiceActionHandle = RegisterUIActionBinding(FBindUIActionArgs(
-            NextChoiceActionData,
-            false,
-            FSimpleDelegate::CreateUObject(this, &UZWDialogueChoicePanelWidget::SelectNextChoice)));
+        if (UZWDialogueChoiceSubsystem* Subsystem = GameInstance->GetSubsystem<UZWDialogueChoiceSubsystem>())
+        {
+            if (UZWDialogueChoicePanelWidgetData* Data = Subsystem->GetCurrentChoiceData())
+            {
+                SetupView(Data);
+                Data->OnChange.AddUniqueDynamic(Subsystem, &UZWDialogueChoiceSubsystem::ReceiveDataFromQuestChoicePanelWidget);
+            }
+        }
     }
 
-    if (!PreviousChoiceActionHandle.IsValid() && !PreviousChoiceActionData.IsNull())
+    if (ULocalPlayer* LP = GetOwningLocalPlayer())
     {
-        PreviousChoiceActionHandle = RegisterUIActionBinding(FBindUIActionArgs(
-            PreviousChoiceActionData,
-            false,
-            FSimpleDelegate::CreateUObject(this, &UZWDialogueChoicePanelWidget::SelectPreviousChoice)));
-    }
-
-    if (!ConfirmChoiceActionHandle.IsValid() && !ConfirmChoiceActionData.IsNull())
-    {
-        ConfirmChoiceActionHandle = RegisterUIActionBinding(FBindUIActionArgs(
-            ConfirmChoiceActionData,
-            false,
-            FSimpleDelegate::CreateUObject(this, &UZWDialogueChoicePanelWidget::ConfirmSelectedChoice)));
+        if (UZWUISubsystem* UISubsystem = LP->GetSubsystem<UZWUISubsystem>())
+        {
+            UISubsystem->OnGameplayTagSent.AddUObject(this, &UZWDialogueChoicePanelWidget::HandleInputTag);
+        }
     }
 }
 
@@ -80,6 +78,14 @@ void UZWDialogueChoicePanelWidget::NativeOnDeactivated()
     ChoicesBox->ClearChildren();
     bAlreadySelectedChoice = false;
     
+    if (ULocalPlayer* LP = GetOwningLocalPlayer())
+    {
+        if (UZWUISubsystem* UISubsystem = LP->GetSubsystem<UZWUISubsystem>())
+        {
+            UISubsystem->OnGameplayTagSent.RemoveAll(this);
+        }
+    }
+
     Super::NativeOnDeactivated();
 }
 
@@ -132,17 +138,51 @@ void UZWDialogueChoicePanelWidget::SelectPreviousChoice()
 
 void UZWDialogueChoicePanelWidget::ConfirmSelectedChoice()
 {
-    if (bAlreadySelectedChoice)
+    if (bAlreadySelectedChoice || !ChoiceWidgetData)
     {
         return;
     }
     bAlreadySelectedChoice = true;
-    //ChoiceWidgetData->ConfirmedChoice = Choices[CurrentChoiceIndex]->ChooseAndGetChoiceLabel();
-    FString ConfirmedChoiceString = "Choice ";
-    ConfirmedChoiceString.Append(FString::FromInt(CurrentChoiceIndex));
-    FName ConfirmedChoiceName = FName(ConfirmedChoiceString);
-    ChoiceWidgetData->ConfirmedChoice = ConfirmedChoiceName;
+    
+    UZWDialogueChoiceData* SelectedChoiceData = nullptr;
+    int32 MainChoicesCount = ChoiceWidgetData->MainChoices.Num();
+    if (CurrentChoiceIndex < MainChoicesCount)
+    {
+        SelectedChoiceData = ChoiceWidgetData->MainChoices[CurrentChoiceIndex];
+    }
+    else if (CurrentChoiceIndex - MainChoicesCount < ChoiceWidgetData->Choices.Num())
+    {
+        SelectedChoiceData = ChoiceWidgetData->Choices[CurrentChoiceIndex - MainChoicesCount];
+    }
+
+    if (SelectedChoiceData && SelectedChoiceData->ChoiceLabel.IsValid())
+    {
+        ChoiceWidgetData->ConfirmedChoice = SelectedChoiceData->ChoiceLabel;
+    }
+    else
+    {
+        FString ConfirmedChoiceString = "Choice ";
+        ConfirmedChoiceString.Append(FString::FromInt(CurrentChoiceIndex));
+        ChoiceWidgetData->ConfirmedChoice = FName(*ConfirmedChoiceString);
+    }
+
     ChoiceWidgetData->SetDirty(true);
+}
+
+void UZWDialogueChoicePanelWidget::HandleInputTag(FGameplayTag InputTag)
+{
+    if (InputTag.MatchesTagExact(ConfirmChoiceTag))
+    {
+        ConfirmSelectedChoice();
+    }
+    else if (InputTag.MatchesTagExact(NextChoiceTag))
+    {
+        SelectNextChoice();
+    }
+    else if (InputTag.MatchesTagExact(PreviousChoiceTag))
+    {
+        SelectPreviousChoice();
+    }
 }
 
 UZWDialogueChoicePanelWidgetData* UZWDialogueChoicePanelWidget::GetChoiceWidgetData()

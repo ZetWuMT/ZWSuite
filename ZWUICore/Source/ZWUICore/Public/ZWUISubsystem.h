@@ -77,14 +77,15 @@ public:
 	//UPROPERTY(BlueprintAssignable, Category = "ZW|UI|Events")
 	FOnUITagSentDelegate OnGameplayTagSent;
 	
+	/** Returns the soft class pointer for a given tag */
+	UFUNCTION(BlueprintPure, Category = "ZW|UI")
+	TSoftClassPtr<UZWUIPanel> GetPanelClass(FGameplayTag PanelTag) const;
+	
 protected:
 	void RefreshInputConfig();
 
 private:
 	UCommonUIActionRouterBase* GetActionRouter() const;
-	
-	/** Returns the soft class pointer for a given tag */
-	TSoftClassPtr<UZWUIPanel> GetPanelClass(FGameplayTag PanelTag) const;
 	
 	bool AddPanelToLayer(FGameplayTag PanelTag, TSubclassOf<UZWUIPanel> PanelClass);
 	

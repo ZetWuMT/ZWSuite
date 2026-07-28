@@ -8,6 +8,8 @@
 #include "ZWDialogueChoicePanelWidgetData.h"
 #include "Components/VerticalBox.h"
 #include "ZWUIPanel.h"
+#include "GameplayTagContainer.h"
+#include "InputActionValue.h"
 #include "ZWDialogueChoicePanelWidget.generated.h"
 
 class UZWDialogueChoiceData;
@@ -64,24 +66,22 @@ protected:
     UFUNCTION(BlueprintCallable)
     void ConfirmSelectedChoice();
 
+    void HandleInputTag(FGameplayTag InputTag);
+
     UPROPERTY(EditAnywhere, meta = (BindWidget))
     UVerticalBox* ChoicesBox = nullptr;
 
     UPROPERTY(EditAnywhere)
     TSubclassOf<UZWDialogueChoiceWidget> ChoiceWidgetRef;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Input Actions Data")
-    FDataTableRowHandle NextChoiceActionData;
+    UPROPERTY(EditDefaultsOnly, Category = "Input Tags")
+    FGameplayTag NextChoiceTag;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Input Actions Data")
-    FDataTableRowHandle PreviousChoiceActionData;
+    UPROPERTY(EditDefaultsOnly, Category = "Input Tags")
+    FGameplayTag PreviousChoiceTag;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Input Actions Data")
-    FDataTableRowHandle ConfirmChoiceActionData;
-
-    FUIActionBindingHandle NextChoiceActionHandle;
-    FUIActionBindingHandle PreviousChoiceActionHandle;
-    FUIActionBindingHandle ConfirmChoiceActionHandle;
+    UPROPERTY(EditDefaultsOnly, Category = "Input Tags")
+    FGameplayTag ConfirmChoiceTag;
 
     //virtual void OnAnimationFinished_Implementation(const UWidgetAnimation* Animation) override;
 

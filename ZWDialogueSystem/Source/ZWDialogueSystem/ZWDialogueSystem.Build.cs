@@ -26,7 +26,8 @@ public class ZWDialogueSystem : ModuleRules
                 "Engine",
                 "Slate",
                 "SlateCore",
-                "UMG",
+                "UMG", 
+                "ZWInput",
             }
         );
     }

@@ -2,6 +2,9 @@
 
 #include "ZWDialogueChoiceSubsystem.h"
 #include "UI/ZWDialogueChoicePanelWidgetData.h"
+#include "ZWUISubsystem.h"
+#include "Engine/LocalPlayer.h"
+#include "Engine/GameInstance.h"
 
 void UZWDialogueChoiceSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -62,12 +65,38 @@ const FZWDialogueData& UZWDialogueChoiceSubsystem::GetDialogueLineToShowDuringCh
 
 void UZWDialogueChoiceSubsystem::SetPanelWidgetData(const TObjectPtr<UZWDialogueChoicePanelWidgetData>& ChoiceData)
 {
+    CurrentChoiceData = ChoiceData;
     ChoiceStarted.Broadcast(ChoiceData);
+    
+    if (UGameInstance* GameInstance = GetGameInstance())
+    {
+        if (ULocalPlayer* LocalPlayer = GameInstance->GetFirstGamePlayer())
+        {
+            if (UZWUISubsystem* UISubsystem = LocalPlayer->GetSubsystem<UZWUISubsystem>())
+            {
+                FGameplayTag Tag = FGameplayTag::RequestGameplayTag(FName("UI.Panel.Prompt.DialogueChoice"));
+                UISubsystem->OnGameplayTagSent.Broadcast(Tag);
+            }
+        }
+    }
 }
 
 void UZWDialogueChoiceSubsystem::ReceiveDataFromQuestChoicePanelWidget(UZWDialogueChoiceChangeableObject* ChoiceData)
 {
     UZWDialogueChoicePanelWidgetData* QuestChoicePanelWidgetData = Cast<UZWDialogueChoicePanelWidgetData>(ChoiceData);
+    
+    // Broadcast event to StateTree so it knows the choice has been confirmed and can close the panel
+    if (UGameInstance* GameInstance = GetGameInstance())
+    {
+        if (ULocalPlayer* LocalPlayer = GameInstance->GetFirstGamePlayer())
+        {
+            if (UZWUISubsystem* UISubsystem = LocalPlayer->GetSubsystem<UZWUISubsystem>())
+            {
+                FGameplayTag Tag = FGameplayTag::RequestGameplayTag(FName("UI.Dialogue.ChoiceSelected"));
+                UISubsystem->OnGameplayTagSent.Broadcast(Tag);
+            }
+        }
+    }
 }
 
 void UZWDialogueChoiceSubsystem::ResetChosenOptions()

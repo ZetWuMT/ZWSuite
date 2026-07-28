@@ -42,10 +42,16 @@ public:
     const FZWDialogueData& GetDialogueLineToShowDuringChoice(const FGuid& ChoiceSectionID) const;
 
     void SetPanelWidgetData(const TObjectPtr<UZWDialogueChoicePanelWidgetData>& ChoiceData);
+    
+    UFUNCTION(BlueprintPure, Category = "Dialogue|Choices")
+    UZWDialogueChoicePanelWidgetData* GetCurrentChoiceData() const { return CurrentChoiceData; }
 
+	UFUNCTION()
     void ReceiveDataFromQuestChoicePanelWidget(UZWDialogueChoiceChangeableObject* ChoiceData);
 	
 private:
+    UPROPERTY()
+    TObjectPtr<UZWDialogueChoicePanelWidgetData> CurrentChoiceData;
     void ResetChosenOptions();
     void ResetLastDialogueLines();
 
