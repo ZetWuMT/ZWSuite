@@ -52,10 +52,17 @@
 		{
 			"Name": "RuntimeAudioImporter",
 			"Enabled": true
-		}
-	,
+		},
 		{
-			"Name": "RuntimeAudioImporter",
+			"Name": "ZWQuestFactBase",
+			"Enabled": true
+		},
+		{
+			"Name": "ZWUICore",
+			"Enabled": true
+		},
+		{
+			"Name": "ZWInput",
 			"Enabled": true
 		}
 	]
