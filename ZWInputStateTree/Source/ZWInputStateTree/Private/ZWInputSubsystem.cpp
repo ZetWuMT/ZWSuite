@@ -5,95 +5,39 @@
 
 #include "EnhancedInputSubsystems.h"
 #include "StateTreeExecutionContext.h"
-#include "StateTreeExecutionTypes.h"
 #include "ZWInputComponent.h"
 #include "ZWInputStateTreeSettings.h"
 
-void UZWInputSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+const UStateTree* UZWInputSubsystem::GetStateTreeAsset() const
 {
-	Super::Initialize(Collection);
-	
 	const UZWInputStateTreeSettings* Settings = GetDefault<UZWInputStateTreeSettings>();
 	if (Settings && !Settings->DefaultInputStateTree.IsNull())
 	{
 		// Ładujemy synchronicznie asset ze ścieżki (tylko raz, przy starcie gracza)
-		UStateTree* LoadedTree = Settings->DefaultInputStateTree.LoadSynchronous();
-		
-		// Przypisujemy do naszej referencji, na której pracuje reszta klasy
-		StateTreeRef.SetStateTree(LoadedTree);
+		return Settings->DefaultInputStateTree.LoadSynchronous();
 	}
-	
-	if (!StateTreeRef.IsValid()) return;
-
-	const UStateTree* TreeAsset = StateTreeRef.GetStateTree();
-	if (!TreeAsset) return;
-	
-	StateTreeInstanceData.CopyFrom(*this, TreeAsset->GetDefaultInstanceData());
+	return nullptr;
 }
 
 void UZWInputSubsystem::PlayerControllerChanged(APlayerController* NewPlayerController)
 {
-	Super::PlayerControllerChanged(NewPlayerController);	
-    
-	// Odpalamy drzewo tylko wtedy, gdy gracz faktycznie DOSTAJE kontroler
+	// Baza (UZWStateTreeSubsystemBase) zajmuje się (re)startem drzewa - my dokładamy tylko to,
+	// co jest specyficzne dla Inputu: podpięcie się pod broadcast tagów z ZWInputComponent.
+	Super::PlayerControllerChanged(NewPlayerController);
+
 	if (NewPlayerController)
 	{
 		if (UZWInputComponent* InputComponent = NewPlayerController->GetComponentByClass<UZWInputComponent>())
 		{
 			InputComponent->OnInputTagTriggered.AddUObject(this, &UZWInputSubsystem::ProcessInputTag);
 		}
-		
-		const UStateTree* TreeAsset = StateTreeRef.GetStateTree();
-		if (TreeAsset && StateTreeInstanceData.Num() > 0)
-		{
-			FStateTreeExecutionContext Context(*this, *TreeAsset, StateTreeInstanceData);
-			BindContextData(Context, TreeAsset);
-
-			Context.Start(); 
-		}
 	}
-	else
-	{
-		// Opcjonalnie: Gdy gracz traci kontroler, moglibyśmy tu wywołać Context.Stop(),
-		// żeby drzewo przestało nasłuchiwać i zresetowało swoje stany.
-	}
-}
-
-void UZWInputSubsystem::Tick(float DeltaTime)
-{
-	const UStateTree* TreeAsset = StateTreeRef.GetStateTree();
-    
-	if (TreeAsset && StateTreeInstanceData.Num() > 0)
-	{
-		FStateTreeExecutionContext Context(*this, *TreeAsset, StateTreeInstanceData);
-		BindContextData(Context, TreeAsset); // <-- Taski w Ticku będą miały dostęp do Subsystemu
-        
-		Context.Tick(DeltaTime);
-	}
-}
-
-TStatId UZWInputSubsystem::GetStatId() const
-{
-	RETURN_QUICK_DECLARE_CYCLE_STAT(UZWInputSubsystem, STATGROUP_Tickables);
-}
-
-bool UZWInputSubsystem::IsTickable() const
-{
-	return !HasAnyFlags(RF_ClassDefaultObject);
 }
 
 void UZWInputSubsystem::ProcessInputTag(FGameplayTag InputTag, const FInputActionValue& InputActionValue)
 {
-	const UStateTree* TreeAsset = StateTreeRef.GetStateTree();
-    
-	if (TreeAsset && StateTreeInstanceData.Num() > 0)
-	{
-		FStateTreeExecutionContext Context(*this, *TreeAsset, StateTreeInstanceData);
-		BindContextData(Context, TreeAsset);
-		
-		Context.SendEvent(InputTag);
-	}
-	
+	SendStateTreeEvent(InputTag);
+
 	OnInputTagDelegate.Broadcast(InputTag);
 }
 

@@ -3,9 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "StateTreeInstanceData.h"
-#include "StateTreeReference.h"
-#include "Subsystems/LocalPlayerSubsystem.h"
+#include "ZWStateTreeSubsystemBase.h"
 #include "ZWInputSubsystem.generated.h"
 
 struct FInputActionValue;
@@ -15,24 +13,24 @@ class UInputMappingContext;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInputTagDelegate, FGameplayTag, SignalTag);
 
 /**
- * 
+ * Runs the ZW Input State Tree for the local player.
+ *
+ * All of the generic "own a tree, tick it, (re)start it when we get a PlayerController"
+ * plumbing now lives in UZWStateTreeSubsystemBase (ZWStateTreeCore plugin). This class only
+ * adds what is specific to the Input schema: reading the tree asset from
+ * UZWInputStateTreeSettings, binding ZWInputSubsystem/PlayerController/Pawn context data, and
+ * the Enhanced-Input-specific mapping-context helpers.
  */
 UCLASS()
-class ZWINPUTSTATETREE_API UZWInputSubsystem : public ULocalPlayerSubsystem, public FTickableGameObject
+class ZWINPUTSTATETREE_API UZWInputSubsystem : public UZWStateTreeSubsystemBase
 {
 	GENERATED_BODY()
 	
 public:
-	
-	// Funkcja do inicjalizacji i "tykania" drzewa
-	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-	
+	//~ Begin ULocalPlayerSubsystem Interface
 	virtual void PlayerControllerChanged(APlayerController* NewPlayerController) override;
+	//~ End ULocalPlayerSubsystem Interface
 
-	virtual void Tick(float DeltaTime) override;
-	virtual TStatId GetStatId() const override;
-	virtual bool IsTickable() const override;
-	
 	UFUNCTION(BlueprintCallable, Category = "ZWInput")
 	void ProcessInputTag(FGameplayTag InputTag, const FInputActionValue& InputActionValue);
 	
@@ -44,20 +42,14 @@ public:
 	
 	UPROPERTY(BlueprintAssignable, Category = "ZW|Input")
 	FOnInputTagDelegate OnInputTagDelegate;
-	
-protected:
-	/** Referencja do assetu drzewa, którą ustawisz np. w Initialize */
-	UPROPERTY(EditAnywhere, Category = "Input")
-	FStateTreeReference StateTreeRef;
 
-	/** Dane instancji (pamięć robocza drzewa) */
-	UPROPERTY(Transient)
-	FStateTreeInstanceData StateTreeInstanceData;
+protected:
+	//~ Begin UZWStateTreeSubsystemBase Interface
+	virtual const UStateTree* GetStateTreeAsset() const override;
+	virtual void BindContextData(FStateTreeExecutionContext& Context, const UStateTree* TreeAsset) override;
+	//~ End UZWStateTreeSubsystemBase Interface
 
 private:
-	void BindContextData(FStateTreeExecutionContext& Context, const UStateTree* TreeAsset);
-	
-	// Trzymamy listę tego, co sami dodaliśmy, żeby móc to wyczyścić np. przy restarcie
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<const UInputMappingContext>> ActiveContexts;
 };

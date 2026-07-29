@@ -12,14 +12,14 @@ public class ZWUIStateTree : ModuleRules
 			new string[] {
 				// ... add public include paths required here ...
 			}
-			);
+		);
 				
 		
 		PrivateIncludePaths.AddRange(
 			new string[] {
 				// ... add other private include paths required here ...
 			}
-			);
+		);
 			
 		
 		PublicDependencyModuleNames.AddRange(
@@ -29,9 +29,10 @@ public class ZWUIStateTree : ModuleRules
 				"StateTreeModule",
 				"GameplayTags",
 				"DeveloperSettings",
+				"ZWStateTree"
 				// ... add other public dependencies that you statically link with here ...
 			}
-			);
+		);
 			
 		
 		PrivateDependencyModuleNames.AddRange(
@@ -45,7 +46,7 @@ public class ZWUIStateTree : ModuleRules
 				"EnhancedInput"
 				// ... add private dependencies that you statically link with here ...	
 			}
-			);
+		);
 		
 		
 		DynamicallyLoadedModuleNames.AddRange(
@@ -53,6 +54,6 @@ public class ZWUIStateTree : ModuleRules
 			{
 				// ... add any modules that your module loads dynamically here ...
 			}
-			);
+		);
 	}
 }

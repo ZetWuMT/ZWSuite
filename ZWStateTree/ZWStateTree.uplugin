@@ -1,0 +1,30 @@
+﻿{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "ZWStateTree",
+	"Description": "Shared boilerplate for ZW LocalPlayerSubsystems that drive a single State Tree instance (ticking, start/stop, context binding scaffolding). Not meant to be used standalone - it is a shared foundation consumed by other optional ZW State Tree plugins (ZWInputStateTree, ZWUIStateTree). Neither ZWInput nor ZWUICore depend on this plugin, so bare ZWInput/ZWUICore usage is completely unaffected.",
+	"Category": "ZW/StateTree",
+	"CreatedBy": "tiramisoo",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"EnabledByDefault": false,
+	"CanContainContent": false,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "ZWStateTree",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "StateTree",
+			"Enabled": true
+		}
+	]
+}

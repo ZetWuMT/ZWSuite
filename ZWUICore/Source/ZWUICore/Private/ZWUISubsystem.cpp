@@ -116,11 +116,10 @@ void UZWUISubsystem::RequestPanelWidget(FGameplayTag PanelTag)
 	{			
 		if (UZWUIPanel** FoundPanel = InstancedPanels.Find(PanelTag))
 		{
-			// Widget już jest w pamięci! Zakładamy, że HUB też żyje.
 			if (PlayerHUB)
 			{				
 				PlayerHUB->OpenTabInSwitcher(*FoundPanel);
-				return; // Koniec roboty!
+				return; 
 			}
 		}
 	}	
@@ -151,7 +150,6 @@ void UZWUISubsystem::RequestPanelWidget(FGameplayTag PanelTag)
 		return;
 	}	
 	
-	// Asynchroniczne ładowanie (to zostaje bez zmian, bo napisałeś to super!)
 	if (ActiveLoadHandles.Contains(PanelTag)) return;
 
 	FStreamableManager& StreamableManager = UAssetManager::GetStreamableManager();
@@ -169,8 +167,8 @@ void UZWUISubsystem::RequestPanelWidget(FGameplayTag PanelTag)
 UZWUIPanel* UZWUISubsystem::GetOrCreateInstancedPanel(FGameplayTag PanelTag)
 {
 	if (!PanelTag.IsValid()) return nullptr;
-
-	// 1. Jeśli panel już jest w zasobach Subsystemu - po prostu go oddajemy!
+	
+	// 1, If a panel is already in the subsystems resources - we just add it to InstancedPanels.
 	if (UZWUIPanel** FoundPanel = InstancedPanels.Find(PanelTag))
 	{
 		return *FoundPanel;

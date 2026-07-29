@@ -37,6 +37,10 @@
 		{
 			"Name": "ZWGameplayActions",
 			"Enabled": true
+		},
+		{
+			"Name": "ZWStateTree",
+			"Enabled": true
 		}
 	]
 }
