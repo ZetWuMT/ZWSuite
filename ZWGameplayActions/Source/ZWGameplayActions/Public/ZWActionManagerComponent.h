@@ -18,26 +18,26 @@ class ZWGAMEPLAYACTIONS_API UZWActionManagerComponent : public UActorComponent
 public:	
 	UZWActionManagerComponent();
 
-	// Dodawanie akcji (używane przez InputStateTree Taski!)
+	// Granting actions (used by the InputStateTree Tasks!)
 	UFUNCTION(BlueprintCallable, Category = "ZW Actions")
 	void GrantAction(TSubclassOf<UZWGameplayAction> ActionClass);
 
-	// Odbieranie akcji
+	// Removing actions
 	UFUNCTION(BlueprintCallable, Category = "ZW Actions")
 	void RemoveAction(TSubclassOf<UZWGameplayAction> ActionClass);
 
-	// Reagowanie na Input (Podpinane pod Broadcast z ZWInputComponent)
+	// Reacting to Input (bound to the Broadcast from ZWInputComponent)
 	UFUNCTION(BlueprintCallable, Category = "ZW Actions")
 	void HandleInputTag(FGameplayTag InputTag, const FInputActionValue& ActionValue);
 
 protected:
 	virtual void BeginPlay() override;
 
-	// Akcje, które gracz ma od początku (np. Skok, Chodzenie)
+	// Actions the player has from the start (e.g. Jump, Walk)
 	UPROPERTY(EditDefaultsOnly, Category = "ZW Actions")
 	TArray<TSubclassOf<UZWGameplayAction>> DefaultActions;
 
-	// Instancje aktualnie posiadanych akcji
+	// Instances of currently owned actions
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<UZWGameplayAction>> GrantedActions;
 };

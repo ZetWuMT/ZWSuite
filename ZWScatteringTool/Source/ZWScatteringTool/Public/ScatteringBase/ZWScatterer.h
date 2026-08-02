@@ -64,9 +64,9 @@ protected:
 	
 	void Scatter();
 	
-	// WIRTUALNA METODA: Klasy pochodne muszą to zaimplementować (Planowanie + Spawn)
+	// VIRTUAL METHOD: Derived classes must implement this (Planning + Spawn)
 	virtual void PerformScattering(const TArray<AZWScatterProbe*>& AvailableProbes) PURE_VIRTUAL(AZWScatterer::PerformScattering, );
 
-	// FUNKCJA POMOCNICZA: Uniwersalny algorytm rozdzielania ilości na podstawie bazowych parametrów
+	// HELPER FUNCTION: Universal algorithm for distributing quantities based on base parameters
 	TMap<AZWScatterProbe*, int32> CalculateSpawnsForEntry(const FZWScatterEntry& Entry, const TArray<AZWScatterProbe*>& AllProbes);
 };

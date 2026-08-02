@@ -7,10 +7,10 @@ EStateTreeRunStatus FZWUIStateTreeTask_ManageUI::EnterState(FStateTreeExecutionC
 {
 	if (ULocalPlayerSubsystem* OwnerSubsystem = Cast<ULocalPlayerSubsystem>(Context.GetOwner()))
 	{
-		// 2. Przez Ownera wyciągamy lokalnego gracza
+		// 2. Get the local player through the Owner
 		if (ULocalPlayer* LP = OwnerSubsystem->GetLocalPlayer())
 		{
-			// 3. Mając gracza, prosimy o ZWUISubsystem!
+			// 3. Having the player, ask for the ZWUISubsystem!
 			if (UZWUISubsystem* UISubsystem = LP->GetSubsystem<UZWUISubsystem>())
 			{
 				UISubsystem->RequestPanelWidget(PanelTag);				

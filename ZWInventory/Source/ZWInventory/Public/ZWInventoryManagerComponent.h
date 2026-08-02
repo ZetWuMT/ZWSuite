@@ -107,14 +107,14 @@ struct FZWInventoryEntry : public FFastArraySerializerItem
 
 	FString GetDebugString() const;
 	
-	// --- FUNKCJE DLA KLIENTA (FAST ARRAY) ---
-	// Te funkcje wywołają się automatycznie na Kliencie po replikacji
+	// --- CLIENT FUNCTIONS (FAST ARRAY) ---
+	// These functions are called automatically on the Client after replication
 	void PreReplicatedRemove(const FZWInventoryList& InArraySerializer);
 	void PostReplicatedAdd(const FZWInventoryList& InArraySerializer);
 	void PostReplicatedChange(const FZWInventoryList& InArraySerializer);
 
-	// --- FUNKCJA POMOCNICZA ---
-	// Funkcja "Lustro" - aktualizuje Tagi w instancji na podstawie obecnego StackCount
+	// --- HELPER FUNCTION ---
+	// "Mirror" function - updates the Tags in the instance based on the current StackCount
 	void SyncInstanceToEntry();
 
 	void SaveEntry(FZWInventoryEntrySaveData& EntrySaveData);

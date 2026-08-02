@@ -18,8 +18,8 @@ const UStateTree* UZWUIStateTreeSubsystem::GetStateTreeAsset() const
 
 void UZWUIStateTreeSubsystem::PlayerControllerChanged(APlayerController* NewPlayerController)
 {
-	// Baza (UZWStateTreeSubsystemBase) zajmuje się (re)startem drzewa - my dokładamy tylko to,
-	// co jest specyficzne dla UI: podpięcie się pod broadcast tagów z UZWUISubsystem.
+	// The base (UZWStateTreeSubsystemBase) handles (re)starting the tree - we only add what is
+	// specific to UI: subscribing to the tag broadcast from UZWUISubsystem.
 	Super::PlayerControllerChanged(NewPlayerController);
 
 	if (NewPlayerController)

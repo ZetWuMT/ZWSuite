@@ -60,11 +60,11 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	UCommonBoundActionBar* FooterActionBar;
 	
-	// Opcjonalny Data Asset. Jeśli twórca BP go podepnie, HUB wygeneruje przyciski.
+	// Optional Data Asset. If the BP author hooks it up, the HUB will generate the buttons.
 	UPROPERTY(EditDefaultsOnly, Category = "ZW|Tabs")
 	TObjectPtr<UZWUITabConfig> TabConfiguration;
 
-	// MAGIA OPCJONALNOŚCI: Pasek zakładek. Jeśli nie ma go w BP, to będzie nullptr.
+	// MAGIC OF OPTIONALITY: The tab bar. If it is not in the BP, this will be nullptr.
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	TObjectPtr<UCommonTabListWidgetBase> MenuTabList;
 

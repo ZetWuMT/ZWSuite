@@ -17,19 +17,19 @@ class ZWDIALOGUESYSTEM_API UZWDialogueSettings : public UDeveloperSettings
 public:
 	UZWDialogueSettings();
 
-	// Klucz API do Google Cloud TTS
+	// API key for Google Cloud TTS
 	UPROPERTY(Config, EditAnywhere, Category = "TTS")
 	FString TTSGeneratorApiKey;
 
-	// Główny folder dla wygenerowanych plików WAV (np. "Localization/Audio")
+	// Main folder for the generated WAV files (e.g. "Localization/Audio")
 	UPROPERTY(Config, EditAnywhere, Category = "Paths")
 	FDirectoryPath BaseAudioExportPath;
 
-	// Domyślny język deweloperski (np. "db-db" lub "pl-PL")
+	// Default developer language (e.g. "db-db" or "pl-PL")
 	UPROPERTY(Config, EditAnywhere, Category = "TTS")
 	FString DefaultLanguageCode;
     
-	// Domyślny głos (np. "pl-PL-Wavenet-B")
+	// Default voice (e.g. "pl-PL-Wavenet-B")
 	UPROPERTY(Config, EditAnywhere, Category = "TTS")
 	FString DefaultVoiceName;
 	

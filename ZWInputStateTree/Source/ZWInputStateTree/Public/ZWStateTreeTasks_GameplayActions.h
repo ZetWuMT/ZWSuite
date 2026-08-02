@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "StateTreeTaskBase.h"
-#include "ZWGameplayAction.h" // Z drugiego pluginu!
+#include "ZWGameplayAction.h" // From another plugin!
 #include "ZWStateTreeTasks_GameplayActions.generated.h"
 
 // =====================================================================
@@ -14,15 +14,15 @@ struct FZWStateTreeTask_AddGameplayAction_InstanceData
 {
 	GENERATED_BODY()
 
-	// Aktor, któremu nadajemy akcję (zazwyczaj podpinamy tu gracza z Context Data)
+	// Actor to whom we grant the action (usually you bind the player here from Context Data)
 	UPROPERTY(EditAnywhere, Category = "Input")
 	AActor* TargetActor = nullptr;
 
-	// Jaką akcję nadajemy?
+	// Which action do we grant?
 	UPROPERTY(EditAnywhere, Category = "Parameter")
 	TSubclassOf<UZWGameplayAction> ActionClass;
 
-	// Czy zdjąć tę akcję przy wyjściu ze stanu?
+	// Should this action be removed when leaving the state?
 	UPROPERTY(EditAnywhere, Category = "Parameter")
 	bool bRemoveOnExit = true;
 };

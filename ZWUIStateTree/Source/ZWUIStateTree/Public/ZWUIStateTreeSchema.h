@@ -19,12 +19,12 @@ class ZWUISTATETREE_API UZWUIStateTreeSchema : public UStateTreeSchema
 public:
 	UZWUIStateTreeSchema();
 
-	// Filtrujemy, jakie Taski/Warunki mogą być używane w tym drzewie
+	// We filter which Tasks/Conditions can be used in this tree
 	virtual bool IsStructAllowed(const UScriptStruct* InScriptStruct) const override;
 	virtual bool IsClassAllowed(const UClass* InClass) const override;
 	virtual bool IsExternalItemAllowed(const UStruct& InStruct) const override;
 
-	// Wystawiamy nasze wymagania na zewnątrz
+	// We expose our requirements externally
 	virtual TConstArrayView<FStateTreeExternalDataDesc> GetContextDataDescs() const override;
 
 protected:

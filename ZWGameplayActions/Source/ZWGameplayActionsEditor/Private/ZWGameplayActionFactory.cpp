@@ -21,35 +21,35 @@ UZWGameplayActionFactory::UZWGameplayActionFactory()
 
 FText UZWGameplayActionFactory::GetDisplayName() const
 {
-	// To jest nazwa, która pojawi się w menu kontekstowym pod prawym przyciskiem myszy!
+	// This is the name that will appear in the context menu under the right mouse button!
 	return FText::FromString("ZW Gameplay Action");
 }
 
 FString UZWGameplayActionFactory::GetDefaultNewAssetName() const
 {
-	// To jest domyślna nazwa pliku, gdy tylko go stworzysz (zanim wpiszesz własną)
+	// This is the default file name when you create it (before you type your own)
 	return FString("NewGameplayAction");
 }
 
 UObject* UZWGameplayActionFactory::FactoryCreateNew(UClass* Class, UObject* InParent, FName Name, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn)
 {
-	// Pozwalamy bazowej fabryce stworzyć czysty Blueprint
+	// Let the base factory create a clean Blueprint
 	UBlueprint* NewBP = Cast<UBlueprint>(Super::FactoryCreateNew(Class, InParent, Name, Flags, Context, Warn));
 
 	if (NewBP)
 	{
-		// ZNAJDUJEMY EVENT GRAPH NOWEGO BLUEPRINTA
+		// WE FIND THE EVENT GRAPH OF THE NEW BLUEPRINT
 		UEdGraph* EventGraph = FBlueprintEditorUtils::FindEventGraph(NewBP);
 		if (EventGraph)
 		{
 			int32 NodePosY = 0;
 			
-			// MAGIA: Wrzucamy Twój czerwony event ExecuteAction na środek grafu!
-			// Będzie on wyszarzony, dopóki gracz nie podepnie pod niego kabelka.
+			// MAGIC: We drop your red ExecuteAction event into the middle of the graph!
+			// It will be grayed out until the player hooks a wire into it.
 			FKismetEditorUtilities::AddDefaultEventNode(
 				NewBP, 
 				EventGraph, 
-				FName(TEXT("ExecuteAction")), // Nazwa Twojej funkcji z C++
+				FName(TEXT("ExecuteAction")), // The name of your C++ function
 				UZWGameplayAction::StaticClass(), 
 				NodePosY
 			);

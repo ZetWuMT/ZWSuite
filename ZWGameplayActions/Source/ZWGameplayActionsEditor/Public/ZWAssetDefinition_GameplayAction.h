@@ -10,15 +10,15 @@ class ZWGAMEPLAYACTIONSEDITOR_API UZWAssetDefinition_GameplayAction : public UAs
 	GENERATED_BODY()
 
 public:
-	// 1. Nazwa, która wyświetla się, gdy najedziesz myszką na asset
+	// 1. Name that is displayed when you hover over the asset
 	virtual FText GetAssetDisplayName() const override;
 
-	// 2. KOLOR ASSETU!
+	// 2. ASSET COLOR!
 	virtual FLinearColor GetAssetColor() const override;
 
-	// 3. Do jakiej klasy C++ się to odnosi?
+	// 3. Which C++ class does it refer to?
 	virtual TSoftClassPtr<UObject> GetAssetClass() const override;
 
-	// 4. W jakiej kategorii w menu (prawy klik) ma się to pojawiać?
+	// 4. In which category in the menu (right click) should it appear?
 	virtual TConstArrayView<FAssetCategoryPath> GetAssetCategories() const override;
 };

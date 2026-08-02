@@ -73,7 +73,7 @@ FZWDialogueTokenPtr UZWMovieSceneDialogueSubsystem::TriggerDialogueLine(const FZ
 
 FZWDialogueTokenPtr UZWMovieSceneDialogueSubsystem::TriggerDialogueLine(FZWDialogueData DialogueData)
 {
-    // Tworzymy i zwracamy lekki Token (Sequencer go potrzebuje natychmiast)
+    // Create and return a lightweight Token (Sequencer needs it immediately)
     FZWDialogueTokenPtr NewToken = MakeShared<FZWDialogueToken>(this, DialogueData.EventID);
 
     bool bIsAudioLoading = false;
@@ -92,7 +92,7 @@ FZWDialogueTokenPtr UZWMovieSceneDialogueSubsystem::TriggerDialogueLine(FZWDialo
                 ActiveImports.Add(DialogueData.EventID, Importer);
                 PendingPlaybackTimes.Add(DialogueData.EventID, 0.0f); 
                 
-                // KOPIA ZAPASOWA: Zrzucamy dane do mapy oczekującej, żeby wyjąć je w OnAudioImportFinished
+                // BACKUP COPY: Dump the data into the pending map so we can retrieve it in OnAudioImportFinished
                 PendingAudioDialogues.Add(DialogueData.EventID, DialogueData);
 
                 Importer->OnProgressNative.AddUObject(this, &UZWMovieSceneDialogueSubsystem::OnAudioImportProgress);
@@ -105,8 +105,8 @@ FZWDialogueTokenPtr UZWMovieSceneDialogueSubsystem::TriggerDialogueLine(FZWDialo
         }
     }
 
-    // Jeśli z jakiegoś powodu audio nie ładujemy (brak GUIDa lub błąd I/O), 
-    // odpalamy Handlery od razu, żeby nie zablokować UI.
+    // If for some reason we are not loading audio (missing GUID or I/O error),
+    // fire the Handlers right away so the UI is not blocked.
     if (!bIsAudioLoading)
     {
         NotifyHandlers(DialogueData);
@@ -168,7 +168,7 @@ void UZWMovieSceneDialogueSubsystem::OnAudioImportFinished(URuntimeAudioImporter
     UE_LOG(LogTemp, Warning, TEXT("AudioImportFinished"))
     if (!Importer) return;
 
-    // 1. Zabezpieczenie i wyciągnięcie EventID
+    // 1. Guard and extract the EventID
     FGuid EventID;
     if (const FGuid* FoundEventID = ActiveImports.FindKey(Importer))
     {
@@ -177,23 +177,23 @@ void UZWMovieSceneDialogueSubsystem::OnAudioImportFinished(URuntimeAudioImporter
     }
     else return;
 
-    // 2. Wyciągamy zawieszone dane dialogowe z "poczekalni"
+    // 2. Pull the suspended dialogue data out of the "waiting room"
     FZWDialogueData PendingData;
     if (FZWDialogueData* FoundData = PendingAudioDialogues.Find(EventID))
     {
         PendingData = *FoundData;
         PendingAudioDialogues.Remove(EventID);
     }
-    else return; // Brak danych, nie mamy czego wywołać w UI
+    else return; // No data, nothing to invoke in the UI
 
-    // 3. Sprawdzamy sukces
+    // 3. Check success
     if (Result == ERuntimeImportStatus::SuccessfulImport && ImportedSoundWave)
     {        
-        // Tworzymy komponent (z bAutoDestroy = true, żeby nie zapychał RAMu po skończeniu)
+        // Create the component (with bAutoDestroy = true so it does not clog RAM when done)
         UAudioComponent* AudioComp = UGameplayStatics::SpawnSound2D(GetWorld(), ImportedSoundWave, 1.0f, 1.0f, 0.0f, nullptr, false, true);
         if (AudioComp)
         {
-            // Odtwarzamy zaległy czas Sequencera
+            // Play back the pending Sequencer time
             float TargetStartTime = 0.0f;
             if (float* PreTickTime = PendingPlaybackTimes.Find(EventID))
             {
@@ -210,12 +210,12 @@ void UZWMovieSceneDialogueSubsystem::OnAudioImportFinished(URuntimeAudioImporter
     }
     else
     {
-        UE_LOG(LogTemp, Error, TEXT("Błąd dekodowania w wątku! EventID: %s"), *EventID.ToString());
+        UE_LOG(LogTemp, Error, TEXT("Error while decoding on the thread! EventID: %s"), *EventID.ToString());
     }
 
     PendingPlaybackTimes.Remove(EventID);
 
-    // 4. ODPALENIE UI: Audio zaczęło grać (lub padło na amen), uwalniamy UI podając mu zmontowaną strukturę
+    // 4. FIRE THE UI: audio started playing (or died), release the UI passing it the assembled structure
     NotifyHandlers(PendingData);
 }
 

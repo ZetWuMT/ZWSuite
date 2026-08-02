@@ -21,7 +21,7 @@ void FZWQuestFactBaseEditorModule::StartupModule()
 	
 	FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
 	
-	// Rejestrujemy naszą customizację
+	// Register our customization
 	PropertyModule.RegisterCustomPropertyTypeLayout(
 		FZWQuestFactSearchableName::StaticStruct()->GetFName(),
 		FOnGetPropertyTypeCustomizationInstance::CreateStatic(&FZWQuestFactNameCustomization::MakeInstance)

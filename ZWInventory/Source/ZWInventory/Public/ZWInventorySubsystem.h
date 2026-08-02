@@ -10,7 +10,7 @@
 class UZWInventoryManagerComponent;
 
 /**
- * Subsystem do zarządzania i dostępu do wszystkich komponentów ekwipunku w grze.
+ * Subsystem for managing and accessing all inventory components in the game.
  */
 UCLASS()
 class ZWINVENTORY_API UZWInventorySubsystem : public UGameInstanceSubsystem

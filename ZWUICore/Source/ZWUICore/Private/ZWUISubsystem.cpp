@@ -174,18 +174,18 @@ UZWUIPanel* UZWUISubsystem::GetOrCreateInstancedPanel(FGameplayTag PanelTag)
 		return *FoundPanel;
 	}
 
-	// 2. Jeśli nie ma, Subsystem uroczyście go tworzy i zapisuje jako JEDYNY WŁAŚCICIEL
+	// 2. If it does not exist, the Subsystem ceremoniously creates it and stores it as the ONLY OWNER
 	TSoftClassPtr<UZWUIPanel> SoftClass = GetPanelClass(PanelTag);
 	if (!SoftClass.IsNull())
 	{
-		// Ładujemy synchronicznie (ponieważ Eager Loading na ekranie ładowania menu to akceptowalny standard)
+		// Load synchronously (since Eager Loading on the menu loading screen is an acceptable standard)
 		if (UClass* WidgetClass = SoftClass.LoadSynchronous())
 		{
 			UZWUIPanel* NewPanel = CreateWidget<UZWUIPanel>(PlayerController, WidgetClass);
 			NewPanel->BoundPanelTag = PanelTag;
 			NewPanel->PanelIdentityTag = PanelTag;
 			
-			// Subsystem rejestruje to u siebie!
+			// The Subsystem registers it on its side!
 			InstancedPanels.Add(PanelTag, NewPanel);
 			return NewPanel;
 		}
@@ -211,24 +211,24 @@ void UZWUISubsystem::ClosePanelWidget(FGameplayTag PanelTag)
 		}		 
 	}
 
-	// 1. Opcja dla paneli typu Standalone / Menu, które zapisaliśmy w InstancedPanels
+	// 1. Option for Standalone / Menu panels that we stored in InstancedPanels
 	if (UZWUIPanel** FoundInstanced = InstancedPanels.Find(PanelTag))
 	{
 		if (*FoundInstanced && (*FoundInstanced)->IsActivated())
 		{
-			// Wywołanie tego natywnie odpali całą procedurę zamykania Common UI:
-			// Animacja zamykania -> NativeOnDeactivated -> UnregisterPanel -> RefreshInput
+			// Calling this natively fires the whole Common UI close procedure:
+			// Close animation -> NativeOnDeactivated -> UnregisterPanel -> RefreshInput
 			(*FoundInstanced)->DeactivateWidget();
-			return; // Znaleźliśmy i wyłączyliśmy, koniec roboty
+			return; // We found and disabled it, job done
 		}
 	}
 
-	// 2. Fallback (dla paneli tworzonych "w locie" bez zapisywania instancji, np. niektóre Prompty)
-	// Przeszukujemy naszą listę aktualnie aktywnych paneli.
-	// Zakładam, że Twoja struktura w ActivePanels ma wskaźnik na Panel.
+	// 2. Fallback (for panels created "on the fly" without storing instances, e.g. some Prompts)
+	// We search our list of currently active panels.
+	// Assuming your structure in ActivePanels has a pointer to the Panel.
 	for (int32 i = ActivePanels.Num() - 1; i >= 0; --i)
 	{
-		UZWUIPanel* ActivePanel = ActivePanels[i].Panel; // (Dostosuj to do swojej struktury, np. ActivePanels[i].Panel)
+		UZWUIPanel* ActivePanel = ActivePanels[i].Panel; // (Adjust to your structure, e.g. ActivePanels[i].Panel)
 		
 		if (ActivePanel && ActivePanel->BoundPanelTag.MatchesTagExact(PanelTag))
 		{
@@ -237,7 +237,7 @@ void UZWUISubsystem::ClosePanelWidget(FGameplayTag PanelTag)
 		}
 	}
 	
-	UE_LOG(LogZWUICore, Warning, TEXT("ClosePanelWidget: Nie znaleziono aktywnego panelu dla Taga %s"), *PanelTag.ToString());
+	UE_LOG(LogZWUICore, Warning, TEXT("ClosePanelWidget: No active panel found for tag %s"), *PanelTag.ToString());
 }
 
 void UZWUISubsystem::RegisterPanel(UZWUIPanel* Panel)
@@ -246,7 +246,7 @@ void UZWUISubsystem::RegisterPanel(UZWUIPanel* Panel)
 	{
 		FZWActivePanelContext NewContext;
 		NewContext.Panel = Panel;
-		NewContext.PanelTag = Panel->BoundPanelTag; // Pobieramy wstrzyknięty wcześniej tag
+		NewContext.PanelTag = Panel->BoundPanelTag; // Get the tag injected earlier
 
 		ActivePanels.Add(NewContext);
 		RefreshInputConfig();
@@ -263,16 +263,16 @@ void UZWUISubsystem::UnregisterPanel(UZWUIPanel* Panel)
 		ActivePanels.RemoveAt(Index);
 		RefreshInputConfig();
 
-		// SPRAWDZAMY KTO RZĄDZI:
+		// CHECK WHO IS IN CHARGE:
 		const UZWUISettings* Settings = GetDefault<UZWUISettings>();
 		if (Settings && Settings->bIsUIStateExternallyManaged)
 		{
-			// CISZA! Żaden zamykający się (Unregisterowany) panel nie ma prawa 
-			// sam z siebie wysyłać sygnału Back. Zrobi to tylko State Tree.
+			// SILENCE! No closing (Unregistered) panel has the right
+			// to send the Back signal by itself. Only the State Tree will do it.
 			return;
 		}
 
-		// FALLBACK DLA SAMEGO ZWUICORE:
+		// FALLBACK FOR ZWUICORE ALONE:
 		if (!Panel->BoundPanelTag.MatchesTag(ZWUITags::Panel_Menu_Tab))
 		{
 			FGameplayTag BackTag = FGameplayTag::RequestGameplayTag(FName("UI.State.Back"));

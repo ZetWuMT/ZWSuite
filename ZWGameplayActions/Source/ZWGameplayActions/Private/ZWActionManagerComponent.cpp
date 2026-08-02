@@ -7,7 +7,7 @@
 
 UZWActionManagerComponent::UZWActionManagerComponent()
 {
-	// Menedżer nasłuchuje tylko na strzały z Inputu. Nie musi tykać co klatkę!
+	// The manager only listens to Input fires. It does not need to tick every frame!
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
@@ -15,8 +15,8 @@ void UZWActionManagerComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Inicjalizacja domyślnych akcji (np. Skok, Interakcja, Bieg), 
-	// które dodasz swojemu graczowi w okienku Details w edytorze.
+	// Initialization of the default actions (e.g. Jump, Interact, Run),
+	// which you add to your player in the Details window in the editor.
 	for (TSubclassOf<UZWGameplayAction> ActionClass : DefaultActions)
 	{
 		GrantAction(ActionClass);
@@ -27,18 +27,18 @@ void UZWActionManagerComponent::GrantAction(TSubclassOf<UZWGameplayAction> Actio
 {
 	if (!ActionClass) return;
 
-	// Zabezpieczenie przed podwójnym nadaniem tej samej akcji.
-	// Nie chcemy, żeby gracz miał w kieszeni 5 instancji akcji "Zrób Zdjęcie".
+	// Guard against granting the same action twice.
+	// We do not want the player to have 5 instances of the "Take Photo" action in their pocket.
 	for (UZWGameplayAction* ExistingAction : GrantedActions)
 	{
 		if (ExistingAction && ExistingAction->IsA(ActionClass))
 		{
-			// Gracz już potrafi to robić. Przerywamy.
+			// The player can already do this. Stop.
 			return; 
 		}
 	}
 
-	// Tworzymy nową instancję akcji. Outerem (właścicielem) jest nasz Menedżer.
+	// Create a new action instance. The Outer (owner) is our Manager.
 	UZWGameplayAction* NewAction = NewObject<UZWGameplayAction>(this, ActionClass);
 	
 	if (NewAction)
@@ -51,7 +51,7 @@ void UZWActionManagerComponent::RemoveAction(TSubclassOf<UZWGameplayAction> Acti
 {
 	if (!ActionClass) return;
 
-	// Szukamy akcji do usunięcia. Iterujemy od końca (typowe przy usuwaniu z TArray).
+	// Look for the action to remove. We iterate from the end (typical when removing from a TArray).
 	for (int32 i = GrantedActions.Num() - 1; i >= 0; --i)
 	{
 		UZWGameplayAction* Action = GrantedActions[i];
@@ -59,8 +59,8 @@ void UZWActionManagerComponent::RemoveAction(TSubclassOf<UZWGameplayAction> Acti
 		{
 			GrantedActions.RemoveAt(i);
 			
-			// Nie musimy robić ręcznego "Destroy". Jak tylko wyrzucimy obiekt z tablicy GrantedActions
-			// (która ma makro UPROPERTY), system Garbage Collection Unreala sam go zniszczy w tle.
+			// We do not need a manual "Destroy". As soon as we remove the object from the GrantedActions
+			// array (which has the UPROPERTY macro), Unreal's Garbage Collection destroys it in the background.
 			break;
 		}
 	}
@@ -70,18 +70,18 @@ void UZWActionManagerComponent::HandleInputTag(FGameplayTag InputTag, const FInp
 {
 	if (!InputTag.IsValid()) return;
 
-	// Przeszukujemy naszą "kieszeń" z akcjami.
+	// Search through our "pocket" of actions.
 	for (UZWGameplayAction* Action : GrantedActions)
 	{
-		// Jeśli Tag z Action Routera zgadza się z Tagiem ustawionym w Blueprincie akcji:
+		// If the Tag from the Action Router matches the Tag set in the action's Blueprint:
 		if (Action && Action->TriggerTag.MatchesTagExact(InputTag))
 		{
 			if (APawn* Avatar = Cast<APawn>(GetOwner()))
 			{
 				APlayerController* PC = Cast<APlayerController>(Avatar->GetController());
 				
-				// ODPALAMY LOGIKĘ! 
-				// (To wywoła węzły podpięte pod Event Execute Action wewnątrz Twojego Blueprinta)
+				// FIRE THE LOGIC! 
+				// (This will invoke the nodes hooked up to the Execute Action event inside your Blueprint)
 				Action->ExecuteAction(PC, Avatar);
 			}
 		}

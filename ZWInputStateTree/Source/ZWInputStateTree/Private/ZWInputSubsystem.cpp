@@ -13,7 +13,7 @@ const UStateTree* UZWInputSubsystem::GetStateTreeAsset() const
 	const UZWInputStateTreeSettings* Settings = GetDefault<UZWInputStateTreeSettings>();
 	if (Settings && !Settings->DefaultInputStateTree.IsNull())
 	{
-		// Ładujemy synchronicznie asset ze ścieżki (tylko raz, przy starcie gracza)
+		// Load the asset synchronously from the path (only once, at player startup)
 		return Settings->DefaultInputStateTree.LoadSynchronous();
 	}
 	return nullptr;
@@ -21,8 +21,8 @@ const UStateTree* UZWInputSubsystem::GetStateTreeAsset() const
 
 void UZWInputSubsystem::PlayerControllerChanged(APlayerController* NewPlayerController)
 {
-	// Baza (UZWStateTreeSubsystemBase) zajmuje się (re)startem drzewa - my dokładamy tylko to,
-	// co jest specyficzne dla Inputu: podpięcie się pod broadcast tagów z ZWInputComponent.
+	// The base (UZWStateTreeSubsystemBase) handles (re)starting the tree - we only add what is
+	// specific to Input: subscribing to the tag broadcast from ZWInputComponent.
 	Super::PlayerControllerChanged(NewPlayerController);
 
 	if (NewPlayerController)
@@ -49,7 +49,7 @@ void UZWInputSubsystem::PushInputContext(const UInputMappingContext* IMC, int32 
 	{
 		EISubsystem->AddMappingContext(IMC, Priority);
 		
-		// Opcjonalnie śledzimy, co dodaliśmy
+		// Optionally track what we added
 		ActiveContexts.AddUnique(IMC);
 	}
 }
@@ -69,13 +69,13 @@ void UZWInputSubsystem::BindContextData(FStateTreeExecutionContext& Context, con
 {
 	if (!TreeAsset) return;
 
-	// KRYTYCZNA ZMIANA: Pobieramy deskryptory ze SKOMPILOWANEGO DRZEWA
-	// Te deskryptory mają już wygenerowane, ważne Handle!
+	// CRITICAL CHANGE: We get the descriptors from the COMPILED TREE
+	// These descriptors already have generated, valid Handles!
 	TConstArrayView<FStateTreeExternalDataDesc> ContextDescs = TreeAsset->GetContextDataDescs();
 
 	for (const FStateTreeExternalDataDesc& Desc : ContextDescs)
 	{
-		// Szukamy tego deskryptora, który oczekuje naszego Subsystemu
+		// Look for the descriptor that expects our Subsystem
 		if (Desc.Struct && Desc.Struct->IsChildOf(UZWInputSubsystem::StaticClass()))
 		{
 			FStateTreeDataView SubsystemView(this);
@@ -93,15 +93,15 @@ void UZWInputSubsystem::BindContextData(FStateTreeExecutionContext& Context, con
 		}
 		else if (Desc.Struct && Desc.Struct->IsChildOf(AActor::StaticClass()))
 		{
-			// Jako że Subsystem żyje na LocalPlayerze, łatwo możemy dobrać się do Pawna
+			// Since the Subsystem lives on the LocalPlayer, we can easily reach the Pawn
 			if (APlayerController* PC = GetLocalPlayer()->GetPlayerController(GetWorld()))
 			{
 				if (APawn* PlayerPawn = PC->GetPawn())
 				{
-					// Tworzymy widok danych na naszego Pawna
+					// Create a data view on our Pawn
 					FStateTreeDataView ActorView(PlayerPawn);
 					
-					// Wstrzykujemy Pawna do State Tree pod ten konkretny Handle!
+					// Inject the Pawn into the State Tree under this specific Handle!
 					Context.SetContextData(Desc.Handle, ActorView);
 				}
 			}

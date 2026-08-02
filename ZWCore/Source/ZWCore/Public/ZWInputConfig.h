@@ -10,17 +10,17 @@
 
 class UInputAction;
 
-// 1. Struktura pojedynczego mapowania (Akcja -> Tag)
+// 1. Structure of a single mapping (Action -> Tag)
 USTRUCT(BlueprintType)
 struct FZWInputAction
 {
 	GENERATED_BODY()
 
-	// Fizyczna akcja z Enhanced Input (np. IA_ToggleInventory)
+	// Physical action from Enhanced Input (e.g. IA_ToggleInventory)
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSoftObjectPtr<UInputAction> InputAction;
 
-	// Logiczny tag, który ma zostać wysłany po wciśnięciu (np. "UI.Action.Inventory")
+	// Logical tag to be sent after pressing (e.g. "UI.Action.Inventory")
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (Categories = "InputTag"))
 	FGameplayTag InputTag;
 	

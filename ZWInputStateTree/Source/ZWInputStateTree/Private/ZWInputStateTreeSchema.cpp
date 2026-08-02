@@ -33,7 +33,7 @@ UZWInputStateTreeSchema::UZWInputStateTreeSchema()
 
 bool UZWInputStateTreeSchema::IsStructAllowed(const UScriptStruct* InScriptStruct) const
 {
-	// Pozwalamy na bazowe struktury StateTree
+	// Allow the base StateTree structures
 	return InScriptStruct->IsChildOf(FStateTreeTaskBase::StaticStruct()) ||
 		   InScriptStruct->IsChildOf(FStateTreeConditionBase::StaticStruct()) ||
 		   InScriptStruct->IsChildOf(FStateTreeEvaluatorBase::StaticStruct());
@@ -41,19 +41,19 @@ bool UZWInputStateTreeSchema::IsStructAllowed(const UScriptStruct* InScriptStruc
 
 bool UZWInputStateTreeSchema::IsClassAllowed(const UClass* InClass) const
 {
-	// 1. Zawsze przepuszczamy, jeśli klasa jest pusta (wymagane przez silnik do czyszczenia pinu)
+	// 1. Always allow if the class is empty (required by the engine for pin clearing)
 	if (!InClass)
 	{
 		return false; 
 	}
 
-	// 2. Przepuszczamy nasz Subsystem
+	// 2. Pass our Subsystem
 	if (InClass->IsChildOf(UZWInputSubsystem::StaticClass()))
 	{
 		return true;
 	}
 
-	// 3. PRZEPUSZCZAMY AKTORA! (To naprawi Twój błąd)
+	// 3. ALLOW THE ACTOR! (This fixes your bug)
 	if (InClass->IsChildOf(AActor::StaticClass()))
 	{
 		return true;
@@ -64,6 +64,6 @@ bool UZWInputStateTreeSchema::IsClassAllowed(const UClass* InClass) const
 		return true;
 	}
 
-	// 4. Jeśli to nic z powyższych, pytamy bazową klasę
+	// 4. If it is none of the above, ask the base class
 	return Super::IsClassAllowed(InClass);
 }

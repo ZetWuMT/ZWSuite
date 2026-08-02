@@ -22,12 +22,12 @@ void AZWLootScatterer::PerformScattering(const TArray<AZWScatterProbe*>& Availab
 	
 	Algo::RandomShuffle(ScatterEntryTable);
 
-	// 1. FAZA PLANOWANIA
+	// 1. PLANNING PHASE
 	for (const FZWLootScatterEntry& Entry : ScatterEntryTable)
 	{
 		if (Entry.ItemDefinition.IsNull()) continue;
 
-		// Używamy metody z klasy bazowej, która oddaje nam gotowy plan rozlokowania dla tego wpisu!
+		// We use the base class method that returns a ready placement plan for this entry!
 		TMap<AZWScatterProbe*, int32> EntryAllocations = CalculateSpawnsForEntry(Entry, AvailableProbes);
 
 		for (const TTuple<AZWScatterProbe*, int32>& Allocation : EntryAllocations)
@@ -39,13 +39,13 @@ void AZWLootScatterer::PerformScattering(const TArray<AZWScatterProbe*>& Availab
 			NewTemplate.ItemDef = Entry.ItemDefinition;
 			NewTemplate.StackCount = AmountToSpawn;
 
-			// Dodajemy do Proba w naszym własnym słowniku (Mapie)
+			// Add to the Probe in our own dictionary (Map)
 			PlannedSpawns.FindOrAdd(TargetProbe).InventoryPickup.Templates.Add(NewTemplate);
 			PlannedSpawns.Find(TargetProbe)->StaticMesh = Entry.ItemStaticMesh;
 		}
 	}
 
-	// 2. FAZA SPAWNOWANIA (Pozostaje w 100% z Twojej starej logiki)
+	// 2. SPAWNING PHASE (Remains 100% from your old logic)
 	for (const TTuple<AZWScatterProbe*, FZWLootSpawnParams>& PlannedSpawn : PlannedSpawns)
 	{
 		AZWScatterProbe* Probe = PlannedSpawn.Key;

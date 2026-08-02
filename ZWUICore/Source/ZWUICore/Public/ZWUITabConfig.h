@@ -12,22 +12,22 @@ struct FZWUITabDefinition
 {
 	GENERATED_BODY()
 	
-	// Unikalne ID zakładki (np. "UI.Panel.Inventory")
+	// Unique tab ID (e.g. "UI.Panel.Inventory")
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tab")
 	FGameplayTag TabTag;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tab|State Tree")
 	FGameplayTag StateTag;
 
-	// Jaki widget ma się otworzyć w Switcherze
+	// Which widget should open in the Switcher
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tab")
 	TSubclassOf<UCommonActivatableWidget> PanelClass;
 
-	// Jak ma wyglądać przycisk na górnym pasku
+	// How the button on the top bar should look
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tab")
 	TSubclassOf<UCommonButtonBase> TabButtonClass;
 
-	// (Opcjonalnie) Ikona i tekst do przycisku, jeśli Twój przycisk to obsługuje
+	// (Optional) Icon and text for the button, if your button supports it
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tab")
 	TObjectPtr<UTexture2D> TabIcon;
 

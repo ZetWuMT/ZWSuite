@@ -21,7 +21,7 @@ public:
 	virtual TConstArrayView<FStateTreeExternalDataDesc> GetContextDataDescs() const override { return ContextDataDescs; }
 
 protected:
-	// Definiujemy, jakie klasy są wymagane jako dane zewnętrzne dla drzewa
+	// Define which classes are required as external data for the tree
 	virtual bool IsStructAllowed(const UScriptStruct* InScriptStruct) const override;
 	virtual bool IsClassAllowed(const UClass* InClass) const override;
 	

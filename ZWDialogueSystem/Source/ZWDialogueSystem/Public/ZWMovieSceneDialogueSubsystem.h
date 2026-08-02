@@ -78,14 +78,14 @@ private:
 
     friend FZWDialogueToken;
     
-    // Mapa trzymająca aktywne tokeny dialogów powiązane z EventID
+    // Map holding the active dialogue tokens tied to EventIDs
     TMap<FGuid, FZWDialogueData> PendingAudioDialogues;
 
-    // Mapa wiążąca konkretną instancję importera z EventID, żebyśmy wiedzieli 
-    // który plik właśnie skończył się dekodować w wątku
+    // Map linking a specific importer instance to an EventID so we know
+    // which file just finished decoding on the thread
     UPROPERTY()
     TMap<FGuid, URuntimeAudioImporterLibrary*> ActiveImports;
 
-    // Pomocnicza struktura wewnętrzna do śledzenia czasu, jeśli audio jeszcze się ładuje
+    // Internal helper structure for tracking time while audio is still loading
     TMap<FGuid, float> PendingPlaybackTimes;
 };

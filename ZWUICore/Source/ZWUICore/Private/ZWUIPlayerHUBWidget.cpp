@@ -41,9 +41,9 @@ void UZWUIPlayerHUBWidget::OpenTabInSwitcher(UZWUIPanel* Panel)
 	{
 		FName TabID = Panel->BoundPanelTag.GetTagName();
 		
-		// Nie sprawdzamy "GetSelectedTabId() != TabID", bo nawet jeśli zakładka 
-		// jest zaznaczona, panel może być deaktywowany. Common UI jest mądre 
-		// i samo odpali ActivateWidget() (co z kolei poprawnie wywoła Twój RegisterPanel!).
+		// We do not check "GetSelectedTabId() != TabID", because even if the tab
+		// is selected, the panel may be deactivated. Common UI is smart
+		// and will fire ActivateWidget() by itself (which in turn correctly calls your RegisterPanel!).
 		MenuTabList->SelectTabByID(TabID);		
 	}
 	else
@@ -59,10 +59,10 @@ void UZWUIPlayerHUBWidget::OpenTabInSwitcher(UZWUIPanel* Panel)
 		}
 	}
 
-	// 4. Wspólna logika aktualizacji tła i eventów (dla obu ścieżek)
+	// 4. Common logic for updating the background and events (for both paths)
 	SetMenuBackgroundVisible(Panel->bRequiresBackground);
 	
-	// Podpinamy się pod zamknięcie panelu (używamy Remove, żeby zapobiec podwójnemu bindowaniu!)
+	// Hook into the panel close (we use Remove to prevent double binding!)
 	Panel->OnDeactivated().RemoveAll(this);
 	Panel->OnDeactivated().AddUObject(this, &UZWUIPlayerHUBWidget::OnTabClosed);
 }
@@ -71,7 +71,7 @@ void UZWUIPlayerHUBWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
-	// Pobieramy naszego Szefa (Subsystem)
+	// Get our Boss (Subsystem)
 	UZWUISubsystem* Subsystem = GetOwningLocalPlayer()->GetSubsystem<UZWUISubsystem>();
 
 	if (MenuTabList && MenuPanelsSwitcher && TabConfiguration && Subsystem)
@@ -85,10 +85,10 @@ void UZWUIPlayerHUBWidget::NativeConstruct()
 			FName TabID = TabDef.TabTag.GetTagName();
 			if (MenuTabList->GetTabButtonBaseByID(TabID)) continue;
 
-			// HUB PROSI SUBSYSTEM O PANEL (Zero samowolki!)
+			// THE HUB ASKS THE SUBSYSTEM FOR THE PANEL (No freelancing!)
 			if (UZWUIPanel* Panel = Subsystem->GetOrCreateInstancedPanel(TabDef.TabTag))
 			{
-				// Z racji tego, że Subsystem oddał nam prawilny wskaźnik, reszta to formalność
+				// Since the Subsystem gave us a proper pointer, the rest is a formality
 				if (!MenuPanelsSwitcher->HasChild(Panel))
 				{
 					MenuPanelsSwitcher->AddChild(Panel);
@@ -106,7 +106,7 @@ void UZWUIPlayerHUBWidget::NativeConstruct()
 					}
 				}
 				
-				// Używamy AddUniqueDynamic/AddUObject, żeby się podpiąć
+				// We use AddUniqueDynamic/AddUObject to hook up
 				Panel->OnDeactivated().RemoveAll(this);
 				Panel->OnDeactivated().AddUObject(this, &UZWUIPlayerHUBWidget::OnTabClosed);
 			}
@@ -133,17 +133,17 @@ void UZWUIPlayerHUBWidget::NativeOnDeactivated()
 {
 	Super::NativeOnDeactivated();
 
-	// 1. SPRAWDZAMY KTO RZĄDZI:
+	// 1. CHECK WHO IS IN CHARGE:
 	const UZWUISettings* Settings = GetDefault<UZWUISettings>();
 	if (Settings && Settings->bIsUIStateExternallyManaged)
 	{
-		// CISZA! HUB jest zamykany przez State Tree (np. przez Task 'Close Panel') 
-		// lub podczas zmiany zakładek. State Tree już o wszystkim wie.
+		// SILENCE! The HUB is closed by the State Tree (e.g. by the 'Close Panel' Task)
+		// or when switching tabs. The State Tree already knows everything.
 		return; 
 	}
 
-	// 2. FALLBACK DLA SAMEGO ZWUICORE:
-	// Jeśli plugin działa samodzielnie, używamy starego sposobu do poinformowania np. gry o zamknięciu menu
+	// 2. FALLBACK FOR ZWUICORE ALONE:
+	// If the plugin works standalone, we use the old way to inform e.g. the game about closing the menu
 	if (UZWUISubsystem* Subsystem = GetOwningLocalPlayer()->GetSubsystem<UZWUISubsystem>())
 	{
 		FGameplayTag BackTag = FGameplayTag::RequestGameplayTag(FName("UI.State.Back"));
@@ -153,15 +153,15 @@ void UZWUIPlayerHUBWidget::NativeOnDeactivated()
 
 void UZWUIPlayerHUBWidget::HandleTabSelected(FName TabId)
 {
-	// 1. Zabezpieczenie przed brakiem konfiguracji i klikaniem tego samego
+	// 1. Guard against missing configuration and clicking the same tab
 	if (!TabConfiguration || (MenuPanelsSwitcher && MenuPanelsSwitcher->IsCurrentlySwitching())) return;
 
 	FGameplayTag StateTagToSend;
 
-	// 2. Szukamy definicji zakładki w naszym Data Assecie
+	// 2. Look up the tab definition in our Data Asset
 	for (const FZWUITabDefinition& TabDef : TabConfiguration->Tabs)
 	{
-		// Common UI zwraca nam TabId jako FName, więc porównujemy
+		// Common UI returns the TabId as FName, so we compare
 		if (TabDef.TabTag.GetTagName() == TabId)
 		{
 			StateTagToSend = TabDef.StateTag;
@@ -172,20 +172,20 @@ void UZWUIPlayerHUBWidget::HandleTabSelected(FName TabId)
 	const UZWUISettings* Settings = GetDefault<UZWUISettings>();
 	if (Settings && Settings->bIsUIStateExternallyManaged)
 	{
-		// CISZA! HUB jest zamykany przez State Tree (np. przez Task 'Close Panel') 
-		// lub podczas zmiany zakładek. State Tree już o wszystkim wie.
+		// SILENCE! The HUB is closed by the State Tree (e.g. by the 'Close Panel' Task)
+		// or when switching tabs. The State Tree already knows everything.
 		return; 
 	}
 
-	// 3. Jeśli znaleźliśmy State Tag, wysyłamy go do maszyny stanów!
+	// 3. If we found a State Tag, send it to the state machine!
 	if (StateTagToSend.IsValid())
 	{
 		if (UZWUISubsystem* Subsystem = GetOwningLocalPlayer()->GetSubsystem<UZWUISubsystem>())
 		{
-			// Używamy Twojego uniwersalnego nadajnika
+			// Use your universal transmitter
 			Subsystem->OnGameplayTagSent.Broadcast(StateTagToSend);
 			
-			UE_LOG(LogTemp, Log, TEXT("HUB: Zakladka zmieniona myszka. Wysylam do State Tree: %s"), *StateTagToSend.ToString());
+			UE_LOG(LogTemp, Log, TEXT("HUB: Tab changed with mouse. Sending to State Tree: %s"), *StateTagToSend.ToString());
 		}
 	}
 }
@@ -229,7 +229,7 @@ void UZWUIPlayerHUBWidget::OnTabClosed()
 	
 	UZWUIPanel* ActivePanel = Cast<UZWUIPanel>(MenuPanelsSwitcher->GetActiveWidget());
 	
-	// Jeśli Switcher jest pusty LUB jego widget jest wyłączony -> gasimy tło
+	// If the Switcher is empty OR its widget is disabled -> turn off the background
 	if (!ActivePanel || !ActivePanel->IsActivated())
 	{
 		SetMenuBackgroundVisible(false);
@@ -237,8 +237,8 @@ void UZWUIPlayerHUBWidget::OnTabClosed()
 	}
 	else
 	{
-		// Jeśli z jakiegoś powodu inny widget stał się aktywny, upewniamy się, 
-		// czy on wymaga tła (czytamy naszą flagę)
+		// If for some reason another widget became active, make sure
+		// whether it requires the background (we read our flag)
 		SetMenuBackgroundVisible(ActivePanel->bRequiresBackground);
 	}	
 }

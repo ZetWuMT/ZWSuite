@@ -28,17 +28,17 @@ void FZWQuestFactNameCustomization::CustomizeHeader(TSharedRef<IPropertyHandle> 
 
         if (OwnerObject)
         {
-            // Znajdź funkcję po nazwie w obiekcie-właścicielu
+            // Find the function by name in the owner object
             UFunction* Func = OwnerObject->FindFunction(FName(*FunctionName));
             if (Func && Func->NumParms == 1 && Func->GetReturnProperty())
             {
-                // 1. Zmień typ zmiennej na TArray<FName>, aby pasował do funkcji
+                // 1. Change the variable type to TArray<FName> to match the function
                 TArray<FName> ResultArray;
     
-                // 2. Wywołaj funkcję, przekazując adres naszej zmiennej
+                // 2. Call the function, passing the address of our variable
                 OwnerObject->ProcessEvent(Func, &ResultArray);
 
-                // 3. Wypełnij listę opcji, konwertując FName na FString dla widgetu
+                // 3. Fill the options list, converting FName to FString for the widget
                 for (const FName& Option : ResultArray)
                 {
                     OptionsSource.Add(MakeShareable(new FString(Option.ToString())));
@@ -145,16 +145,16 @@ void FZWQuestFactNameCustomization::OnMenuOpenChanged(bool bIsOpen)
 {
     if (bIsOpen)
     {
-        // Zresetuj tekst w pasku wyszukiwania
+        // Reset the text in the search bar
         if (SearchBar.IsValid())
         {
             SearchBar->SetText(FText::GetEmpty());
         }
 
-        // Zresetuj listę opcji do pełnej, niefiltrowanej wersji
+        // Reset the options list to the full, unfiltered version
         FilteredOptions = OptionsSource;
 
-        // Odśwież widok listy
+        // Refresh the list view
         if (ListView.IsValid())
         {
             ListView->RequestListRefresh();

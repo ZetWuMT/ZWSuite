@@ -30,7 +30,7 @@ struct FZWActivePanelContext
 	UPROPERTY()
 	FGameplayTag PanelTag;
 
-	// Przeciążenie operatora pozwala nam wyszukiwać w tablicy po samym wskaźniku
+	// Operator overload lets us search the array by pointer alone
 	bool operator==(const UZWUIPanel* OtherPanel) const
 	{
 		return Panel == OtherPanel;
@@ -59,7 +59,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ZW|UI|Input")
 	void RequestPanelWidget(FGameplayTag PanelTag);
 	
-	// Pobiera z pamięci lub tworzy (jeśli nie istnieje) panel dla danego Taga.
+	// Gets from memory or creates (if it does not exist) a panel for the given Tag.
 	UFUNCTION(BlueprintCallable, Category = "ZW|UI")
 	UZWUIPanel* GetOrCreateInstancedPanel(FGameplayTag PanelTag);
 	

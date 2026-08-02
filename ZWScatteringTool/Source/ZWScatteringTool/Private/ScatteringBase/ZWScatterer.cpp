@@ -29,7 +29,7 @@ void AZWScatterer::Scatter()
 {
 	if (!ProbeClass) return;
 
-	// 1. Zbieramy Proby (tylko bazowej klasy)
+	// 1. Collect the Probes (only the base class)
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(this, ProbeClass, FoundActors);
 	
@@ -44,10 +44,10 @@ void AZWScatterer::Scatter()
 
 	if (AllProbes.IsEmpty()) return;
 
-	// 2. Oddajemy sterowanie do klasy pochodnej (FAZA PLANOWANIA I SPAWNOWANIA)
+	// 2. Hand control over to the derived class (PLANNING AND SPAWNING PHASE)
 	PerformScattering(AllProbes);
 
-	// 3. FAZA CZYSZCZENIA (Sprzątanie mapy wspólne dla wszystkich Scattererów)
+	// 3. CLEANUP PHASE (Map cleanup common to all Scatterers)
 	for (AZWScatterProbe* Probe : AllProbes)
 	{
 		if (IsValid(Probe))
@@ -76,7 +76,7 @@ TMap<AZWScatterProbe*, int32> AZWScatterer::CalculateSpawnsForEntry(const FZWSca
 	int32 CurrentTotalSpawned = 0;
 	int32 ProbesUsedForThisItem = 0;
 
-	// Obliczanie wartości dla każdego poprawnego Proba
+	// Calculate the value for each valid Probe
 	for (AZWScatterProbe* TargetProbe : ValidProbes)
 	{
 		if (ProbesUsedForThisItem >= Entry.MaxProbesToUse) break;
@@ -89,7 +89,7 @@ TMap<AZWScatterProbe*, int32> AZWScatterer::CalculateSpawnsForEntry(const FZWSca
 
 		if (AmountToSpawnHere <= 0) break;
 
-		// Zapisujemy przypisanie
+		// Save the assignment
 		ResultSpawns.Add(TargetProbe, AmountToSpawnHere);
 
 		CurrentTotalSpawned += AmountToSpawnHere;

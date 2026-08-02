@@ -47,23 +47,23 @@ void FZWInventoryEntry::PostReplicatedAdd(const FZWInventoryList& InArraySeriali
 {
 	SyncInstanceToEntry();
 
-	// 2. Opcjonalnie: Wyślij wiadomość, że podniesiono nowy przedmiot od zera
-	// Stara ilość: 0, Nowa ilość: StackCount
+	// 2. Optionally: send a message that a new item was picked up from scratch
+	// Old count: 0, New count: StackCount
 	// InArraySerializer.BroadcastChangeMessage(*this, 0, StackCount);
 
-	// 3. Zapisz obecny stan na przyszłość
+	// 3. Save the current state for later
 	LastObservedCount = StackCount;
 }
 
 void FZWInventoryEntry::PostReplicatedChange(const FZWInventoryList& InArraySerializer)
 {
-	// 1. Zsynchronizuj Tagi na Instancji
+	// 1. Sync the Tags on the Instance
 	SyncInstanceToEntry();
 
-	// 2. Wyślij wiadomość o różnicy (Delta) do UI!
+	// 2. Send the difference message (Delta) to the UI!
 	// InArraySerializer.BroadcastChangeMessage(*this, LastObservedCount, StackCount);
 
-	// 3. Zapisz nowy stan
+	// 3. Save the new state
 	LastObservedCount = StackCount;
 }
 
@@ -74,15 +74,15 @@ void FZWInventoryEntry::SyncInstanceToEntry()
 		const UZWInventorySettings* Settings = GetDefault<UZWInventorySettings>();
 		if (Settings->bEnableStacking && Settings->StackCountTag.IsValid())
 		{
-			// Resetujemy tag do zera i ustawiamy nową wartość na sztywno,
-			// gwarantując 100% zgodności między Strukturą a Instancją.
+			// Reset the tag to zero and set the new value hard,
+			// guaranteeing 100% consistency between the Structure and the Instance.
 			
 			int32 CurrentTagCount = Instance->GetStatTagStackCount(Settings->StackCountTag);
 			if (CurrentTagCount != StackCount)
 			{
-				// Usuwamy stary tag (jeśli był)
+				// Remove the old tag (if there was one)
 				Instance->RemoveStatTagStack(Settings->StackCountTag, CurrentTagCount);
-				// Wrzucamy nową, prawidłową wartość ze Struktury
+				// Put in the new, correct value from the Structure
 				Instance->AddStatTagStack(Settings->StackCountTag, StackCount);
 			}
 		}
@@ -314,12 +314,12 @@ TArray<UZWInventoryItemInstance*> UZWInventoryManagerComponent::AddItemDefinitio
 		}
 	}
 	
-	// 2. Jeśli zostało nam jeszcze coś do dodania, tworzymy nowe sloty
+	// 2. If we still have something left to add, create new slots
 	while (RemainingCountToAdd > 0)
 	{
 		int32 MaxStack = 1;
 		
-		// Opcjonalnie: odczytanie MaxStack przed utworzeniem nowej instancji z CDO (Default Object)
+		// Optional: read MaxStack before creating a new instance from the CDO (Default Object)
 		if (Settings->bEnableStacking)
 		{
 			if (const UZWInventoryFragment_SetStats* StatFragment = ItemDef.LoadSynchronous()->FindFragmentByClass<UZWInventoryFragment_SetStats>())
@@ -332,7 +332,7 @@ TArray<UZWInventoryItemInstance*> UZWInventoryManagerComponent::AddItemDefinitio
 
 		int32 AmountForNewInstance = Settings->bEnableStacking ? FMath::Min(MaxStack, RemainingCountToAdd) : 1;
 
-		// Tworzymy nową instancję korzystając z Twojej metody
+		// Create a new instance using your method
 		UZWInventoryItemInstance* NewInstance = InventoryList.AddEntry(ItemDef, AmountForNewInstance);
 		
 		if (!NewInstance) break;		

@@ -9,7 +9,7 @@ void UZWUITabList::HandleTabCreation_Implementation(FName TabNameID, UCommonButt
 {
 	if (TabButtonContainer && TabButton)
 	{
-		// Common UI właśnie wygenerował przycisk z Data Assetu - wrzucamy go do naszego pudełka!
+		// Common UI just generated a button from the Data Asset - put it into our box!
 		TabButtonContainer->AddChild(TabButton);
 	}
 }

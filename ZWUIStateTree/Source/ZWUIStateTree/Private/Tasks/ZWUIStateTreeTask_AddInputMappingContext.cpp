@@ -8,7 +8,7 @@ EStateTreeRunStatus FZWUIStateTreeTask_AddInputMappingContext::EnterState(FState
 {
 	if (ULocalPlayerSubsystem* OwnerSubsystem = Cast<ULocalPlayerSubsystem>(Context.GetOwner()))
 	{
-		// 2. Przez Ownera wyciągamy lokalnego gracza
+		// 2. Get the local player through the Owner
 		if (ULocalPlayer* LP = OwnerSubsystem->GetLocalPlayer())
 		{
 			if (UEnhancedInputLocalPlayerSubsystem* EISubsystem = LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
@@ -29,7 +29,7 @@ void FZWUIStateTreeTask_AddInputMappingContext::ExitState(FStateTreeExecutionCon
 
 	if (ULocalPlayerSubsystem* OwnerSubsystem = Cast<ULocalPlayerSubsystem>(Context.GetOwner()))
 	{
-		// 2. Przez Ownera wyciągamy lokalnego gracza
+		// 2. Get the local player through the Owner
 		if (ULocalPlayer* LP = OwnerSubsystem->GetLocalPlayer())
 		{
 			if (UEnhancedInputLocalPlayerSubsystem* EISubsystem = LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())

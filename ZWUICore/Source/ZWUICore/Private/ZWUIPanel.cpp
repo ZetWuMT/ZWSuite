@@ -36,24 +36,24 @@ void UZWUIPanel::NativeOnInitialized()
 						FSimpleDelegate Delegate;
 						Delegate.BindWeakLambda(this, [this, ActionTag]()
 						{
-							// BROADCAST: Robimy dokładnie to samo co Twój ZWInputComponent!
-							// Żadnego sztywnego State Tree. Kto nasłuchuje w grze, ten łapie Taga.
+							// BROADCAST: We do exactly the same as your ZWInputComponent!
+							// No rigid State Tree. Whoever listens in the game catches the Tag.
 							if (UZWUISubsystem* Subsystem = GetOwningLocalPlayer()->GetSubsystem<UZWUISubsystem>())
 							{
-								// Załóżmy, że dodałeś taki delegat w Subsystemie:
+								// Suppose you added such a delegate in the Subsystem:
 								// FOnPanelClosedDelegate OnGenericUIActionTriggered;
 								Subsystem->OnGameplayTagSent.Broadcast(ActionTag);
 						
-								// ^ (Możesz tu użyć OnPanelClosed, albo stworzyć nowy delegat np. OnGenericUIAction)
+								// ^ (You can use OnPanelClosed here, or create a new delegate like OnGenericUIAction)
 							}
 						});
 
 						FBindUIActionArgs Args(InputAction, Delegate);
 				
-						// Wymuszamy tryb Menu, żeby Common UI elegancko to przetworzyło
+						// Force Menu mode so Common UI processes it gracefully
 						Args.InputMode = ECommonInputMode::Menu; 
 				
-						// Ukrywamy to z Action Baru (żeby nie generowało syfu na ekranie dla każdej akcji)
+						// Hide it from the Action Bar (so it does not generate clutter on screen for every action)
 						Args.bDisplayInActionBar = false; 
 				
 						RegisterUIActionBinding(Args);
@@ -105,25 +105,25 @@ bool UZWUIPanel::NativeOnHandleBackAction()
 {
 	const UZWUISettings* Settings = GetDefault<UZWUISettings>();
 
-	// 1. SPRAWDZAMY KTO RZĄDZI ZAMYKANIEM:
+	// 1. CHECK WHO RUNS THE CLOSING:
 	if (Settings && Settings->bIsUIStateExternallyManaged)
 	{
-		// Panel ma dyrektora (State Tree). 
-		// Robimy Broadcast i CELOWO nie zamykamy panelu!
+		// The panel has a director (State Tree). 
+		// We broadcast and INTENTIONALLY do not close the panel!
 		if (UZWUISubsystem* Subsystem = GetOwningLocalPlayer()->GetSubsystem<UZWUISubsystem>())
 		{
-			// Wysyłamy Tag, który użytkownik ustawił w Project Settings (np. UI.Action.Back)
+			// Send the Tag that the user set in Project Settings (e.g. UI.Action.Back)
 			Subsystem->OnGameplayTagSent.Broadcast(Settings->ExternalCloseTag);
 		}
 
-		// Zwracamy true - mówimy systemowi Common UI: 
-		// "Zjedliśmy ten input, obsłużyliśmy go, ale nie wyłączaj nas. Zrobi to State Tree."
+		// Return true - we tell the Common UI system:
+		// "We ate this input, handled it, but do not disable us. The State Tree will do it."
 		return true; 
 	}
 
-	// 2. JEŚLI PLUGIN DZIAŁA SAMODZIELNIE (Tylko ZWUICore):
-	// Używamy natywnego zachowania Common UI.
-	// Pod maską, Super::NativeOnHandleBackAction() wywoła po prostu DeactivateWidget() i zwróci true.
+	// 2. IF THE PLUGIN WORKS STANDALONE (Only ZWUICore):
+	// We use Common UI's native behavior.
+	// Under the hood, Super::NativeOnHandleBackAction() simply calls DeactivateWidget() and returns true.
 	return Super::NativeOnHandleBackAction();
 }
 

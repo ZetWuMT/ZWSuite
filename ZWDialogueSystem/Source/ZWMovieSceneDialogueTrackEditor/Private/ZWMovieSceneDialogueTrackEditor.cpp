@@ -167,7 +167,7 @@ void FZWDialogueTrackEditor::CreateNewSection(UMovieSceneTrack* Track, const int
 		SequencerPtr->NotifyMovieSceneDataChanged(EMovieSceneDataChangeType::MovieSceneStructureItemAdded);
 	}
 }
-//@TODO: ColorTint do zmiany
+//@TODO: ColorTint to change
 int32 FZWDialogueSection::OnPaintSection(FSequencerSectionPainter& InPainter) const
 {	
 	return InPainter.PaintSectionBackground(FColor(134, 103, 106, 150));

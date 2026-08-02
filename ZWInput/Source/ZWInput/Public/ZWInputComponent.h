@@ -47,14 +47,14 @@ void UZWInputComponent::BindNativeAction(FGameplayTag InputTag, ETriggerEvent Tr
 	
 	if (!CachedConfig) return;
 
-	// Szukamy w naszym DataAssetcie akcji przypisanej do tego konkretnego Taga
+	// Look in our DataAsset for the action assigned to this specific Tag
 	for (const FZWInputAction& Action : CachedConfig->NativeInputActions)
 	{
 		if (Action.InputTag.MatchesTagExact(InputTag))
 		{
 			if (UInputAction* IA = Action.InputAction.LoadSynchronous())
 			{
-				// Bindujemy bezpośrednio do podanej funkcji
+				// Bind directly to the provided function
 				BindAction(IA, TriggerEvent, Object, Func);
 			}
 		}

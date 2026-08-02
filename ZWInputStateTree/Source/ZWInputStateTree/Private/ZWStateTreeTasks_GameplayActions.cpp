@@ -1,5 +1,5 @@
 #include "ZWStateTreeTasks_GameplayActions.h"
-#include "ZWActionManagerComponent.h" // Z drugiego pluginu!
+#include "ZWActionManagerComponent.h" // From another plugin!
 #include "StateTreeExecutionContext.h"
 
 // =====================================================================
@@ -18,7 +18,7 @@ EStateTreeRunStatus FZWStateTreeTask_AddGameplayAction::EnterState(FStateTreeExe
 		}
 	}
 
-	// Task po prostu ustawia logikę i kontynuuje działanie stanu
+	// The task simply sets the logic and continues running the state
 	return EStateTreeRunStatus::Running;
 }
 
@@ -26,7 +26,7 @@ void FZWStateTreeTask_AddGameplayAction::ExitState(FStateTreeExecutionContext& C
 {
 	FInstanceDataType& InstanceData = Context.GetInstanceData(*this);
 
-	// Sprzątamy tylko wtedy, gdy flaga bRemoveOnExit jest zaznaczona
+	// Clean up only when the bRemoveOnExit flag is checked
 	if (InstanceData.bRemoveOnExit && InstanceData.TargetActor && InstanceData.ActionClass)
 	{
 		if (UZWActionManagerComponent* ActionManager = InstanceData.TargetActor->GetComponentByClass<UZWActionManagerComponent>())
