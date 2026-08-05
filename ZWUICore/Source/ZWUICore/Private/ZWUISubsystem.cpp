@@ -366,14 +366,27 @@ bool UZWUISubsystem::AddPanelToLayer(FGameplayTag PanelTag, TSubclassOf<UZWUIPan
 		}				
 	}
 	
+	// TODO(UI-transiency): standalone panels reuse a session-persistent instanced widget (state
+	// added via GetOrCreateInstancedPanel is only visible because of this). Refactor toward
+	// data-driven transient panels: widget created/destroyed per open, state kept outside the widget.
 	if (PanelTag.MatchesTag(ZWUITags::Panel_Menu_Standalone) && RootLayout)
 	{
-		RootLayout->MenuLayer->AddWidget<UZWUIPanel>(PanelClass, 
-			[PanelTag](UZWUIPanel& NewPanel)
-			{
-				NewPanel.BoundPanelTag = PanelTag;
-			});
-		return true;
+		if (UZWUIPanel** FoundPanel = InstancedPanels.Find(PanelTag))
+		{
+			Panel = *FoundPanel;
+		}
+		else
+		{
+			Panel = CreateWidget<UZWUIPanel>(PlayerController, PanelClass);
+			Panel->BoundPanelTag = PanelTag;
+			InstancedPanels.Add(PanelTag, Panel);
+		}
+
+		if (Panel)
+		{
+			RootLayout->MenuLayer->AddWidgetInstance(*Panel);
+			return true;
+		}
 	}
 	
 	if (PanelTag.MatchesTag(ZWUITags::Panel_Prompt) && RootLayout)
