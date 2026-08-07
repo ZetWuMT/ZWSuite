@@ -3,10 +3,10 @@
 
 #include "ZWUIPanel.h"
 
+#include "Input/CommonUIInputTypes.h"
 #include "ZWInputConfig.h"
 #include "ZWUISettings.h"
 #include "ZWUISubsystem.h"
-#include "Input/CommonUIInputTypes.h"
 
 UZWUIPanel::UZWUIPanel(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -21,7 +21,12 @@ UZWUIPanel::UZWUIPanel(const FObjectInitializer& ObjectInitializer)
 void UZWUIPanel::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
-	
+
+	// TODO(ZW action bar): we need a convenient way for a widget to hook into these action-bar actions.
+	// Right now an action declared in ActionBarTags only gets a CommonUI binding that broadcasts its tag. 
+	// Add a ZWUICore mechanism (a virtual on UZWUIPanel, or a tag -> delegate binding) so a panel can react 
+	// to the actions it declared.
+
 	if (const UZWUISettings* InputSettings = GetDefault<UZWUISettings>())
 	{
 		if (UZWInputConfig* LoadedConfig = InputSettings->InputConfig.LoadSynchronous())
@@ -36,15 +41,9 @@ void UZWUIPanel::NativeOnInitialized()
 						FSimpleDelegate Delegate;
 						Delegate.BindWeakLambda(this, [this, ActionTag]()
 						{
-							// BROADCAST: We do exactly the same as your ZWInputComponent!
-							// No rigid State Tree. Whoever listens in the game catches the Tag.
 							if (UZWUISubsystem* Subsystem = GetOwningLocalPlayer()->GetSubsystem<UZWUISubsystem>())
 							{
-								// Suppose you added such a delegate in the Subsystem:
-								// FOnPanelClosedDelegate OnGenericUIActionTriggered;
 								Subsystem->OnGameplayTagSent.Broadcast(ActionTag);
-						
-								// ^ (You can use OnPanelClosed here, or create a new delegate like OnGenericUIAction)
 							}
 						});
 
@@ -53,8 +52,9 @@ void UZWUIPanel::NativeOnInitialized()
 						// Force Menu mode so Common UI processes it gracefully
 						Args.InputMode = ECommonInputMode::Menu; 
 				
-						// Hide it from the Action Bar (so it does not generate clutter on screen for every action)
-						Args.bDisplayInActionBar = false; 
+						// Only actions explicitly listed in ActionBarTags show up in the action bar;
+						// everything else stays hidden so it does not generate clutter.
+						Args.bDisplayInActionBar = ActionBarTags.Contains(ActionTag); 
 				
 						RegisterUIActionBinding(Args);
 					}
@@ -132,9 +132,3 @@ TOptional<FUIInputConfig> UZWUIPanel::GetDesiredInputConfig() const
 	// TODO: Add option to specify desired input config
 	return Super::GetDesiredInputConfig();
 }
-
-//void UZWUIPanel::HandleBackAction()
-//{
-	// Deactivate the widget, which returns focus to the previous UI or the game
-//	DeactivateWidget();
-//}

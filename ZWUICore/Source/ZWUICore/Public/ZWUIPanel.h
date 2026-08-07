@@ -5,10 +5,8 @@
 #include "CoreMinimal.h"
 #include "CommonActivatableWidget.h"
 #include "GameplayTagContainer.h"
-#include "ZWUIPanelDatabase.h"
 #include "ZWUIPanel.generated.h"
 
-class UInputAction;
 /**
  * 
  */
@@ -35,6 +33,11 @@ public:
 	UPROPERTY(Transient)
 	FGameplayTag BoundPanelTag;
 
+	/** Tags of InputConfig actions that should be displayed in this panel's action bar.
+	 *  Only the actions that appear in the bar go here — not every action the panel handles. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ZW|UI|Actions")
+	TArray<FGameplayTag> ActionBarTags;
+
 protected:
 	//~ Begin UUserWidget Interface
 	virtual void NativeOnInitialized() override;
@@ -50,8 +53,4 @@ protected:
 	// By default, it is set to true, as most of the panels require it.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ZW|UI")
 	bool bRequiresInput = true;
-
-private:
-	/** Default behavior for closing a panel */
-	//void HandleBackAction();
 };
