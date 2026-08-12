@@ -50,9 +50,17 @@ void AZWLootScatterer::SpawnAllocations()
 	{
 		AZWScatterProbe* Probe = PlannedSpawn.Key;
 
+		const int32 NumPickupsOnProbe = PlannedSpawn.Value.Num();
+		int32 SpawnIndex = 0;
 		for (const FZWLootSpawnParams& Params : PlannedSpawn.Value)
 		{
 			FTransform SpawnTransform = Probe->GetActorTransform();
+			if (NumPickupsOnProbe > 1)
+			{
+				const float Angle = (2.f * PI * SpawnIndex) / NumPickupsOnProbe;
+				SpawnTransform.AddToTranslation(FVector(FMath::Cos(Angle), FMath::Sin(Angle), 0.f) * 120.f);
+			}
+			++SpawnIndex;
 
 			AZWLootPickupActor* NewPickup = GetWorld()->SpawnActorDeferred<AZWLootPickupActor>(
 				ResolvedPickupClass, SpawnTransform, this, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
