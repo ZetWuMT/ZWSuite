@@ -19,10 +19,8 @@ AZWLootPickupActor::AZWLootPickupActor()
 	StaticMeshComp->SetupAttachment(SceneRoot);
 
 	InteractionComp = CreateDefaultSubobject<UZWInteractionComponent>(TEXT("InteractionComp"));
-	InteractionComp->SetupAttachment(SceneRoot);
 
 	InventoryComp = CreateDefaultSubobject<UZWInventoryComponent>(TEXT("InventoryComp"));
-	InventoryComp->SetupAttachment(SceneRoot);
 }
 
 void AZWLootPickupActor::SetStaticMesh(UStaticMesh* InMesh)
