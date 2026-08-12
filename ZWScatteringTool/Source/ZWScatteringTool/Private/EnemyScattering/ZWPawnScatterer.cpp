@@ -12,39 +12,35 @@ AZWPawnScatterer::AZWPawnScatterer()
 	ProbeClass = AZWPawnProbe::StaticClass();
 }
 
-void AZWPawnScatterer::PerformScattering(const TArray<AZWScatterProbe*>& AvailableProbes)
+int32 AZWPawnScatterer::GetNumEntries() const
 {
-	// Copy of the array of available points, from which we will remove the occupied spots
-	TArray<AZWScatterProbe*> RemainingProbes = AvailableProbes;
-    
-	// Map: on which point which enemy should appear
-	TMap<AZWScatterProbe*, TSubclassOf<AActor>> PlannedSpawns;
+	return ScatterEntryTable.Num();
+}
 
-	// 1. PLANNING PHASE
-	for (const FZWPawnScatterEntry& Entry : ScatterEntryTable)
-	{
-		if (!Entry.EnemyClass) continue;
+const FZWScatterEntry& AZWPawnScatterer::GetEntry(int32 Index) const
+{
+	return ScatterEntryTable[Index];
+}
 
-		// We use the base math function, but pass ONLY the remaining free points
-		TMap<AZWScatterProbe*, int32> EntryAllocations = CalculateSpawnsForEntry(Entry, RemainingProbes);
+bool AZWPawnScatterer::ShouldProcessEntry(int32 Index) const
+{
+	return ScatterEntryTable[Index].EnemyClass != nullptr;
+}
 
-		for (const TTuple<AZWScatterProbe*, int32>& Allocation : EntryAllocations)
-		{
-			AZWScatterProbe* TargetProbe = Allocation.Key;
-            
-			// Save the plan
-			PlannedSpawns.Add(TargetProbe, Entry.EnemyClass);
-            
-			// KEY MOMENT: Remove this point from the pool available to the next enemies in the table
-			RemainingProbes.Remove(TargetProbe);
-		}
-	}
+void AZWPawnScatterer::PlanAllocation(const FZWScatterEntry& Entry, AZWScatterProbe* Probe, int32 Count)
+{
+	const FZWPawnScatterEntry& PawnEntry = static_cast<const FZWPawnScatterEntry&>(Entry);
 
-	// 2. SPAWNING PHASE
+	// Save the plan
+	PlannedSpawns.Add(Probe, PawnEntry.EnemyClass);
+}
+
+void AZWPawnScatterer::SpawnAllocations()
+{
 	for (const TTuple<AZWScatterProbe*, TSubclassOf<AActor>>& Spawn : PlannedSpawns)
 	{
 		AZWScatterProbe* Probe = Spawn.Key;
-		TSubclassOf<AActor> ClassToSpawn = Spawn.Value;
+		const TSubclassOf<AActor>& ClassToSpawn = Spawn.Value;
 
 		if (ClassToSpawn)
 		{
@@ -55,4 +51,6 @@ void AZWPawnScatterer::PerformScattering(const TArray<AZWScatterProbe*>& Availab
 			GetWorld()->SpawnActor<AActor>(ClassToSpawn, Probe->GetActorTransform(), SpawnParams);
 		}
 	}
+
+	PlannedSpawns.Reset();
 }

@@ -6,19 +6,13 @@
 #include "ScatteringBase/ZWScatterer.h"
 #include "ZWPawnScatterer.generated.h"
 
-USTRUCT(BLueprintType)
+USTRUCT(BlueprintType)
 struct FZWPawnScatterEntry : public FZWScatterEntry
 {
 	GENERATED_BODY()
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy")
 	TSubclassOf<AActor> EnemyClass;
-};
-
-USTRUCT()
-struct FZWPawnSpawnParams : public FZWEntrySpawnParams
-{
-	GENERATED_BODY()
 };
 
 UCLASS()
@@ -33,6 +27,15 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Scatter Configuration")
 	TArray<FZWPawnScatterEntry> ScatterEntryTable;
 	
+protected:
+	virtual int32 GetNumEntries() const override;
+	virtual const FZWScatterEntry& GetEntry(int32 Index) const override;
+	virtual bool ShouldProcessEntry(int32 Index) const override;
+	virtual void PlanAllocation(const FZWScatterEntry& Entry, AZWScatterProbe* Probe, int32 Count) override;
+	virtual void SpawnAllocations() override;
+	virtual bool GetConsumeProbesOnAllocation() const override { return true; }
+	virtual bool GetShuffleEntries() const override { return false; }
+
 private:
-	virtual void PerformScattering(const TArray<AZWScatterProbe*>& AvailableProbes) override;
+	TMap<AZWScatterProbe*, TSubclassOf<AActor>> PlannedSpawns;
 };
