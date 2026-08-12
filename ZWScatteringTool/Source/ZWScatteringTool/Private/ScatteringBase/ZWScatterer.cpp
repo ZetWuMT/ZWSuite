@@ -44,10 +44,43 @@ void AZWScatterer::Scatter()
 
 	if (AllProbes.IsEmpty()) return;
 
-	// 2. Hand control over to the derived class (PLANNING AND SPAWNING PHASE)
-	PerformScattering(AllProbes);
+	// 2. PLANNING PHASE (shared by all Scatterers)
+	TArray<int32> EntryOrder;
+	EntryOrder.Reserve(GetNumEntries());
+	for (int32 i = 0; i < GetNumEntries(); ++i)
+	{
+		EntryOrder.Add(i);
+	}
 
-	// 3. CLEANUP PHASE (Map cleanup common to all Scatterers)
+	if (GetShuffleEntries())
+	{
+		Algo::RandomShuffle(EntryOrder);
+	}
+
+	TArray<AZWScatterProbe*> RemainingProbes = AllProbes;
+
+	for (int32 Index : EntryOrder)
+	{
+		if (!ShouldProcessEntry(Index)) continue;
+
+		const FZWScatterEntry& Entry = GetEntry(Index);
+		const TMap<AZWScatterProbe*, int32> EntryAllocations = CalculateSpawnsForEntry(Entry, RemainingProbes);
+
+		for (const TTuple<AZWScatterProbe*, int32>& Allocation : EntryAllocations)
+		{
+			PlanAllocation(Entry, Allocation.Key, Allocation.Value);
+
+			if (GetConsumeProbesOnAllocation())
+			{
+				RemainingProbes.Remove(Allocation.Key);
+			}
+		}
+	}
+
+	// 3. SPAWNING PHASE
+	SpawnAllocations();
+
+	// 4. CLEANUP PHASE (Map cleanup common to all Scatterers)
 	for (AZWScatterProbe* Probe : AllProbes)
 	{
 		if (IsValid(Probe))
@@ -61,7 +94,7 @@ TMap<AZWScatterProbe*, int32> AZWScatterer::CalculateSpawnsForEntry(const FZWSca
 {
 	TMap<AZWScatterProbe*, int32> ResultSpawns;
 
-	// Filtrowanie
+	// Filtering
 	TArray<AZWScatterProbe*> ValidProbes;
 	for (AZWScatterProbe* Probe : AllProbes)
 	{
