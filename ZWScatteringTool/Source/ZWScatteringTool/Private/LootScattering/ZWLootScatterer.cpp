@@ -2,82 +2,76 @@
 
 
 #include "LootScattering/ZWLootScatterer.h"
-#include "IPickupable.h"
-#include "ZWInventoryComponent.h"
-#include "../../../../../ZWInteraction/Source/ZWInteraction/Public/ZWInteractionComponent.h"
-#include "Algo/RandomShuffle.h"
-#include "Engine/StaticMeshActor.h"
+
+#include "Engine/StaticMesh.h"
 #include "Kismet/GameplayStatics.h"
+#include "LootScattering/ZWLootPickupActor.h"
 #include "LootScattering/ZWLootProbe.h"
 
 // Sets default values
 AZWLootScatterer::AZWLootScatterer()
 {
 	ProbeClass = AZWLootProbe::StaticClass();
+	PickupClass = AZWLootPickupActor::StaticClass();
 }
 
-void AZWLootScatterer::PerformScattering(const TArray<AZWScatterProbe*>& AvailableProbes)
+int32 AZWLootScatterer::GetNumEntries() const
 {
-	TMap<AZWScatterProbe*, FZWLootSpawnParams> PlannedSpawns;
-	
-	Algo::RandomShuffle(ScatterEntryTable);
+	return ScatterEntryTable.Num();
+}
 
-	// 1. PLANNING PHASE
-	for (const FZWLootScatterEntry& Entry : ScatterEntryTable)
-	{
-		if (Entry.ItemDefinition.IsNull()) continue;
+const FZWScatterEntry& AZWLootScatterer::GetEntry(int32 Index) const
+{
+	return ScatterEntryTable[Index];
+}
 
-		// We use the base class method that returns a ready placement plan for this entry!
-		TMap<AZWScatterProbe*, int32> EntryAllocations = CalculateSpawnsForEntry(Entry, AvailableProbes);
+bool AZWLootScatterer::ShouldProcessEntry(int32 Index) const
+{
+	return !ScatterEntryTable[Index].ItemDefinition.IsNull();
+}
 
-		for (const TTuple<AZWScatterProbe*, int32>& Allocation : EntryAllocations)
-		{
-			AZWScatterProbe* TargetProbe = Allocation.Key;
-			int32 AmountToSpawn = Allocation.Value;
+void AZWLootScatterer::PlanAllocation(const FZWScatterEntry& Entry, AZWScatterProbe* Probe, int32 Count)
+{
+	const FZWLootScatterEntry& LootEntry = static_cast<const FZWLootScatterEntry&>(Entry);
 
-			FPickupTemplate NewTemplate;
-			NewTemplate.ItemDef = Entry.ItemDefinition;
-			NewTemplate.StackCount = AmountToSpawn;
+	FZWLootSpawnParams Params;
+	Params.Template.ItemDef = LootEntry.ItemDefinition;
+	Params.Template.StackCount = Count;
+	Params.StaticMesh = LootEntry.ItemStaticMesh;
 
-			// Add to the Probe in our own dictionary (Map)
-			PlannedSpawns.FindOrAdd(TargetProbe).InventoryPickup.Templates.Add(NewTemplate);
-			PlannedSpawns.Find(TargetProbe)->StaticMesh = Entry.ItemStaticMesh;
-		}
-	}
+	PlannedSpawns.FindOrAdd(Probe).Add(Params);
+}
 
-	// 2. SPAWNING PHASE (Remains 100% from your old logic)
-	for (const TTuple<AZWScatterProbe*, FZWLootSpawnParams>& PlannedSpawn : PlannedSpawns)
+void AZWLootScatterer::SpawnAllocations()
+{
+	const TSubclassOf<AZWLootPickupActor> ResolvedPickupClass = PickupClass ? PickupClass : AZWLootPickupActor::StaticClass();
+
+	for (const TTuple<AZWScatterProbe*, TArray<FZWLootSpawnParams>>& PlannedSpawn : PlannedSpawns)
 	{
 		AZWScatterProbe* Probe = PlannedSpawn.Key;
-		const FInventoryPickup& PickupDataToGrant = PlannedSpawn.Value.InventoryPickup;
 
-		FTransform SpawnTransform = Probe->GetActorTransform();
-		
-		AActor* NewPickup = GetWorld()->SpawnActorDeferred<AActor>(
-			AStaticMeshActor::StaticClass(), SpawnTransform, this, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
-
-		if (NewPickup)
+		for (const FZWLootSpawnParams& Params : PlannedSpawn.Value)
 		{
-			if (UStaticMeshComponent* StaticMeshComponent = NewPickup->FindComponentByClass<UStaticMeshComponent>())
+			FTransform SpawnTransform = Probe->GetActorTransform();
+
+			AZWLootPickupActor* NewPickup = GetWorld()->SpawnActorDeferred<AZWLootPickupActor>(
+				ResolvedPickupClass, SpawnTransform, this, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+
+			if (NewPickup)
 			{
-				if (UStaticMesh* NewStaticMesh = PlannedSpawn.Value.StaticMesh.LoadSynchronous())
+				if (UStaticMesh* NewStaticMesh = Params.StaticMesh.LoadSynchronous())
 				{
-					StaticMeshComponent->SetStaticMesh(NewStaticMesh);	
-				}				
+					NewPickup->SetStaticMesh(NewStaticMesh);
+				}
+
+				FInventoryPickup PickupInventory;
+				PickupInventory.Templates.Add(Params.Template);
+				NewPickup->SetPickupInventory(PickupInventory);
+
+				UGameplayStatics::FinishSpawningActor(NewPickup, SpawnTransform);
 			}
-			
-			UActorComponent* NewIntComp = NewPickup->AddComponentByClass(UZWInteractionComponent::StaticClass(), false, FTransform::Identity, true);
-			if (NewIntComp) NewIntComp->RegisterComponent();
-
-			UActorComponent* NewInvComp = NewPickup->AddComponentByClass(UZWInventoryComponent::StaticClass(), false, FTransform::Identity, false);
-			if (NewInvComp) NewInvComp->RegisterComponent();
-
-			if (UZWInventoryComponent* InvComp = Cast<UZWInventoryComponent>(NewInvComp))
-			{
-				InvComp->SetPickupInventory(PickupDataToGrant);
-			}
-
-			UGameplayStatics::FinishSpawningActor(NewPickup, SpawnTransform);
 		}
 	}
+
+	PlannedSpawns.Reset();
 }
