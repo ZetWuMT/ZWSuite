@@ -22,11 +22,6 @@ void UZWUIPanel::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
-	// TODO(ZW action bar): we need a convenient way for a widget to hook into these action-bar actions.
-	// Right now an action declared in ActionBarTags only gets a CommonUI binding that broadcasts its tag. 
-	// Add a ZWUICore mechanism (a virtual on UZWUIPanel, or a tag -> delegate binding) so a panel can react 
-	// to the actions it declared.
-
 	if (const UZWUISettings* InputSettings = GetDefault<UZWUISettings>())
 	{
 		if (UZWInputConfig* LoadedConfig = InputSettings->InputConfig.LoadSynchronous())
@@ -41,6 +36,14 @@ void UZWUIPanel::NativeOnInitialized()
 						FSimpleDelegate Delegate;
 						Delegate.BindWeakLambda(this, [this, ActionTag]()
 						{
+							// Actions the panel declared for the action bar are dispatched to the panel
+							// so the widget can react (see HandleActionTag). The tag is still broadcast
+							// afterwards for the State Tree / any other listener.
+							if (ActionBarTags.Contains(ActionTag))
+							{
+								HandleActionTag(ActionTag);
+							}
+
 							if (UZWUISubsystem* Subsystem = GetOwningLocalPlayer()->GetSubsystem<UZWUISubsystem>())
 							{
 								Subsystem->OnGameplayTagSent.Broadcast(ActionTag);
@@ -62,6 +65,10 @@ void UZWUIPanel::NativeOnInitialized()
 			}
 		}		
 	}
+}
+
+void UZWUIPanel::HandleActionTag_Implementation(FGameplayTag InputTag)
+{
 }
 
 void UZWUIPanel::NativeOnActivated()

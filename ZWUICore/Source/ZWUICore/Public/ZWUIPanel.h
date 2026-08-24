@@ -49,6 +49,11 @@ protected:
 	virtual UWidget* NativeGetDesiredFocusTarget() const override;
 	virtual bool NativeOnHandleBackAction() override;
 	//~ End UCommonActivatableWidget Interface 
+
+	/** Called when one of this panel's ActionBarTags actions fires (e.g. the Journal's AddToCorkboard).
+	 *  C++ provides the dispatch; Blueprint overrides decide what each action does. Default: nothing. */
+	UFUNCTION(BlueprintNativeEvent, Category = "ZW|UI")
+	void HandleActionTag(FGameplayTag InputTag); 
 	
 	// By default, it is set to true, as most of the panels require it.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ZW|UI")
