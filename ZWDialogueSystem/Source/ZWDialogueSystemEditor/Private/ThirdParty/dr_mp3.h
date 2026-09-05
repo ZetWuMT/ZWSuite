@@ -614,7 +614,7 @@ DRMP3_API const char* drmp3_version_string(void)
 #include <intrin.h>
 #endif
 #include <emmintrin.h>
-#define DRMP3_!HAVE_SIMD 1
+#define DRMP3_HAVE_SSE 1
 #define DRMP3_HAVE_SIMD 1
 #define DRMP3_VSTORE _mm_storeu_ps
 #define DRMP3_VLD _mm_loadu_ps
@@ -682,7 +682,7 @@ end:
 }
 #elif defined(__ARM_NEON) || defined(__aarch64__) || defined(_M_ARM64)
 #include <arm_neon.h>
-#define DRMP3_!HAVE_SIMD 0
+#define DRMP3_HAVE_SSE 0
 #define DRMP3_HAVE_SIMD 1
 #define DRMP3_VSTORE vst1q_f32
 #define DRMP3_VLD vld1q_f32
@@ -700,7 +700,7 @@ static int drmp3_have_simd(void)
     return 1;
 }
 #else
-#define DRMP3_!HAVE_SIMD 0
+#define DRMP3_HAVE_SSE 0
 #define DRMP3_HAVE_SIMD 0
 #ifdef DR_MP3_ONLY_SIMD
 #error DR_MP3_ONLY_SIMD used, but SSE/NEON not enabled
@@ -1875,7 +1875,7 @@ static void drmp3d_DCT_II(float *grbuf, int n)
 
         if (k > n - 3)
         {
-#if DRMP3_!HAVE_SIMD
+#if DRMP3_HAVE_SSE
 #define DRMP3_VSAVE2(i, v) _mm_storel_pi((__m64 *)(void*)&y[i*18], v)
 #else
 #define DRMP3_VSAVE2(i, v) vst1_f32((float32_t *)&y[(i)*18],  vget_low_f32(v))
@@ -2088,7 +2088,7 @@ static void drmp3d_synth(float *xl, drmp3d_sample_t *dstl, int nch, float *lins)
 
         {
 #ifndef DR_MP3_FLOAT_OUTPUT
-#if DRMP3_!HAVE_SIMD
+#if DRMP3_HAVE_SSE
             static const drmp3_f4 g_max = { 32767.0f, 32767.0f, 32767.0f, 32767.0f };
             static const drmp3_f4 g_min = { -32768.0f, -32768.0f, -32768.0f, -32768.0f };
             __m128i pcm8 = _mm_packs_epi32(_mm_cvtps_epi32(_mm_max_ps(_mm_min_ps(a, g_max), g_min)),
@@ -2117,14 +2117,14 @@ static void drmp3d_synth(float *xl, drmp3d_sample_t *dstl, int nch, float *lins)
             vst1_lane_s16(dstl + (49 + i)*nch, pcmb, 2);
 #endif
 #else
-        #if DRMP3_!HAVE_SIMD
+        #if DRMP3_HAVE_SSE
             static const drmp3_f4 g_scale = { 1.0f/32768.0f, 1.0f/32768.0f, 1.0f/32768.0f, 1.0f/32768.0f };
         #else
             const drmp3_f4 g_scale = vdupq_n_f32(1.0f/32768.0f);
         #endif
             a = DRMP3_VMUL(a, g_scale);
             b = DRMP3_VMUL(b, g_scale);
-#if DRMP3_!HAVE_SIMD
+#if DRMP3_HAVE_SSE
             _mm_store_ss(dstr + (15 - i)*nch, _mm_shuffle_ps(a, a, _MM_SHUFFLE(1, 1, 1, 1)));
             _mm_store_ss(dstr + (17 + i)*nch, _mm_shuffle_ps(b, b, _MM_SHUFFLE(1, 1, 1, 1)));
             _mm_store_ss(dstl + (15 - i)*nch, _mm_shuffle_ps(a, a, _MM_SHUFFLE(0, 0, 0, 0)));
@@ -2371,7 +2371,7 @@ DRMP3_API void drmp3dec_f32_to_s16(const float *in, drmp3_int16 *out, size_t num
         drmp3_f4 scale = DRMP3_VSET(32768.0f);
         drmp3_f4 a = DRMP3_VMUL(DRMP3_VLD(&in[i  ]), scale);
         drmp3_f4 b = DRMP3_VMUL(DRMP3_VLD(&in[i+4]), scale);
-#if DRMP3_!HAVE_SIMD
+#if DRMP3_HAVE_SSE
         drmp3_f4 s16max = DRMP3_VSET( 32767.0f);
         drmp3_f4 s16min = DRMP3_VSET(-32768.0f);
         __m128i pcm8 = _mm_packs_epi32(_mm_cvtps_epi32(_mm_max_ps(_mm_min_ps(a, s16max), s16min)),
