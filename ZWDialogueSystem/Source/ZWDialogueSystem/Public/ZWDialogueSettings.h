@@ -29,7 +29,7 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category = "TTS")
 	FString DefaultLanguageCode;
     
-	// Default voice (e.g. "pl-PL-Wavenet-B")
+	// Default voice (e.g. "en-GB-SoniaNeural")
 	UPROPERTY(Config, EditAnywhere, Category = "TTS")
 	FString DefaultVoiceName;
 	

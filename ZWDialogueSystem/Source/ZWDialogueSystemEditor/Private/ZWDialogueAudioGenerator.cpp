@@ -90,9 +90,10 @@ void FZWDialogueAudioGenerator::Execute(const FZWDialogueData& InData, const FSt
 	TargetLang = LangCode;
 	CompletionCallback = InCallback;
 
-	if (WorkingData.DialogueLine.IsEmpty())
+	if (WorkingData.DialogueLine.IsEmpty() || LangCode.IsEmpty())
 	{
 		bInFlight = false;
+		UE_LOG(LogTemp, Error, TEXT("[ZW TTS] DialogueLine or LangCode is empty; refusing to generate."));
 		CompletionCallback.ExecuteIfBound(WorkingData, false);
 		return;
 	}
@@ -141,7 +142,10 @@ void FZWDialogueAudioGenerator::Execute(const FZWDialogueData& InData, const FSt
 		}
 		else
 		{
-			const FString RunnerScriptPath = FPaths::ProjectPluginsDir() / TEXT("ZW/ZWDialogueSystem/Source/ZWDialogueSystemEditor/Private/Scripts/ZWEdgeTTSRunner.py");
+			const FString RunnerScriptRelativePath = TEXT("ZW/ZWDialogueSystem/Source/ZWDialogueSystemEditor/Private/Scripts/ZWEdgeTTSRunner.py");
+			const FString ProjectScriptPath = FPaths::ProjectPluginsDir() / RunnerScriptRelativePath;
+			const FString EngineScriptPath = FPaths::EnginePluginsDir() / RunnerScriptRelativePath;
+			const FString RunnerScriptPath = FPlatformFileManager::Get().GetPlatformFile().FileExists(*ProjectScriptPath) ? ProjectScriptPath : EngineScriptPath;
 			const FString Params = FString::Printf(TEXT("\"%s\" \"%s\" \"%s\" \"%s\""), *RunnerScriptPath, *TempTextPath, *VoiceName, *TempMediaPath);
 
 			int32 ReturnCode = -1;
