@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "ZWDialogueData.h"
+#include <atomic>
 /**
  *
  */
@@ -24,4 +25,5 @@ private:
 	FZWDialogueData WorkingData;
 	FString TargetLang;
 	FOnTTSRequestCompleted CompletionCallback;
+	std::atomic<bool> bInFlight{false};
 };

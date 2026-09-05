@@ -78,6 +78,13 @@ static bool ConvertMp3ToWav(const FString& InMp3Path, const FString& OutWavPath,
 
 void FZWDialogueAudioGenerator::Execute(const FZWDialogueData& InData, const FString& PythonExePath, const FString& LangCode, FOnTTSRequestCompleted InCallback)
 {
+	if (bInFlight.exchange(true))
+	{
+		UE_LOG(LogTemp, Error, TEXT("[ZW TTS] Execute() re-entered while a generation is already in flight on this instance; refusing."));
+		InCallback.ExecuteIfBound(InData, false);
+		return;
+	}
+
 	// 1. Guards and GUID generation if the line does not have one
 	WorkingData = InData;
 	TargetLang = LangCode;
@@ -85,6 +92,7 @@ void FZWDialogueAudioGenerator::Execute(const FZWDialogueData& InData, const FSt
 
 	if (WorkingData.DialogueLine.IsEmpty())
 	{
+		bInFlight = false;
 		CompletionCallback.ExecuteIfBound(WorkingData, false);
 		return;
 	}
@@ -111,6 +119,7 @@ void FZWDialogueAudioGenerator::Execute(const FZWDialogueData& InData, const FSt
 	if (VoiceName.IsEmpty())
 	{
 		UE_LOG(LogTemp, Error, TEXT("[ZW TTS] No voice resolved for speaker '%s' and DefaultVoiceName is empty."), *InData.SpeakerID.ToString());
+		bInFlight = false;
 		CompletionCallback.ExecuteIfBound(WorkingData, false);
 		return;
 	}
@@ -172,6 +181,7 @@ void FZWDialogueAudioGenerator::Execute(const FZWDialogueData& InData, const FSt
 		AsyncTask(ENamedThreads::GameThread, [StrongThis, bSuccess]()
 		{
 			StrongThis->CompletionCallback.ExecuteIfBound(StrongThis->WorkingData, bSuccess);
+			StrongThis->bInFlight = false;
 		});
 	});
 }
