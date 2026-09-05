@@ -141,7 +141,8 @@ void FZWDialogueAudioGenerator::Execute(const FZWDialogueData& InData, const FSt
 		}
 		else
 		{
-			const FString Params = FString::Printf(TEXT("-m edge_tts --file \"%s\" --voice \"%s\" --write-media \"%s\""), *TempTextPath, *VoiceName, *TempMediaPath);
+			const FString RunnerScriptPath = FPaths::ProjectPluginsDir() / TEXT("ZW/ZWDialogueSystem/Source/ZWDialogueSystemEditor/Private/Scripts/ZWEdgeTTSRunner.py");
+			const FString Params = FString::Printf(TEXT("\"%s\" \"%s\" \"%s\" \"%s\""), *RunnerScriptPath, *TempTextPath, *VoiceName, *TempMediaPath);
 
 			int32 ReturnCode = -1;
 			FString StdOut;
@@ -150,7 +151,7 @@ void FZWDialogueAudioGenerator::Execute(const FZWDialogueData& InData, const FSt
 
 			if (ReturnCode != 0)
 			{
-				UE_LOG(LogTemp, Error, TEXT("[ZW TTS] edge-tts failed (exit %d). If the module is missing run: pip install edge-tts. StdErr: %s"), ReturnCode, *StdErr);
+				UE_LOG(LogTemp, Error, TEXT("[ZW TTS] edge-tts failed (exit %d). If edge-tts is missing run: pip install edge-tts. StdErr: %s"), ReturnCode, *StdErr);
 			}
 			else
 			{
