@@ -4,9 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "ZWDialogueData.h"
-#include "Interfaces/IHttpRequest.h"
 /**
- * 
+ *
  */
 
 DECLARE_DELEGATE_TwoParams(FOnTTSRequestCompleted, const FZWDialogueData& /*UpdatedData*/, bool /*bSuccess*/);
@@ -18,12 +17,10 @@ public:
 	{
 		return MakeShared<FZWDialogueAudioGenerator>();
 	}
-	
-	void Execute(const FZWDialogueData& InData, const FString& ApiKey, const FString& LangCode, FOnTTSRequestCompleted InCallback);
+
+	void Execute(const FZWDialogueData& InData, const FString& PythonExePath, const FString& LangCode, FOnTTSRequestCompleted InCallback);
 
 private:
-	void OnTTSResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
-
 	FZWDialogueData WorkingData;
 	FString TargetLang;
 	FOnTTSRequestCompleted CompletionCallback;

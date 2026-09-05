@@ -17,9 +17,9 @@ class ZWDIALOGUESYSTEM_API UZWDialogueSettings : public UDeveloperSettings
 public:
 	UZWDialogueSettings();
 
-	// API key for Google Cloud TTS
+	// Path to the Python interpreter used to run edge-tts (e.g. "python" or "C:\Program Files\Python312\python.exe")
 	UPROPERTY(Config, EditAnywhere, Category = "TTS")
-	FString TTSGeneratorApiKey;
+	FString EdgeTTSPythonPath;
 
 	// Main folder for the generated WAV files (e.g. "Localization/Audio")
 	UPROPERTY(Config, EditAnywhere, Category = "Paths")

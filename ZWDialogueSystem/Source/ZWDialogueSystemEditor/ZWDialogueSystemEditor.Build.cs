@@ -21,9 +21,7 @@ public class ZWDialogueSystemEditor : ModuleRules
                 "CoreUObject",
                 "Engine",
                 "Slate",
-                "SlateCore",
-                "HTTP",
-                "Json"
+                "SlateCore"
             }
         );
     }
