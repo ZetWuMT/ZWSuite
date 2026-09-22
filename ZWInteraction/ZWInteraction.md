@@ -1,6 +1,6 @@
-# ZWInteraction — Dokumentacja techniczna
+# ZWInteraction — Technical Documentation
 
-## 1. Przegląd
+## 1. Overview
 
 **ZWInteraction** is a runtime Unreal Engine plugin (module name `ZWInteraction`, plugin version 1.0, category `Other`, authored by `tiramisoo`) that implements a player-facing **interaction system**: detecting, highlighting, inspecting and investigating interactable world objects.
 
@@ -22,7 +22,7 @@ Design highlights:
 - **Inspection** spawns (clones) the actor via template spawn, detaches it visually into the scene capture's "show only" set, and renders it at a fixed off-stage location `(0,0,-2000)`.
 - **Investigation** is a stack of interacted objects ("camera targets") with view-target blends and mouse-look rotation offsets, suitable for e.g. examining a wall/room from a fixed camera.
 
-## 2. Metadane (.uplugin)
+## 2. Metadata (.uplugin)
 
 File: `ZWInteraction.uplugin`
 
@@ -53,7 +53,7 @@ File: `ZWInteraction.uplugin`
 - `CommonUI` (Enabled)
 - `EnhancedInput` (Enabled)
 
-## 3. Podmoduły (Build.cs)
+## 3. Modules (Build.cs)
 
 File: `Source/ZWInteraction/ZWInteraction.Build.cs` — one rules class `ZWInteraction : ModuleRules` (the plugin has a single runtime module).
 
@@ -320,7 +320,7 @@ The plugin defines **8 public C++ classes** (7 UCLASSes/UInterface pairs counted
 | `InvestigationMappingContext` | `UPROPERTY(Config, EditAnywhere, Category="Interaction System", DisplayName="Investigation Input Mapping Context") TSoftObjectPtr<UInputMappingContext>` | Soft-ref to the Enhanced Input Mapping Context the investigation mode should push (e.g. mouse-look controls). |
 | .cpp | — | contains only the `#include` (empty body construct, nowhere bound — see §8). |
 
-## 5. Implementacja (Private) — w tym scene capture / trace
+## 5. Implementation (Private) — scene capture / trace
 
 ### Module bootstrap (`ZWInteraction.cpp`)
 `FZWInteractionModule::StartupModule()` and `ShutdownModule()` are empty — no subsystem registration, no console variables, no asset type registration. Everything relies on UCLASS auto-registration (`IMPLEMENT_MODULE` + `GENERATED_BODY`).
@@ -373,7 +373,7 @@ Includes `Components/SceneCaptureComponent2D.h`, `Components/PostProcessComponen
 - The empty `if (InActor != nullptr) { }` body inside `UpdateVisibility` is leftover scaffolding.
 - Stack traces: `AddInspectedActorLocation` (X-clamp `[−20, 35]`), `AddInspectedActorRotation` (with a `UE_LOG` warning on missing inspected actor), `SetLookAtRotation` (uses `MakeRotFromX`).
 
-## 6. Konfiguracja (.ini)
+## 6. Configuration (.ini)
 
 File: `Config/DefaultZWInteraction.ini`
 
@@ -389,7 +389,7 @@ Runtime config objects:
 - `UZWInteractionSystemSettings` (`Config=Game, defaultconfig`) — its property `InteractionCollisionChannel` is written to the project's `DefaultGame.ini` on save from **Project Settings → ZW → ZW Interaction Settings → Interaction Collision Channel**.
 - `UZWInteractionSystem_Settings` (`Config=Game, DefaultConfig`) — property `InvestigationMappingContext` is a `TSoftObjectPtr<UInputMappingContext>`, saved likewise.
 
-## 7. Zależności wewnątrz ZWSuite
+## 7. Dependencies within ZWSuite
 
 Direct in-plugin coupling:
 - `ZWInteractionComponent` ↔ `ZWInteractionSystemSettings` (channel-based collision response setup in `BeginPlay`).
@@ -404,7 +404,7 @@ No other ZWSuite plugin paths, includes, or module names appear in the source �
 
 External engine plugin dependencies: `CommonUI` / `CommonInput` (via .uplugin + Build.cs + subsystem includes — only partially exercised, see §8), `EnhancedInput` (input mapping context asset in the settings class), and standard `Engine`/`Slate`.
 
-## 8. Uwagi / ryzyka
+## 8. Notes / Risks
 
 1. **`IZWInteractionInterface` is bypassed** — the header literally marks "BYPASSED FOR NOW". Its `UFUNCTION(BlueprintCallable, BlueprintNativeEvent)` `BPToggleHighlight` sits on a non-UCLASS base (plain generated interface class) and no vtable dispatch is wired from `UZWInteractionComponent`; anything still referencing `Inspect()`/`Investigate()` semantics has no active caller inside the plugin.
 2. **`UZWInteractionComponent::IsRotatable()` is called but not declared** (`UZWInteractionSubsystem::StartInspection()` uses `GetInteractedObject()->IsRotatable()`, and `UZWInteractionSceneCapture` has no such call path). The supplied `ZWInteractionComponent.h` has no `IsRotatable` member. Either the method is expected to live in an upstream/derived class in ZWSuite, or the reconstructed source is incomplete → **compile error risk** on a clean build.

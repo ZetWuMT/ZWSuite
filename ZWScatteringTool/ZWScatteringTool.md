@@ -1,8 +1,8 @@
-# ZWScatteringTool — Dokumentacja techniczna (Technical Documentation)
+# ZWScatteringTool — Technical Documentation
 
 > Note: this reproduction of the source tree contains some Polish inline comments ("WIRTUALNA METODA", "FAZA PLANOWANIA", etc.). They are preserved as evidence of the original code language; documentation itself is in English.
 
-## 1. Przegląd (Overview)
+## 1. Overview
 
 **ZWScatteringTool** is a runtime-placed gameplay plugin for Unreal Engine that scatters game content across a level at **BeginPlay**, using a *Scatterer / Probe* pattern:
 
@@ -24,7 +24,7 @@ Key characteristics:
 
 Dependencies: engine modules (Core, GameplayTags, CoreUObject, Engine, Slate, SlateCore) and sibling ZWSuite plugins **ZWInventory** and **ZWInteraction**.
 
-## 2. Metadane (.uplugin)
+## 2. Metadata (.uplugin)
 
 File: `ZWScatteringTool.uplugin`
 
@@ -57,7 +57,7 @@ File: `ZWScatteringTool.uplugin`
 
 No `ReferencedPlugins`-style content listed beyond these two.
 
-## 3. Podmoduły (Build.cs) — moduł ZWScatteringTool
+## 3. Modules (Build.cs) — ZWScatteringTool module
 
 File: `Source/ZWScatteringTool/ZWScatteringTool.Build.cs`
 Class: `public ZWScatteringTool : ModuleRules`
@@ -235,7 +235,7 @@ FZWEntrySpawnParams (struct)
 └── FZWPawnSpawnParams      (empty)
 ```
 
-## 5. Implementacja (Private)
+## 5. Implementation (Private)
 
 ### 5.1 `ZWScatteringTool.cpp` (`FZWScatteringToolModule`)
 - `StartupModule()` / `ShutdownModule()` are intentionally empty — no subsystem registration, editor delegates, or asset scanning at module level. All behavior lives in the runtime actors.
@@ -337,7 +337,7 @@ Algorithm:
 | Uses the int32 amount | n/a | yes — becomes `FPickupTemplate.StackCount` | no — amount only gates probe consumption |
 | Late-stage clean-up | destroys all probes | same (from base `Scatter()`) | same (from base `Scatter()`) |
 
-## 6. Konfiguracja (.ini)
+## 6. Configuration (.ini)
 
 File: `Config/DefaultZWScatteringTool.ini`
 
@@ -350,7 +350,7 @@ File: `Config/DefaultZWScatteringTool.ini`
 - Same-name `ScatterEntryTable` field is also present on `AZWPawnScatterer`, but no redirect is recorded for it in this file.
 - No other config: no `PerObjectConfig`, no Blueprint list, no gameplay-tag IniConfig.
 
-## 7. Zależności wewnątrz ZWSuite (Dependencies inside ZWSuite)
+## 7. Dependencies within ZWSuite
 
 - **Hard plugin references (`ZWScatteringTool.uplugin`)**
   - `ZWInventory` — enabled.
@@ -365,7 +365,7 @@ File: `Config/DefaultZWScatteringTool.ini`
 - **Runtime usage by `AZWPawnScatterer` / `AZWPawnProbe`:** none — the enemy scattering path is self-contained (only engine + GameplayTags).
 - **Hard include cross-plugin:** `#include "../../../../../ZWInteraction/Source/ZWInteraction/Public/ZWInteractionComponent.h"` inside `LootScattering/ZWLootScatterer.cpp` — resolves through the relative path from this module's Private folder (`Source/ZWScatteringTool/Private/LootScattering/` → up 5 levels → sibling plugin `ZWInteraction/Source/ZWInteraction/Public/`). Note the depth: `../../../../../` traverses up out of the plugin directory assuming the two plugins live as siblings under one root tree (see §8 risk about relative include fragility).
 
-## 8. Uwagi / ryzyka (Notes / risks)
+## 8. Notes / Risks
 
 1. **Single-module, no phase hooks**: `FZWScatteringToolModule` is empty — a plugin that adds no editor hooks and relies purely on AActor lifecycle. If more modules are added later (`Type: Editor`), they would live under the same .uplugin but this rebuild only documents the single current module.
 2. **Typo in base struct specifier**: `USTRUCT(BLueprintType)` appears in three headers (`FZWScatterEntry`, `FZWLootScatterEntry`, `FZWPawnScatterEntry`). Unreal's UHT preprocessor matches specifier names case-insensitively here, so it works, but it is cosmetic noise — safe to normalize to `USTRUCT(BlueprintType)`.

@@ -1,8 +1,8 @@
-# ZWQuestFactBase — Dokumentacja techniczna (Technical Documentation)
+# ZWQuestFactBase — Technical Documentation
 
 > Source of truth: `/opt/data/projectx/ZWSuite-src/ZWQuestFactBase` (all 24 source files read: `.uplugin`, 2 × `Build.cs`, 7 public headers, 11 private source files, 1 `.ini`, 2 resource files). All statements below are derived directly from that code; items absent from the code are marked "none" / "brak".
 
-## 1. Przegląd (Overview)
+## 1. Overview
 
 **ZWQuestFactBase** ("Tool for managing the quest facts", v0.1) is a Unreal Engine plugin providing a quest-fact registry for the ZWSuite project. It consists of two responsibilities:
 
@@ -11,7 +11,7 @@
 
 The hierarchy is **GUID-based, not object-reference-based**: a child fact stores its parent's `FactGuid` in `ParentId`; `SubFacts` arrays are populated at editor tree-build time (not persisted).
 
-## 2. Metadane (.uplugin)
+## 2. Metadata (.uplugin)
 
 File: `ZWQuestFactBase.uplugin`
 
@@ -37,7 +37,7 @@ File: `ZWQuestFactBase.uplugin`
 
 **Plugin dependencies:** `EditorScriptingUtilities` (enabled).
 
-## 3. Podmoduły (Build.cs)
+## 3. Modules (Build.cs)
 
 ### 3.1 `Source/ZWQuestFactBase/ZWQuestFactBase.Build.cs`
 
@@ -189,7 +189,7 @@ Detail-panel customization for `FZWQuestFactSearchableName`, giving a searchable
 - Private: `void OnSearchTextChanged(const FText&)` (substring filter over `OptionsSource` into `FilteredOptions`, `RequestListRefresh`); `void OnSelectionChanged(TSharedPtr<FString>, ESelectInfo::Type)` — writes the choice into the child property `QuestFactName` via `SetValue(FName(**NewSelection))` and closes the combo; `TSharedRef<ITableRow> OnGenerateRow(TSharedPtr<FString>, const TSharedRef<STableViewBase>&)` (plain `STableRow` + `STextBlock`); `FText GetCurrentSelectionText() const;` (reads current `QuestFactName` from child handle); `void OnMenuOpenChanged(bool bIsOpen);`
 - Members: `TSharedPtr<IPropertyHandle> PropertyHandlePtr;` `TArray<TSharedPtr<FString>> OptionsSource; FilteredOptions;` `TSharedPtr<SListView<TSharedPtr<FString>>> ListView;` `TSharedPtr<SEditableTextBox> SearchBar;` `TSharedPtr<SComboButton> ComboButton;`
 
-## 5. Implementacja (Private) — podsumowanie plików
+## 5. Implementation (Private) — file summary
 
 Runtime module privates (`Source/ZWQuestFactBase/Private/`):
 | File | Content |
@@ -214,7 +214,7 @@ Editor widget internals worth noting:
 - `BindCommands` uses `CreateSP` (widget-lifetime-safe) for the five widget actions; the module's `OpenPluginWindow` mapping uses `CreateRaw` on the module.
 - The commented-out `UPackage::Save` call indicates intent to save packages directly; the active path instead relies on `PromptForCheckoutAndSave` (may silently require user confirmation in the save dialog).
 
-## 6. Konfiguracja (.ini)
+## 6. Configuration (.ini)
 
 `Config/FilterPlugin.ini` — contains only the `[FilterPlugin]` section with the stock comment block (paths-relative packaging wildcards helper); **no actual entries**. Effectively unused.
 
@@ -223,7 +223,7 @@ No other `.ini` config is present. All configuration is hard-coded in C++:
 - Default fact value: `0` (`DefaultFactValue` in `ZWQuestFactBaseSubsystem.h`).
 - Engine Slate content root for icons; no plugin-owned icon resources are referenced by code (the unused `Resources/Icon128.png` / `PlaceholderButtonIcon.svg` remain packaged).
 
-## 7. Zależności wewnątrz ZWSuite
+## 7. Dependencies within ZWSuite
 
 - `ZWQuestFactBaseEditor.Build.cs` publicly declares `"ZWQuestFactBase"` — the only intra-plugin (and intra-ZWSuite-shared namespace) dependency documented here.
 - No other `ZW*` modules or headers are included; the plugin is self-contained apart from engine modules (`Core`, `CoreUObject`, `Engine`, `Slate(SlateCore)`, `Projects`, `InputCore`, `ToolMenus`, `AssetRegistry`, `PropertyEditor`, `UnrealEd`, `EditorFramework`, `EditorScriptingUtilities`, `FileHelpers`, `EditorAssetLibrary`, `ObjectEditorUtils`, `SavePackage`, `Starship`-engine Slate assets for icons).
@@ -231,7 +231,7 @@ No other `.ini` config is present. All configuration is hard-coded in C++:
 - Facts are consumed via `UZWQuestFactBaseSubsystem` from any `GameInstance`; the subsystem registers from the Asset Registry classes list, so any Blueprints-derived `UZWQuestFact` subclasses in the project are also discovered (GetAssetsByClass is recursive `true`).
 - Cross-plugin consumers (e.g., other ZWSuite plugins) would bind to `OnFactValueChanged` / call `GetFactValue` / `SetFactValue` — no such consumer is present in this source tree (brak in-tree consumers).
 
-## 8. Uwagi / ryzyka (Notes / Risks)
+## 8. Notes / Risks
 
 1. **`GetFacts()` accumulates unboundedly** — every call appends the full `QuestFacts` list onto `FactsToPrint` (duplicates grow on repeated calls; the member is never cleared). Blueprint consumers will see stale duplicated data.
 2. **Raw `new` / deleted FZWQuestFactData** — `QuestFacts` owns `FZWQuestFactData*` allocated with `new`; there is no dtor cleanup (`Deinitialize` is empty) → leak per GameInstance, and the subsystem holds dangling pointers if not torn down before facts.

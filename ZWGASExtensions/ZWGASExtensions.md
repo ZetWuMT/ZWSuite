@@ -1,6 +1,6 @@
-# ZWGASExtensions — Dokumentacja techniczna (Technical Documentation)
+# ZWGASExtensions — Technical Documentation
 
-## 1. Przegląd (Overview)
+## 1. Overview
 
 **ZWGASExtensions** is a small Unreal Engine plugin in the ZWSuite family that extends Epic's **Gameplay Ability System (GAS)** — specifically the `AbilitySystemComponent` — to wire GAS ability activation directly into the **ZWInput** input-tag system.
 
@@ -15,7 +15,7 @@ Key facts:
 - `CanContainContent: true` (may ship assets), though no Content directory currently exists in the source tree (only `Resources/Icon128.png`).
 - Module-level `StartupModule` / `ShutdownModule` are empty stubs (default plugin template code); all real logic lives in the component class.
 
-## 2. Metadane (.uplugin)
+## 2. Metadata (.uplugin)
 
 Source: `ZWGASExtensions.uplugin`
 
@@ -51,7 +51,7 @@ Source: `ZWGASExtensions.uplugin`
 
 Resources: `Resources/Icon128.png` (plugin icon). No other assets ship in this plugin.
 
-## 3. Podmoduły (Build.cs)
+## 3. Modules (Build.cs)
 
 Single module: `Source/ZWGASExtensions/ZWGASExtensions.Build.cs`, class `ZWGASExtensions : ModuleRules`.
 
@@ -120,7 +120,7 @@ UPROPERTY members: **none** (the class exposes no replicated data, no config, no
 
 There are no other public headers, no enums, no structs, no interfaces, no delegates declared in this plugin.
 
-## 5. Implementacja (Private)
+## 5. Implementation (Private)
 
 Private sources live under `Source/ZWGASExtensions/Private/`:
 
@@ -171,11 +171,11 @@ Implementation details worth noting:
 
 Standard module boilerplate: declares `LOCTEXT_NAMESPACE "FZWGASExtensionsModule"` (undefined at the end) and empty `StartupModule` / `ShutdownModule` implementations. Registered with `IMPLEMENT_MODULE(FZWGASExtensionsModule, ZWGASExtensions)`. No init-time work is performed — the plugin has no global state, no delegates, no settings objects registered at startup.
 
-## 6. Konfiguracja (.ini)
+## 6. Configuration (.ini)
 
 **brak** — the plugin contains no `Config/` directory, no `.ini` files, no `UDeveloperSettings` class, and no config-property (`config=`, `Config`/`GlobalUserConfig` UPROPERTY) usage anywhere in the code. All behavior is hardcoded in `UZWAbilitySystemComponent`; nothing is user-configurable short of subclassing in C++.
 
-## 7. Zależności wewnątrz ZWSuite
+## 7. Dependencies within ZWSuite
 
 - **`ZWInput` (hard dependency, both `.uplugin` and Build.cs)**: `UZWAbilitySystemComponent` directly consumes:
   - `UZWInputComponent` (class from ZWInput) — resolved either via `GetComponentByClass` on the PlayerController or via casting the controller's `InputComponent`.
@@ -185,7 +185,7 @@ Standard module boilerplate: declares `LOCTEXT_NAMESPACE "FZWGASExtensionsModule
 - **Other ZWSuite plugins**: none referenced. No other `ZW*` headers or symbols appear anywhere in this plugin.
 - The forward-declared `UZWAbilitiesConfig` in the public header suggests an intended link to a config class (possibly from another ZWSuite plugin or planned here), but it is **unused and unresolved by any current file in this plugin** — nothing in the build script suggests a hidden dependency either.
 
-## 8. Uwagi / ryzyka
+## 8. Notes / Risks
 
 - **Delegate mismatch on cleanup**: `OnPlayerControllerSet()` binds to `OnInputTagSimpleTriggered`, but `OnComponentDestroyed()` clears `OnInputTagTriggered`. If these are distinct delegates in `UZWInputComponent`, the destructor does **not** actually remove the `HandleInputTag` binding → potential dangling delegate callback / use-after-destroy risk when the ASC is destroyed while the PlayerController (and its input component) outlives it. Highly likely a bug; verify against `ZWInput`'s `UZWInputComponent` header and unify the delegate names (or call `RemoveAll` on the same delegate that was bound).
 - **Inconsistent input-component lookup**: the bind path uses `GetComponentByClass<UZWInputComponent>()` (a component on the controller), the cleanup path uses `Cast<UZWInputComponent>(PlayerController->InputComponent)` (the legacy inline input slot). If `UZWInputComponent` lives as a component but is not also assigned to `PlayerController->InputComponent`, the cleanup `RemoveAll` becomes a no-op — further weakening the destructor path.
@@ -197,7 +197,7 @@ Standard module boilerplate: declares `LOCTEXT_NAMESPACE "FZWGASExtensionsModule
 - **`TryActivateAbilitiesByTag` semantics**: wraps the single tag in a one-element container and relies on the default (non-exact-match) matching behavior; if an ability has a broader activation-owned tag set, unexpected activations may occur. Consider whether exact-match (`FGameplayTagContainers` exact param) is intended.
 - **No tests, no editor-only module, no Content assets**: the plugin ships `Icon128.png` only. There is no CI/test coverage present in the source tree.
 
-## 9. Podsumowanie rozmiaru / widełki
+## 9. Size / scope summary
 
 - Plugin files: `.uplugin` (1), `Build.cs` (1), public headers (2), private sources (2), icon (1) = 7 files.
 - Modules: 1 runtime module (`ZWGASExtensions`, LoadingPhase Default).

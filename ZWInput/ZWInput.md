@@ -1,6 +1,6 @@
-# ZWInput — Dokumentacja techniczna (EN)
+# ZWInput — Technical Documentation
 
-## 1. Przegląd
+## 1. Overview
 
 ZWInput is a small, runtime-only Unreal Engine plugin inside the ZWSuite family that provides a **decoupled input framework on top of EnhancedInput**. Instead of binding code directly to `UInputAction` assets, it introduces a tag-driven indirection layer:
 
@@ -11,7 +11,7 @@ ZWInput is a small, runtime-only Unreal Engine plugin inside the ZWSuite family 
 
 The plugin is minimal: 1 module, 3 game-facing classes (module class, settings, component), no editor-only code beyond editor settings metadata, and no .ini files of its own (`Config=Game` settings are written to the project's `DefaultGame.ini` by the editor, not shipped in the plugin).
 
-## 2. Metadane (.uplugin)
+## 2. Metadata (.uplugin)
 
 Source: `ZWInput.uplugin`
 
@@ -48,7 +48,7 @@ Source: `ZWInput.uplugin`
 
 Resource assets: `Resources/Icon128.png` (plugin icon).
 
-## 3. Podmoduły (Build.cs)
+## 3. Modules (Build.cs)
 
 Single build module: `Source/ZWInput/ZWInput.Build.cs`, class `ZWInput : ModuleRules`.
 
@@ -115,7 +115,7 @@ Key API characteristics:
 - Loose vs. exact tags: generic broadcast path accepts any valid tag; native binding requires `MatchesTagExact`.
 - The component must have `InitializeInput()` called by the owner (no automatic binding in constructor / `BeginPlay` override — the .cpp contains only the constructor and the three methods above).
 
-## 5. Implementacja (Private)
+## 5. Implementation (Private)
 
 `Source/ZWInput/Private/`:
 
@@ -130,7 +130,7 @@ Key API characteristics:
 
 There are **no** other .cpp files, no editor module, no `log` categories defined (all logging is `LogTemp`), and no `BeginPlay`/`SetupInputComponent` overrides in the plugin — binding is opt-in via `InitializeInput()`.
 
-## 6. Konfiguracja (.ini)
+## 6. Configuration (.ini)
 
 **brak** — the plugin ships no .ini files (no `Config/*.ini` in the tree). Runtime configuration is:
 - `UZWInputSettings` declared `UCLASS(Config=Game, defaultconfig)`, so its `InputConfig` property persists to the project's `DefaultGame.ini` under the `[DEFAULTCLASSPATH]`-style generated `/Script/ZWInput.ZWInputSettings` section (file name depends on user's project), and
@@ -138,7 +138,7 @@ There are **no** other .cpp files, no editor module, no `log` categories defined
 
 No console variables, config-only classes, or engine-scan-time config registration beyond `UDeveloperSettings`'s built-in behavior.
 
-## 7. Zależności wewnątrz ZWSuite
+## 7. Dependencies within ZWSuite
 
 | Dependency | Direction | Source |
 |---|---|---|
@@ -148,7 +148,7 @@ No console variables, config-only classes, or engine-scan-time config registrati
 | **UStateTree** | Engine `StateTreeModule` type is forward-declared in `ZWInputSettings.h` but **unused** in the header — vestigial / planned integration point. |
 | **UZWInputConfig_Old** | Forward-declared legacy config type in `ZWInputSettings.h`, **unused** — indicates a deprecated vZwInputConfig type retained for reference/refactoring backwards. |
 
-## 8. Uwagi / ryzyka
+## 8. Notes / Risks
 
 - **Hard dependency on ZWCore**: without ZWCore the Build.cs will fail to link (`ZWInputConfig.h` include path resolves into the ZWCore module's Public directory). Count: 1 required sibling plugin.
 - **Synchronous asset loads**: `LoadSynchronous()` in `InitializeInput()`, `BindNativeAction()` and `GetInputConfigAsset()` — on the main thread; acceptable for small configs but can hitch on large config asset chains / streaming levels.

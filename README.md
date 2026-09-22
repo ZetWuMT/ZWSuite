@@ -1,40 +1,45 @@
-# ZWSuite — Dokumentacja techniczna pluginów
+# ZWSuite — Plugin Technical Documentation
 
-Autor: Lee Min-chae (Hermes) — 2026-09-22
-Źródło: `/opt/data/projectx/ZWSuite-src/` (zrekonstruowane z workspace P4 `//Felix/Felix.Main/Felix/Plugins/ZW`)
-Moduły dokumentacji: 13 pluginów, ~356 KB markdown.
+Author: Lee Min-chae (Hermes) — 2026-09-22
+Source: `/opt/data/projectx/ZWSuite-src/` (reconstructed from the Perforce workspace `//Felix/Felix.Main/Felix/Plugins/ZW`; missing plugins ZWStateTree / ZWUIInputBridge pulled from the GitHub repo tree)
+Documentation scope: 15 plugins, 15 markdown files.
 
-## Spis pluginów
+## Plugin index
 
-| # | Plugin | Plik | Klasy | Moduły |
-|---|--------|------|-------|--------|
+| # | Plugin | File | Classes | Modules |
+|---|--------|------|---------|---------|
 | 1 | ZWCore | `ZWCore.md` | 3 | 1 |
 | 2 | ZWDialogueSystem | `ZWDialogueSystem.md` | 22 | 5 |
 | 3 | ZWGASExtensions | `ZWGASExtensions.md` | 2 | 1 |
 | 4 | ZWGameplayActions | `ZWGameplayActions.md` | 6 | 2 |
 | 5 | ZWInput | `ZWInput.md` | 3 | 1 |
 | 6 | ZWInputStateTree | `ZWInputStateTree.md` | 5 | 1 |
-| 7 | ZWInteraction | `ZWInteraction.md` | 9 | 1 |
-| 8 | ZWInventory | `ZWInventory.md` | 25 | 2 |
-| 9 | ZWQuestFactBase | `ZWQuestFactBase.md` | 13 | 2 |
-| 10 | ZWScatteringTool | `ZWScatteringTool.md` | 11 | 1 |
-| 11 | ZWUICore | `ZWUICore.md` | 10 | 1 |
-| 12 | ZWUIHUD | `ZWUIHUD.md` | 4 | 1 |
-| 13 | ZWUIStateTree | `ZWUIStateTree.md` | 11 | 1 |
+| 7 | ZWStateTree | `ZWStateTree.md` | 4 | 1 |
+| 8 | ZWInteraction | `ZWInteraction.md` | 9 | 1 |
+| 9 | ZWInventory | `ZWInventory.md` | 25 | 2 |
+| 10 | ZWQuestFactBase | `ZWQuestFactBase.md` | 13 | 2 |
+| 11 | ZWScatteringTool | `ZWScatteringTool.md` | 11 | 1 |
+| 12 | ZWUICore | `ZWUICore.md` | 10 | 1 |
+| 13 | ZWUIHUD | `ZWUIHUD.md` | 4 | 1 |
+| 14 | ZWUIInputBridge | `ZWUIInputBridge.md` | 1 | 1 |
+| 15 | ZWUIStateTree | `ZWUIStateTree.md` | 11 | 1 |
 
-Każdy dokument ma spójną strukturę (8 sekcji): Overview / Metadata (.uplugin) / Sub-modules (Build.cs) / Public API / Implementation (Private) / Configuration (.ini) / Dependencies within ZWSuite / Notes & risks.
+Every document follows a consistent 8-section structure: Overview / Metadata (.uplugin) / Modules (Build.cs) / Public API / Implementation (Private) / Configuration (.ini) / Dependencies within ZWSuite / Notes & Risks.
 
-## Zależności wewnątrz suite (skrót)
-- **ZWCore** — najniższy poziom: data asset `UZWInputConfig` (InputAction→InputTag mapowanie). Używany przez ZWInput.
-- **ZWInput** → ZWCore, EnhancedInput; tagiem steruje bindingi.
-- **ZWInputStateTree** → ZWInput (+ StateTree), ZWGameplayActions; stan-to-maszyna inputu.
-- **ZWGASExtensions** → ZWInput; most między tagami input a GAS (`HandleInputTag`→`TryActivateAbilitiesByTag`).
-- **ZWGameplayActions** → EnhancedInput; asset actions + ActionManagerComponent (gotowe pero ryzykowne: brak replikacji).
-- **ZWInteraction** → detekcja interakcji (sphere-trace, scene capture), FSM inspekcji; zależny od wspólnych tagów.
-- **ZWInventory** → ZWInteraction; system przedmiotów, FastArray replikacja, SaveGame.
-- **ZWScatteringTool** → ZWInventory, ZWInteraction; scatterer/probe (loot + enemies).
-- **ZWUICore** → ZWCore; routing paneli, warstwy root layout.
-- **ZWUIHUD** → ZWUICore; HUD.
-- **ZWUIStateTree** → ZWUICore (+ StateTree); state-machine UI.
-- **ZWQuestFactBase** → baza faktów questowych, subsystem + edytor.
-- **ZWDialogueSystem** → największy; dialogi, choice system, audio generator, MovieScene track.
+## Dependency map within the suite (summary)
+
+- **ZWCore** — lowest level: `UZWInputConfig` data asset (InputAction→InputTag mapping). Consumed by ZWInput.
+- **ZWInput** → ZWCore, EnhancedInput; tag-driven input binding.
+- **ZWStateTree** — abstract `UZWStateTreeSubsystemBase` foundation (LocalPlayerSubsystem + FTickableGameObject, pure-virtual asset/context hooks). Intended base for ZWInputStateTree, but not yet wired up there.
+- **ZWInputStateTree** → ZWInput (+ StateTree), ZWGameplayActions; state-machine-driven input.
+- **ZWGASExtensions** → ZWInput; bridge between input tags and GAS (`HandleInputTag` → `TryActivateAbilitiesByTag`).
+- **ZWGameplayActions** → EnhancedInput; asset actions + `UZWActionManagerComponent` (note: no replication).
+- **ZWInteraction** → interaction detection (sphere-trace, scene capture), investigation FSM.
+- **ZWInventory** → ZWInteraction; item system, FastArray replication, SaveGame.
+- **ZWScatteringTool** → ZWInventory, ZWInteraction; scatterer/probe (loot + enemy spawns).
+- **ZWUICore** → ZWCore; panel routing, root-layout layers.
+- **ZWUIHUD** → ZWUICore; HUD elements.
+- **ZWUIInputBridge** → ZWInput, ZWUICore; runtime-only startup copy of input config into UI settings.
+- **ZWUIStateTree** → ZWUICore (+ StateTree); state-machine UI control.
+- **ZWQuestFactBase** — quest-fact registry, runtime subsystem + editor tree.
+- **ZWDialogueSystem** — largest plugin; dialogues, choice system, audio generator, MovieScene dialogue track.
